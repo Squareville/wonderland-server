@@ -299,7 +299,19 @@ void BehaviorContext::Interrupt()
 
 	for (const auto& entry : this->syncEntries)
 	{
-		if (!entry.ignoreInterrupts) continue;
+		if (!entry.ignoreInterrupts) {
+			for (const auto& timer : this->timerEntries) {
+				if (timer.behavior == entry.behavior) {
+					entry.behavior->Timer(this, entry.branchContext, timer.second);
+				}
+			}
+
+			for (const auto& end : this->endEntries) {
+				if (end.behavior == entry.behavior) {
+					end.behavior->End(this, entry.branchContext, end.second);
+				}
+			}
+		}
 
 		keptSync.push_back(entry);
 	}
