@@ -324,7 +324,7 @@ void BehaviorContext::Reset()
 	this->scheduledUpdates.clear();
 }
 
-std::vector<LWOOBJID> BehaviorContext::GetValidTargets(int32_t ignoreFaction, int32_t includeFaction, bool targetSelf) const
+std::vector<LWOOBJID> BehaviorContext::GetValidTargets(int32_t ignoreFaction, int32_t includeFaction, bool targetSelf, bool targetEnemy, bool targetFriend) const
 {
 	auto* entity = EntityManager::Instance()->GetEntity(this->caster);
 
@@ -365,7 +365,7 @@ std::vector<LWOOBJID> BehaviorContext::GetValidTargets(int32_t ignoreFaction, in
 		{
 			const auto id = candidate->GetObjectID();
 			
-			if ((id != entity->GetObjectID() || targetSelf) && destroyableComponent->CheckValidity(id, ignoreFaction || includeFaction))
+			if ((id != entity->GetObjectID() || targetSelf) && destroyableComponent->CheckValidity(id, ignoreFaction || includeFaction, targetEnemy, targetFriend))
 			{
 				targets.push_back(id);
 			}

@@ -5,7 +5,7 @@
 #include <map>
 #include <string>
 #include <thread>
-#include <filesystem>
+#include <fstream>
 
 #ifdef _WIN32
 #include <bcrypt/BCrypt.hpp>
@@ -63,6 +63,7 @@ int main(int argc, char** argv) {
 	//Triggers the shutdown sequence at application exit
 	std::atexit(ShutdownSequence);
 	signal(SIGINT, [](int) { ShutdownSequence(); });
+	signal(SIGTERM, [](int) { ShutdownSequence(); });
 
 	//Create all the objects we need to run our service:
 	Game::logger = SetupLogger();
@@ -80,10 +81,12 @@ int main(int argc, char** argv) {
 
 	//Check CDClient exists
 	const std::string cdclient_path = "./res/CDServer.sqlite";
-	if (!std::filesystem::is_regular_file(cdclient_path)) {
-		Game::logger->Log("WorldServer", "%s does not exist\n", cdclient_path.c_str());
+	std::ifstream cdclient_fd(cdclient_path);
+	if (!cdclient_fd.good()) {
+		Game::logger->Log("WorldServer", "%s could not be opened\n", cdclient_path.c_str());
 		return -1;
 	}
+	cdclient_fd.close();
 
 	//Connect to CDClient
 	try {
