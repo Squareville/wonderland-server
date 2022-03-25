@@ -483,10 +483,11 @@ void SkillComponent::SyncProjectileCalculation(const ProjectileSyncEntry& entry)
 
 void SkillComponent::HandleUnmanaged(const uint32_t behaviorId, const LWOOBJID target, LWOOBJID source)
 {
-	auto* context = new BehaviorContext(source);
+	auto* context = new BehaviorContext(target);
 
 	context->unmanaged = true;
 	context->caster = target;
+	context->originator = source;
 
 	auto* behavior = Behavior::CreateBehavior(behaviorId);
 

@@ -300,7 +300,6 @@ void BehaviorContext::Interrupt()
 	for (const auto& entry : this->syncEntries)
 	{
 		if (!entry.ignoreInterrupts) continue;
-
 		keptSync.push_back(entry);
 	}
 	

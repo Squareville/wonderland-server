@@ -5890,6 +5890,7 @@ void GameMessages::HandleReportBug(RakNet::BitStream* inStream, Entity* entity) 
 	std::string nOtherPlayerID;
 	std::string selection;
 	uint32_t messageLength;
+	int32_t reporterID;
 
 	//Reading:
 	inStream->Read(messageLength);
@@ -5899,6 +5900,9 @@ void GameMessages::HandleReportBug(RakNet::BitStream* inStream, Entity* entity) 
 		inStream->Read(character);
 		body.push_back(character);
 	}
+
+	auto character = entity->GetCharacter();
+	if (character) reporterID = character->GetID();
 
 	uint32_t clientVersionLength;
 	inStream->Read(clientVersionLength);
@@ -5915,7 +5919,19 @@ void GameMessages::HandleReportBug(RakNet::BitStream* inStream, Entity* entity) 
 		inStream->Read(character);
 		nOtherPlayerID.push_back(character);
 	}
-
+	// Convert other player id from LWOOBJID to the database id.
+	std::istringstream iss(nOtherPlayerID);
+	LWOOBJID nOtherPlayerLWOOBJID;
+	iss >> nOtherPlayerLWOOBJID;
+	if (nOtherPlayerLWOOBJID != LWOOBJID_EMPTY) {
+		auto otherPlayer = EntityManager::Instance()->GetEntity(nOtherPlayerLWOOBJID);
+		if (otherPlayer) {
+			auto character = otherPlayer->GetCharacter();
+			if (character) {
+				nOtherPlayerID = std::to_string(character->GetID());
+			}
+		}
+	}
 	uint32_t selectionLength;
 	inStream->Read(selectionLength);
 	for (unsigned int k = 0; k < selectionLength; k++) {
@@ -5925,11 +5941,12 @@ void GameMessages::HandleReportBug(RakNet::BitStream* inStream, Entity* entity) 
 	}
 
 	try {
-		sql::PreparedStatement* insertBug = Database::CreatePreppedStmt("INSERT INTO `bug_reports`(body, client_version, other_player_id, selection) VALUES (?, ?, ?, ?)");
+		sql::PreparedStatement* insertBug = Database::CreatePreppedStmt("INSERT INTO `bug_reports`(body, client_version, other_player_id, selection, reporter_id) VALUES (?, ?, ?, ?, ?)");
 		insertBug->setString(1, GeneralUtils::UTF16ToWTF8(body));
 		insertBug->setString(2, clientVersion);
 		insertBug->setString(3, nOtherPlayerID);
 		insertBug->setString(4, selection);
+		insertBug->setInt(5, reporterID);
 		insertBug->execute();
 		delete insertBug;
 	}
