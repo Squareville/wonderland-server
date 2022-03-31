@@ -10,15 +10,12 @@
 #include "dCommonVars.h"
 #include "Database.h"
 #include "dLogger.h"
-#include "dConfig.h"
-#include "Database.h"
 #include "Game.h"
 
 using namespace dChatFilterDCF;
 
 dChatFilter::dChatFilter(const std::string& filepath, bool dontGenerateDCF) {
 	m_DontGenerateDCF = dontGenerateDCF;
-	m_UseWhitelist = bool(std::stoi(Game::config->GetValue("use_chat_words_as_whitelist")));
 
 	if (!BinaryIO::DoesFileExist(filepath + ".dcf") || m_DontGenerateDCF) {
 		ReadWordlistPlaintext(filepath + ".txt");
@@ -119,21 +116,12 @@ bool dChatFilter::IsSentenceOkay(const std::string& message, int gmLevel) {
 		size_t hash = CalculateHash(segment);
 
 		if (std::find(m_UserUnapprovedWordCache.begin(), m_UserUnapprovedWordCache.end(), hash) != m_UserUnapprovedWordCache.end()) {
-			// found word that isn't ok, just deny this code works for both white and black list
 			return false;
 		}
 
 		if (!IsInWordlist(hash)) {
-			if (m_UseWhitelist) {
+			m_UserUnapprovedWordCache.push_back(hash);
 			return false;
-				m_UserUnapprovedWordCache.push_back(hash);
-				return false;
-			}
-		} else {
-			if (!m_UseWhitelist) {
-				m_UserUnapprovedWordCache.push_back(hash);
-				return false;
-			}
 		}
 	}
 
