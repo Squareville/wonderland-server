@@ -1371,6 +1371,66 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 		return;
 	}
 
+	if (chatCommand == "killinstance" && args.size() >= 2 && entity->GetGMLevel() >= GAME_MASTER_LEVEL_DEVELOPER)
+	{	
+	uint32_t zoneID;
+	uint32_t instanceID;
+
+	if (!GeneralUtils::TryParse(args[0], zoneID))
+	{
+		ChatPackets::SendSystemMessage(sysAddr, u"Invalid zoneID.");
+		return;
+	}	
+
+	if (!GeneralUtils::TryParse(args[1], instanceID))
+	{
+		ChatPackets::SendSystemMessage(sysAddr, u"Invalid cloneID.");
+		return;
+	}
+
+	CBITSTREAM
+
+	PacketUtils::WriteHeader(bitStream, MASTER, MSG_MASTER_SHUTDOWN_INSTANCE);
+
+	bitStream.Write(zoneID);
+	bitStream.Write<uint16_t>(instanceID);
+
+	Game::server->SendToMaster(&bitStream);
+	
+	Game::logger->Log("Instance", "Triggered world shutdown\n");
+	}
+
+	if (chatCommand == "getinstances" && entity->GetGMLevel() >= GAME_MASTER_LEVEL_DEVELOPER)
+	{
+		CBITSTREAM
+
+		PacketUtils::WriteHeader(bitStream, MASTER, MSG_MASTER_GET_INSTANCES);
+
+		bitStream.Write(entity->GetObjectID());
+
+		if (args.size() >= 1) {
+			uint32_t zoneID;
+			if (!GeneralUtils::TryParse(args[0], zoneID))
+			{
+				ChatPackets::SendSystemMessage(sysAddr, u"Invalid zoneID");
+				return;
+			}
+			bitStream.Write(zoneID >= 0);
+			if (zoneID >= 0) {
+				bitStream.Write<uint16_t>(zoneID);
+			}
+		} else {
+			bitStream.Write0();
+		}
+
+		const auto zoneId = dZoneManager::Instance()->GetZone()->GetZoneID();
+
+		bitStream.Write(zoneId.GetMapID());
+		bitStream.Write(zoneId.GetInstanceID());
+
+		Game::server->SendToMaster(&bitStream);
+	}
+
 	if (chatCommand == "gmimmune" && args.size() >= 1 && entity->GetGMLevel() >= GAME_MASTER_LEVEL_DEVELOPER)
 	{
 		auto* destroyableComponent = entity->GetComponent<DestroyableComponent>();
