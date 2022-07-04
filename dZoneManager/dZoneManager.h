@@ -4,7 +4,7 @@
 #include "Spawner.h"
 #include <map>
 
-// class RandomQBManager;
+class RandomQBManager;
 
 class dZoneManager {
 public:
@@ -23,10 +23,10 @@ public:
 		if (!m_Address) {
 			m_Address = new dZoneManager();
 		}
-		
+
 		return m_Address;
 	}
-	
+
 	void Initialize(const LWOZONEID& zoneID);
 	~dZoneManager();
 
@@ -56,7 +56,7 @@ private:
 	 * The ratio of LEGO Score to currency when the character has hit the max level.
 	 */
 	int32_t m_CurrencyConversionRate = 0;
-	
+
     static dZoneManager* m_Address; //Singleton
 	Zone* m_pZone;
 	LWOZONEID m_ZoneID;
@@ -64,5 +64,5 @@ private:
     std::map<LWOOBJID, Spawner*> m_Spawners;
 
 	Entity* m_ZoneControlObject;
-	// RandomQBManager* m_RandomQBManager;
+	RandomQBManager* m_RandomQBManager;
 };

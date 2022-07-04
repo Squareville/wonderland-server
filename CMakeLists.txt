@@ -314,6 +314,7 @@ target_link_libraries(dDatabase mariadbConnCpp)
 target_link_libraries(dNet dDatabase)
 target_link_libraries(dGame dDatabase)
 target_link_libraries(dChatFilter dDatabase)
+target_link_libraries(dZoneManager dGame)
 
 if(WIN32)
 target_link_libraries(raknet ws2_32)
