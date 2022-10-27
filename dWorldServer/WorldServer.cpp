@@ -1007,7 +1007,7 @@ void HandlePacket(Packet* packet) {
 					GameMessages::SendPlayerReachedRespawnCheckpoint(player, respawnPoint, NiQuaternion::IDENTITY);
 				}
 
-				EntityManager::Instance()->ConstructAllEntities(packet->systemAddress);
+				// EntityManager::Instance()->ConstructAllEntities(packet->systemAddress);
 
 				auto* characterComponent = player->GetComponent<CharacterComponent>();
 				if (characterComponent) {

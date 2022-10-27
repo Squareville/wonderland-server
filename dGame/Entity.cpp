@@ -1042,31 +1042,6 @@ void Entity::WriteComponents(RakNet::BitStream* outBitStream, eReplicaPacketType
 
 	CharacterComponent* characterComponent;
 	if (TryGetComponent(COMPONENT_TYPE_CHARACTER, characterComponent)) {
-
-		PossessorComponent* possessorComponent;
-		if (TryGetComponent(COMPONENT_TYPE_POSSESSOR, possessorComponent)) {
-			possessorComponent->Serialize(outBitStream, bIsInitialUpdate, flags);
-		} else {
-			// Should never happen, but just to be safe
-			outBitStream->Write0();
-		}
-
-		LevelProgressionComponent* levelProgressionComponent;
-		if (TryGetComponent(COMPONENT_TYPE_LEVEL_PROGRESSION, levelProgressionComponent)) {
-			levelProgressionComponent->Serialize(outBitStream, bIsInitialUpdate, flags);
-		} else {
-			// Should never happen, but just to be safe
-			outBitStream->Write0();
-		}
-
-		PlayerForcedMovementComponent* playerForcedMovementComponent;
-		if (TryGetComponent(COMPONENT_TYPE_PLAYER_FORCED_MOVEMENT, playerForcedMovementComponent)) {
-			playerForcedMovementComponent->Serialize(outBitStream, bIsInitialUpdate, flags);
-		} else {
-			// Should never happen, but just to be safe
-			outBitStream->Write0();
-		}
-
 		characterComponent->Serialize(outBitStream, bIsInitialUpdate, flags);
 	}
 

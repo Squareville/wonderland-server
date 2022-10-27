@@ -36,13 +36,10 @@ void AuthPackets::SendHandshake(dServer* server, const SystemAddress& sysAddr, c
 	RakNet::BitStream bitStream;
 	PacketUtils::WriteHeader(bitStream, SERVER, MSG_SERVER_VERSION_CONFIRM);
 	bitStream.Write<unsigned int>(NET_VERSION);
-	bitStream.Write(uint32_t(0x93));
+	bitStream.Write(uint32_t(0x00));
 
 	if (nextServerPort == 1001) bitStream.Write(uint32_t(1)); //Conn: auth
 	else bitStream.Write(uint32_t(4)); //Conn: world
-
-	bitStream.Write(uint32_t(0)); //Server process ID
-	bitStream.Write(nextServerPort);
 
 	server->Send(&bitStream, sysAddr, false);
 }
@@ -234,10 +231,6 @@ void AuthPackets::SendLoginResponse(dServer* server, const SystemAddress& sysAdd
 	packet.Write(static_cast<uint8_t>(false));      // User first logged in?
 	packet.Write(static_cast<uint8_t>(false));      // User is F2P?
 	packet.Write(static_cast<uint64_t>(0));         // ???
-
-	// Write custom error message
-	packet.Write(static_cast<uint16_t>(errorMsg.length()));
-	PacketUtils::WritePacketWString(errorMsg, static_cast<uint32_t>(errorMsg.length()), &packet);
 
 	// Here write auth logs
 	packet.Write(static_cast<uint32_t>(20));

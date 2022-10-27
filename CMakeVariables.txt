@@ -4,9 +4,11 @@ PROJECT_VERSION_PATCH=4
 # LICENSE
 LICENSE=AGPL-3.0
 # The network version.
+# 171024 - Wonderland client
 # 171023 - Darkflame Universe client
 # 171022 - Unmodded client
-NET_VERSION=171024
+# 10883 - Luptop Release client
+NET_VERSION=10883
 # Debugging
 __dynamic=1
 # Set __dynamic to 1 to enable the -rdynamic flag for the linker, yielding some symbols in crashlogs.

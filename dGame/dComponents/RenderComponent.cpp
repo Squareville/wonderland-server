@@ -93,6 +93,8 @@ RenderComponent::~RenderComponent() {
 void RenderComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) {
 	if (!bIsInitialUpdate) return;
 
+	m_Effects = std::vector<Effect*>();
+
 	outBitStream->Write<uint32_t>(m_Effects.size());
 
 	for (Effect* eff : m_Effects) {

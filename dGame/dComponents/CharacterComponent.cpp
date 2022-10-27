@@ -70,10 +70,12 @@ CharacterComponent::~CharacterComponent() {
 void CharacterComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) {
 
 	if (bIsInitialUpdate) {
+		/*outBitStream->Write0();
 		outBitStream->Write0();
 		outBitStream->Write0();
-		outBitStream->Write0();
-		outBitStream->Write0();
+		outBitStream->Write0();*/
+
+		outBitStream->Write<uint64_t>(0);
 
 		outBitStream->Write(m_Character->GetHairColor());
 		outBitStream->Write(m_Character->GetHairStyle());
@@ -140,7 +142,7 @@ void CharacterComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInit
 	}
 
 	outBitStream->Write(m_DirtyCurrentActivity);
-	if (m_DirtyCurrentActivity) outBitStream->Write(m_CurrentActivity);
+	outBitStream->Write(m_CurrentActivity);
 
 	outBitStream->Write(m_DirtySocialInfo);
 	if (m_DirtySocialInfo) {
@@ -152,6 +154,8 @@ void CharacterComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInit
 		outBitStream->Write(m_IsLEGOClubMember);
 		outBitStream->Write(m_CountryCode);
 	}
+
+	outBitStream->Write0();
 }
 
 bool CharacterComponent::GetPvpEnabled() const {
