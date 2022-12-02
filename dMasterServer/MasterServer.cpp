@@ -276,7 +276,7 @@ int main(int argc, char** argv) {
 	int framesSinceKillUniverseCommand = 0;
 
 	while (true) {
-		Game::logger->Log("1", "");
+		Game::logger->Log("1", "%i %i %i", framesSinceLastSQLPing, Game::im->GetInstances().size(), framesSinceLastFlush);
 		//In world we'd update our other systems here.
 
 		//Check for packets here:
