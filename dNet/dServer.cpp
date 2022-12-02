@@ -138,6 +138,7 @@ Packet* dServer::ReceiveFromMaster() {
 }
 
 Packet* dServer::Receive() {
+	if (mServerType == ServerType::Master) mLogger->Log("dServer", "%i %i", mPeer->IsActive(), mPeer->NumberOfConnections());
 	return mPeer->Receive();
 }
 
