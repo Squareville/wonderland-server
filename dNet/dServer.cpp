@@ -10,6 +10,7 @@
 #include "dMessageIdentifiers.h"
 #include "MasterPackets.h"
 #include "ZoneInstanceManager.h"
+#include "PacketLogger.h"
 
 //! Replica Constructor class
 class ReplicaConstructor : public ReceiveConstructionInterface {
@@ -102,7 +103,7 @@ Packet* dServer::ReceiveFromMaster() {
 		if (packet->length < 1) { mMasterPeer->DeallocatePacket(packet); return nullptr; }
 
 		if (packet->data[0] == ID_DISCONNECTION_NOTIFICATION || packet->data[0] == ID_CONNECTION_LOST) {
-			mLogger->Log("dServer", "Lost our connection to master, shutting DOWN!");
+			mLogger->Log("dServer", "%s Lost our connection to master, shutting DOWN!", PacketLogger::BaseIDTOString(packet->data[0]));
 			mMasterConnectionActive = false;
 			//ConnectToMaster(); //We'll just shut down now
 		}
