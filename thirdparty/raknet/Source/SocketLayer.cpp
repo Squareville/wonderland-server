@@ -52,6 +52,8 @@ static unsigned short HACK_APP_PORT;
 #include <stdio.h>
 
 #include "ExtendedOverlappedPool.h"
+#include "../../dCommon/Game.h"
+#include "../../dCommon/dLogger.h"
 
 #ifdef _MSC_VER
 #pragma warning( push )
@@ -395,6 +397,7 @@ int SocketLayer::RecvFrom( const SOCKET s, RakPeer *rakPeer, int *errorCode, uns
 
 	if ( s == (SOCKET) -1 )
 	{
+		Game::logger->Log("SocketLayer", "Socket is -1, returning -1 and ending thread");
 		*errorCode = -1;
 		return -1;
 	}
@@ -416,7 +419,7 @@ int SocketLayer::RecvFrom( const SOCKET s, RakPeer *rakPeer, int *errorCode, uns
 		printf( "Error: recvfrom returned 0 on a connectionless blocking call\non port %i.  This is a bug with Zone Alarm.  Please turn off Zone Alarm.\n", ntohs( sa.sin_port ) );
 		assert( 0 );
 #endif
-
+		Game::logger->Log("SocketLayer", "Returning error code -1 in SocketLayer due to bug with Zone Alarm.");
 		*errorCode = -1;
 		return -1;
 	}

@@ -4512,7 +4512,7 @@ bool RakPeer::RunUpdateCycle( void )
 #else
 				if ( errorCode == -1 )
 				{
-					// isRecvfromThreadActive=false;
+					// isRecvfromThreadActive=false;#####
 					endThreads = true;
 					Shutdown( 0 );
 					return false;
