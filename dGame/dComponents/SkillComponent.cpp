@@ -474,7 +474,10 @@ SkillComponent::~SkillComponent() {
 }
 
 void SkillComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) {
-	if (bIsInitialUpdate) outBitStream->Write0();
+	if (bIsInitialUpdate) {
+		outBitStream->Write1();
+		outBitStream->Write<uint32_t>(0);
+	}
 }
 
 /// <summary>

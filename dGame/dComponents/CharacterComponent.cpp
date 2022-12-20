@@ -70,12 +70,7 @@ CharacterComponent::~CharacterComponent() {
 void CharacterComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) {
 
 	if (bIsInitialUpdate) {
-		/*outBitStream->Write0();
-		outBitStream->Write0();
-		outBitStream->Write0();
-		outBitStream->Write0();*/
-
-		outBitStream->Write<uint64_t>(0);
+		outBitStream->Write<uint64_t>(0); // mount maybe?
 
 		outBitStream->Write(m_Character->GetHairColor());
 		outBitStream->Write(m_Character->GetHairStyle());
@@ -87,10 +82,12 @@ void CharacterComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInit
 		outBitStream->Write(m_Character->GetEyebrows());
 		outBitStream->Write(m_Character->GetEyes());
 		outBitStream->Write(m_Character->GetMouth());
+
 		outBitStream->Write<uint64_t>(0); //AccountID, trying out if 0 works.
 		outBitStream->Write(m_Character->GetLastLogin()); //Last login
 		outBitStream->Write<uint64_t>(0); //"prop mod last display time"
 		outBitStream->Write<uint64_t>(m_Uscore); //u-score
+
 		outBitStream->Write0(); //Not free-to-play (disabled in DLU)
 
 		//Stats:
@@ -122,8 +119,9 @@ void CharacterComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInit
 		outBitStream->Write(m_RacesFinished);
 		outBitStream->Write(m_FirstPlaceRaceFinishes);
 
-		outBitStream->Write0();
+		outBitStream->Write0(); // this should be a 2 bit int for transition state, there is more than just entering world
 		outBitStream->Write(m_IsLanding);
+
 		if (m_IsLanding) {
 			outBitStream->Write(uint16_t(m_LastRocketConfig.size()));
 			for (uint16_t character : m_LastRocketConfig) {
@@ -135,8 +133,10 @@ void CharacterComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInit
 	outBitStream->Write(m_DirtyGMInfo);
 	if (m_DirtyGMInfo) {
 		outBitStream->Write(m_PvpEnabled);
+
 		outBitStream->Write(m_IsGM);
 		outBitStream->Write(m_GMLevel);
+
 		outBitStream->Write(m_EditorEnabled);
 		outBitStream->Write(m_EditorLevel);
 	}

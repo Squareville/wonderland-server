@@ -694,9 +694,9 @@ void InventoryComponent::UpdateXml(tinyxml2::XMLDocument* document) {
 }
 
 void InventoryComponent::Serialize(RakNet::BitStream* outBitStream, const bool bIsInitialUpdate, unsigned& flags) {
-	if (bIsInitialUpdate || m_Dirty) {
-		outBitStream->Write(true);
+	outBitStream->Write(bIsInitialUpdate || m_Dirty);
 
+	if (bIsInitialUpdate || m_Dirty) {
 		outBitStream->Write<uint32_t>(m_Equipped.size());
 
 		for (const auto& pair : m_Equipped) {
@@ -706,18 +706,23 @@ void InventoryComponent::Serialize(RakNet::BitStream* outBitStream, const bool b
 				AddItemSkills(item.lot);
 			}
 
+			// sub_E7B540
 			outBitStream->Write(item.id);
 			outBitStream->Write(item.lot);
 
+			// sub_FB5940
 			outBitStream->Write0();
 
+			// sub_FB59A0
 			outBitStream->Write(item.count > 0);
 			if (item.count > 0) outBitStream->Write(item.count);
 
-			outBitStream->Write(item.slot != 0);
+			// sub_FB59F0
+			outBitStream->Write(item.slot != 0); 
 			if (item.slot != 0) outBitStream->Write<uint16_t>(item.slot);
 
-			outBitStream->Write0();
+			// sub_FB59A 
+			outBitStream->Write0(); 
 
 			bool flag = !item.config.empty();
 			outBitStream->Write(flag);
@@ -744,11 +749,9 @@ void InventoryComponent::Serialize(RakNet::BitStream* outBitStream, const bool b
 		}
 
 		m_Dirty = false;
-	} else {
-		outBitStream->Write(false);
 	}
 
-	outBitStream->Write(false);
+	outBitStream->Write0();
 }
 
 void InventoryComponent::ResetFlags() {

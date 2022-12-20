@@ -111,12 +111,15 @@ void DestroyableComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsIn
 	if (m_DirtyHealth || bIsInitialUpdate) {
 		outBitStream->Write(m_iHealth);
 		outBitStream->Write(m_fMaxHealth);
+
 		outBitStream->Write(m_iArmor);
 		outBitStream->Write(m_fMaxArmor);
+
 		outBitStream->Write(m_iImagination);
 		outBitStream->Write(m_fMaxImagination);
 
 		outBitStream->Write(m_DamageToAbsorb);
+
 		outBitStream->Write(IsImmune());
 		outBitStream->Write(m_IsGMImmune);
 		outBitStream->Write(m_IsShielded);
@@ -146,14 +149,6 @@ void DestroyableComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsIn
 
 		m_DirtyHealth = false;
 	}
-
-	/*if (m_DirtyThreatList || bIsInitialUpdate) {
-		outBitStream->Write1();
-		outBitStream->Write(m_HasThreats);
-		m_DirtyThreatList = false;
-	} else {
-		outBitStream->Write0();
-	}*/
 }
 
 void DestroyableComponent::LoadFromXml(tinyxml2::XMLDocument* doc) {

@@ -58,19 +58,8 @@ void ControllablePhysicsComponent::Update(float deltaTime) {
 }
 
 void ControllablePhysicsComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) {
-	//If this is a creation, then we assume the position is dirty, even when it isn't.
-	//This is because new clients will still need to receive the position.
-	//if (bIsInitialUpdate) m_DirtyPosition = true;
-
 	if (bIsInitialUpdate) {
-		outBitStream->Write(m_InJetpackMode);
-		if (m_InJetpackMode) {
-			outBitStream->Write(m_JetpackEffectID);
-			outBitStream->Write(m_JetpackFlying);
-			outBitStream->Write(m_JetpackBypassChecks);
-		}
-
-		outBitStream->Write0(); //This contains info about immunities, but for now I'm leaving it out.
+		outBitStream->Write0();
 	}
 
 	if (m_SpeedMultiplier < 1.0f) {
@@ -91,12 +80,11 @@ void ControllablePhysicsComponent::Serialize(RakNet::BitStream* outBitStream, bo
 
 	outBitStream->Write(m_DirtyPickupRadiusScale);
 	if (m_DirtyPickupRadiusScale) {
+		outBitStream->Write1();
 		outBitStream->Write(m_PickupRadius);
 		outBitStream->Write0(); //No clue what this is so im leaving it false.
 		m_DirtyPickupRadiusScale = false;
 	}
-
-	outBitStream->Write0();
 
 	outBitStream->Write(m_DirtyPosition || bIsInitialUpdate);
 	if (m_DirtyPosition || bIsInitialUpdate) {
@@ -130,7 +118,6 @@ void ControllablePhysicsComponent::Serialize(RakNet::BitStream* outBitStream, bo
 	}
 
 	if (!bIsInitialUpdate) {
-		outBitStream->Write(m_IsTeleporting);
 		m_IsTeleporting = false;
 	}
 }

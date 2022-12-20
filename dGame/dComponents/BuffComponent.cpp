@@ -20,6 +20,7 @@ BuffComponent::~BuffComponent() {
 
 void BuffComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) {
 	if (!bIsInitialUpdate) return;
+
 	if (m_Buffs.empty()) {
 		outBitStream->Write0();
 	} else {
@@ -28,24 +29,16 @@ void BuffComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUp
 
 		for (const auto& buff : m_Buffs) {
 			outBitStream->Write<uint32_t>(buff.first);
-			outBitStream->Write0();
-			outBitStream->Write0();
-			outBitStream->Write0();
-			outBitStream->Write0();
-			outBitStream->Write0();
-			outBitStream->Write0();
-			outBitStream->Write0();
-			outBitStream->Write0();
-			outBitStream->Write0();
 
 			outBitStream->Write0();
 			outBitStream->Write0();
-
-			outBitStream->Write<uint32_t>(0);
+			outBitStream->Write0();
+			outBitStream->Write0();
+			outBitStream->Write0();
+			outBitStream->Write0();
+			outBitStream->Write0();
 		}
 	}
-
-	outBitStream->Write0();
 }
 
 void BuffComponent::Update(float deltaTime) {
