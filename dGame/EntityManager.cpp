@@ -37,7 +37,8 @@ std::vector<LWOMAPID> EntityManager::m_GhostingExcludedZones = {
 	1250,
 	1251,
 	1350,
-	1450
+	1450,
+	3200
 };
 
 // Configure some exceptions for ghosting, nessesary for some special objects.

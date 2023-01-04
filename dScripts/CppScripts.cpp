@@ -289,6 +289,7 @@
 #include "BalloonTrigger.h"
 #include "BubbleStatue.h"
 #include "SkunkBouncer.h"
+#include "SkunkEvent.h"
 
 // Frostburgh Scripts
 #include "RockHydrantBroken.h"
@@ -857,6 +858,8 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new SkunkBouncer();
 	else if (scriptName == "scripts\\ai\\YRK\\L_BALLOONTRIGGER.lua") 
 		script = new BalloonTrigger();
+	else if (scriptName == "scripts\\ai\\YRK\\L_SKUNK_EVENT.lua") 
+		script = new SkunkEvent();
 
 	// FB
 	else if (scriptName == "scripts\\ai\\NS\\WH\\L_ROCKHYDRANT_BROKEN.lua")
