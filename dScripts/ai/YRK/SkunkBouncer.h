@@ -20,9 +20,9 @@ private:
 	const uint32_t m_BouncerStinkFxEffectId = 337;
 	const uint32_t m_SkunkStinkFxEffectId = 338;
 	const std::vector<LOT> m_AdultSkunk = { 3279, 3930, 3931 };
-	const std::u16string m_SkunkEffectName = "skunkBouncer";
-	const std::u16string m_BabySkunkEffectName = "skunkBouncerBaby";
-	const std::u16string m_AdultSkunkEffectName = "skunkBouncerAdult";
+	const std::u16string m_SkunkEffectName = u"skunkBouncer";
+	const std::u16string m_BabySkunkEffectName = u"skunkBouncerBaby";
+	const std::u16string m_AdultSkunkEffectName = u"skunkBouncerAdult";
 };
 
 #endif  //!__SKUNKBOUNCER__H__
