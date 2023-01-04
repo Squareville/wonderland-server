@@ -216,6 +216,8 @@ SkillExecutionResult SkillComponent::CalculateBehavior(const uint32_t skillId, c
 
 	auto* context = new BehaviorContext(originatorOverride != LWOOBJID_EMPTY ? originatorOverride : this->m_Parent->GetObjectID(), true);
 
+	context->skillID = skillId;
+
 	context->caster = m_Parent->GetObjectID();
 
 	context->clientInitalized = clientInitalized;
@@ -450,4 +452,11 @@ void SkillComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialU
 /// <returns>Unique skill ID</returns>
 uint32_t SkillComponent::GetUniqueSkillId() {
 	return ++this->m_skillUid;
+}
+
+bool SkillComponent::HasSkill(uint32_t skillId) {
+	for (auto& context : this->m_managedBehaviors) {
+		if (context.second && context.second->skillID == skillId) return true; 
+	}
+	return false;
 }

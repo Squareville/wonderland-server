@@ -174,6 +174,15 @@ public:
 	 */
 	uint32_t GetUniqueSkillId();
 
+	/**
+	 * @brief Checks if this component has the given skill active
+	 * 
+	 * @param skillId The skillId to search for
+	 * 
+	 * @return If the component has the skill active, otherwise false.
+	 */
+	bool HasSkill(uint32_t skillId);
+
 private:
 	/**
 	 * All of the active skills mapped by their unique ID.
