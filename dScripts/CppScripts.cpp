@@ -287,6 +287,7 @@
 #include "AgSurvivalMech.h"
 #include "AgSurvivalSpiderling.h"
 #include "BalloonTrigger.h"
+#include "Balloon.h"
 #include "BubbleStatue.h"
 #include "SkunkBouncer.h"
 #include "SkunkEvent.h"
@@ -860,6 +861,8 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new BalloonTrigger();
 	else if (scriptName == "scripts\\ai\\YRK\\L_SKUNK_EVENT.lua") 
 		script = new SkunkEvent();
+	else if (scriptName == "scripts\\ai\\YRK\\L_BALLOON.LUA") 
+		script = new Balloon();
 
 	// FB
 	else if (scriptName == "scripts\\ai\\NS\\WH\\L_ROCKHYDRANT_BROKEN.lua")

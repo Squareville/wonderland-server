@@ -339,6 +339,8 @@ namespace CppScripts {
 		 * @param itemObjId The items Object ID
 		 */
 		virtual void OnFactionTriggerItemUnequipped(Entity* itemOwner, LWOOBJID itemObjId) {};
+
+		virtual void OnChildLoaded(Entity* self, Entity* child) {}; 
 	};
 
 	Script* GetScript(Entity* parent, const std::string& scriptName);

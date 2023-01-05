@@ -723,6 +723,7 @@ void Entity::Initialize() {
 		for (CppScripts::Script* script : CppScripts::GetEntityScripts(this)) {
 			script->OnStartup(this);
 		}
+		if (GetParentEntity()) GetParentEntity()->OnChildLoaded(this);
 		});
 
 	if (!m_Character && EntityManager::Instance()->GetGhostingEnabled()) {
@@ -789,6 +790,12 @@ User* Entity::GetParentUser() const {
 	}
 
 	return static_cast<const Player*>(this)->GetParentUser();
+}
+
+void Entity::OnChildLoaded(Entity* childLoaded) {
+	for (auto* script : CppScripts::GetEntityScripts(this)) {
+		script->OnChildLoaded(this, childLoaded);
+	}
 }
 
 Component* Entity::GetComponent(int32_t componentID) const {
@@ -1642,6 +1649,8 @@ void Entity::RegisterCoinDrop(uint64_t count) {
 }
 
 void Entity::AddChild(Entity* child) {
+	auto foundChild = std::find(m_ChildEntities.begin(), m_ChildEntities.end(), child);
+	if (foundChild == m_ChildEntities.end()) return;
 	m_IsParentChildDirty = true;
 	m_ChildEntities.push_back(child);
 }

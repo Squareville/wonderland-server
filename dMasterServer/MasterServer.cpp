@@ -294,7 +294,7 @@ int main(int argc, char** argv) {
 		StartChatServer();
 
 		Game::im->GetInstance(0, false, 0);
-		Game::im->GetInstance(1000, false, 0);
+		Game::im->GetInstance(3200, false, 0);
 
 		StartAuthServer();
 	}

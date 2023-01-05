@@ -208,6 +208,7 @@ public:
 	void AddCollisionPhantomCallback(const std::function<void(Entity* target)>& callback);
 	void AddDieCallback(const std::function<void()>& callback);
 	void Resurrect();
+	void OnChildLoaded(Entity* childLoaded);
 
 	void AddLootItem(const Loot::Info& info);
 	void PickupItem(const LWOOBJID& objectID);
