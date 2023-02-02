@@ -5,7 +5,7 @@
 #include "GameMessages.h"
 #include "MovingPlatformComponent.h"
 #include "MissionComponent.h"
-#include "MissionTaskType.h"
+#include "eMissionTaskType.h"
 #include "ProximityMonitorComponent.h"
 #include "SkillComponent.h"
 #include "ZorilloContants.h"
@@ -169,7 +169,7 @@ void Balloon::GiveCreditForLaunching(Entity* self) {
 
 			if (skunkStink || imitationStink) {
 				auto* missionComponent = targetEntity->GetComponent<MissionComponent>();
-				if (missionComponent) missionComponent->Progress(MissionTaskType::MISSION_TASK_TYPE_SMASH, self->GetLOT());
+				if (missionComponent) missionComponent->Progress(eMissionTaskType::SMASH, self->GetLOT());
 			}
 
 		}

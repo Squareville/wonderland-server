@@ -1,7 +1,9 @@
 #include "SkunkEvent.h"
 
 #include "Entity.h"
+#include "EntityManager.h"
 #include "GameMessages.h"
+#include "Loot.h"
 #include "RebuildComponent.h"
 #include "RenderComponent.h"
 #include "Zone.h"
