@@ -15,6 +15,7 @@
 #include "eItemType.h"
 #include "AssetManager.h"
 #include "InventoryComponent.h"
+#include "Loot.h"
 
 Item::Item(const LWOOBJID id, const LOT lot, Inventory* inventory, const uint32_t slot, const uint32_t count, const bool bound, const std::vector<LDFBaseData*>& config, const LWOOBJID parent, LWOOBJID subKey, eLootSourceType lootSourceType) {
 	if (!Inventory::IsValidItem(lot)) {
@@ -75,7 +76,7 @@ Item::Item(
 
 	const auto type = static_cast<eItemType>(info->itemType);
 
-	if (type == eItemType::ITEM_TYPE_MOUNT) {
+	if (type == eItemType::MOUNT) {
 		id = GeneralUtils::SetBit(id, OBJECT_BIT_CLIENT);
 	}
 
@@ -282,10 +283,10 @@ void Item::UseNonEquip(Item* item) {
 	}
 
 	const auto type = static_cast<eItemType>(info->itemType);
-	if (type == eItemType::ITEM_TYPE_MOUNT) {
+	if (type == eItemType::MOUNT) {
 		playerInventoryComponent->HandlePossession(this);
 		// TODO Check if mounts are allowed to be spawned
-	} else if (type == eItemType::ITEM_TYPE_PET_INVENTORY_ITEM && subKey != LWOOBJID_EMPTY) {
+	} else if (type == eItemType::PET_INVENTORY_ITEM && subKey != LWOOBJID_EMPTY) {
 		const auto& databasePet = playerInventoryComponent->GetDatabasePet(subKey);
 		if (databasePet.lot != LOT_NULL) {
 			playerInventoryComponent->SpawnPet(this);
@@ -346,6 +347,15 @@ void Item::Disassemble(const eInventoryType inventoryType) {
 	for (auto* data : config) {
 		if (data->GetKey() == u"assemblyPartLOTs") {
 			auto modStr = data->GetValueAsString();
+
+			// This shouldn't be null but always check your pointers.
+			if (GetInventory()) {
+				auto inventoryComponent = GetInventory()->GetComponent();
+				if (inventoryComponent) {
+					auto entity = inventoryComponent->GetParent();
+					if (entity) entity->SetVar<std::string>(u"currentModifiedBuild", modStr);
+				}
+			}
 
 			std::vector<LOT> modArray;
 

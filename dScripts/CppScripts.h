@@ -1,12 +1,13 @@
 #pragma once
-#include "dCommonVars.h"
-#include "MissionState.h"
+
+#include <cstdint>
 #include <string>
 #include <vector>
 
 class User;
 class Entity;
 class NiPoint3;
+enum class eMissionState : int32_t;
 
 namespace CppScripts {
 	/**
@@ -48,7 +49,7 @@ namespace CppScripts {
 		 *
 		 * Equivalent to 'function onMissionDialogueOK(self, msg)'
 		 */
-		virtual void OnMissionDialogueOK(Entity* self, Entity* target, int missionID, MissionState missionState) {};
+		virtual void OnMissionDialogueOK(Entity* self, Entity* target, int missionID, eMissionState missionState) {};
 
 		/**
 		 * Invoked when the client or the server invoked an event server-side.
@@ -326,7 +327,7 @@ namespace CppScripts {
 
 		/**
 		 * Used by items to tell their owner that they were equipped.
-		 * 
+		 *
 		 * @param itemOwner The owner of the item
 		 * @param itemObjId The items Object ID
 		 */
@@ -334,7 +335,7 @@ namespace CppScripts {
 
 		/**
 		 * Used by items to tell their owner that they were unequipped.
-		 * 
+		 *
 		 * @param itemOwner The owner of the item
 		 * @param itemObjId The items Object ID
 		 */

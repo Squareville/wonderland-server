@@ -17,6 +17,12 @@
 #include "UserManager.h"
 #include "dpWorld.h"
 #include "Player.h"
+#include "LUTriggers.h"
+#include "User.h"
+#include "EntityTimer.h"
+#include "EntityCallbackTimer.h"
+#include "Loot.h"
+#include "eMissionTaskType.h"
 
 //Component includes:
 #include "Component.h"
@@ -1320,7 +1326,7 @@ void Entity::OnCollisionPhantom(const LWOOBJID otherEntity) {
 		auto* missionComponent = other->GetComponent<MissionComponent>();
 
 		if (missionComponent != nullptr) {
-			missionComponent->Progress(MissionTaskType::MISSION_TASK_TYPE_LOCATION, 0, 0, GeneralUtils::UTF16ToWTF8(poi));
+			missionComponent->Progress(eMissionTaskType::EXPLORE, 0, 0, GeneralUtils::UTF16ToWTF8(poi));
 		}
 	}
 
@@ -1616,7 +1622,7 @@ void Entity::PickupItem(const LWOOBJID& objectID) {
 					auto* missionComponent = GetComponent<MissionComponent>();
 
 					if (missionComponent != nullptr) {
-						missionComponent->Progress(MissionTaskType::MISSION_TASK_TYPE_POWERUP, skill.skillID);
+						missionComponent->Progress(eMissionTaskType::POWERUP, skill.skillID);
 					}
 				}
 			} else {
