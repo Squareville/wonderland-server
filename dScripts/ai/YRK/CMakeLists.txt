@@ -2,6 +2,7 @@ set(DSCRIPTS_SOURCES_AI_YRK
 	"Balloon.cpp"
 	"BalloonTrigger.cpp"
 	"BubbleStatue.cpp"
+	"HazmatMissionGiver.cpp"
 	"HazmatTruck.cpp"
 	"Spout.cpp"
 	"SkunkBouncer.cpp"

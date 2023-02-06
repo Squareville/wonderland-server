@@ -293,6 +293,7 @@
 #include "BubbleStatue.h"
 #include "SkunkBouncer.h"
 #include "SkunkEvent.h"
+#include "HazmatMissionGiver.h"
 
 // Frostburgh Scripts
 #include "RockHydrantBroken.h"
@@ -869,6 +870,8 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new HazmatTruck();
 	else if (scriptName == "scripts\\ai\\YRK\\L_SPOUT.lua") 
 		script = new Spout();
+	else if (scriptName == "scripts\\ai\\YRK\\L_HAZMAT_MISSION_GIVER.lua") 
+		script = new HazmatMissionGiver();
 
 	// FB
 	else if (scriptName == "scripts\\ai\\NS\\WH\\L_ROCKHYDRANT_BROKEN.lua")
