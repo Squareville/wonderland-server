@@ -1,5 +1,6 @@
 #include "BubbleStatue.h"
 
+#include "ControllablePhysicsComponent.h"
 #include "DestroyableComponent.h"
 #include "Entity.h"
 #include "GameMessages.h"
@@ -20,7 +21,8 @@ void BubbleStatue::OnProximityUpdate(Entity* self, Entity* entering, std::string
 		auto* skillComponent = self->GetComponent<SkillComponent>();
 		if (!skillComponent) return;
 		skillComponent->CalculateBehavior(ZorilloConstants::destinkSkill, 252, entering->GetObjectID());
-		GameMessages::SendActivateBubbleBuffFromServer(entering->GetObjectID(), specialAnims, wszType, entering->GetSystemAddress());
+		auto* controllablePhysicsComponent = entering->GetComponent<ControllablePhysicsComponent>();
+		if (controllablePhysicsComponent) controllablePhysicsComponent->ActivateBubbleBuff(eBubbleType::SKUNK);
 	}
 }
 
