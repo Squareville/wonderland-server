@@ -415,8 +415,9 @@ void EntityManager::DestructEntity(Entity* entity, const SystemAddress& sysAddr)
 
 void EntityManager::SerializeEntity(Entity* entity) {
 	if (entity->GetLOT() == 1) {
-		ChatPackets::SendSystemMessage(UNASSIGNED_SYSTEM_ADDRESS, u"is entity null " + GeneralUtils::ASCIIToUTF16(std::to_string(entity != nullptr)), true);
+		ChatPackets::SendSystemMessage(UNASSIGNED_SYSTEM_ADDRESS, u"networkId " + GeneralUtils::ASCIIToUTF16(std::to_string(entity->GetNetworkId())), true);
 	}
+
 	if (entity->GetNetworkId() == 0) {
 		return;
 	}
