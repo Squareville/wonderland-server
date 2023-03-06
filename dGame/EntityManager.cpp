@@ -21,6 +21,7 @@
 #include "dConfig.h"
 #include "eTriggerEventType.h"
 #include "eReplicaComponentType.h"
+#include "ChatPackets.h"
 
 EntityManager* EntityManager::m_Address = nullptr;
 
@@ -184,6 +185,10 @@ void EntityManager::UpdateEntities(const float deltaTime) {
 
 	for (auto entry = m_EntitiesToSerialize.begin(); entry != m_EntitiesToSerialize.end(); entry++) {
 		auto* entity = GetEntity(*entry);
+
+		if (entity->GetLOT() == 1) {
+			ChatPackets::SendSystemMessage(UNASSIGNED_SYSTEM_ADDRESS, u"is entity null " + GeneralUtils::ASCIIToUTF16(std::to_string(entity != nullptr)), true);
+		}
 
 		if (entity == nullptr) continue;
 
@@ -409,6 +414,9 @@ void EntityManager::DestructEntity(Entity* entity, const SystemAddress& sysAddr)
 }
 
 void EntityManager::SerializeEntity(Entity* entity) {
+	if (entity->GetLOT() == 1) {
+		ChatPackets::SendSystemMessage(UNASSIGNED_SYSTEM_ADDRESS, u"is entity null " + GeneralUtils::ASCIIToUTF16(std::to_string(entity != nullptr)), true);
+	}
 	if (entity->GetNetworkId() == 0) {
 		return;
 	}
