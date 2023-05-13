@@ -333,8 +333,7 @@ int main(int argc, char** argv) {
 	if (Game::config->GetValue("prestart_servers") != "" && Game::config->GetValue("prestart_servers") == "1") {
 		StartChatServer();
 
-		Game::im->GetInstance(0, false, 0);
-		Game::im->GetInstance(1000, false, 0);
+		Game::im->GetInstance(3100, false, 0);
 
 		StartAuthServer();
 	}

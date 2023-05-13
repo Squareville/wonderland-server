@@ -38,11 +38,13 @@ void Zone::Initalize() {
 	LoadZoneIntoMemory();
 	LoadLevelsIntoMemory();
 	m_CheckSum = CalculateChecksum();
+	Game::logger->Log("Zone", "%i", m_CheckSum);
 }
 
 void Zone::LoadZoneIntoMemory() {
 	m_ZoneFilePath = GetFilePathForZoneID();
 	m_ZonePath = m_ZoneFilePath.substr(0, m_ZoneFilePath.rfind('/') + 1);
+	Game::logger->Log("Zone", "%s %s", m_ZoneFilePath.c_str(), m_ZonePath.c_str());
 	if (m_ZoneFilePath == "ERR") return;
 
 	AssetMemoryBuffer buffer = Game::assetManager->GetFileAsBuffer(m_ZoneFilePath.c_str());
@@ -214,9 +216,10 @@ void Zone::LoadLevelsIntoMemory() {
 
 void Zone::AddRevision(LWOSCENEID sceneID, uint32_t revision) {
 	for (std::pair<LWOSCENEID, uint32_t> item : m_MapRevisions) {
+		Game::logger->Log("Zone", "sceneid %i layer %i revsion %i", item.first.GetSceneID(), item.first.GetLayerID(), item.second);
 		if (item.first == sceneID) return;
 	}
-
+	Game::logger->Log("Zone", "ADDING SCENe %i revision %i", sceneID.GetSceneID(), revision);
 	m_MapRevisions[LWOSCENEID(sceneID)] = revision;
 }
 
