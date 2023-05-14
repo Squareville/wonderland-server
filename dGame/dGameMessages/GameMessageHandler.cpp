@@ -297,7 +297,7 @@ void GameMessageHandler::HandleMessage(RakNet::BitStream* inStream, const System
 
 			auto* skillComponent = entity->GetComponent<SkillComponent>();
 
-			success = skillComponent->CastPlayerSkill(behaviorId, startSkill.uiSkillHandle, bs, startSkill.optionalTargetID, startSkill.skillID);
+			success = skillComponent->CastPlayerSkill(behaviorId, startSkill.uiSkillHandle, bs, startSkill.optionalTargetID, startSkill.bUsedMouse, startSkill.skillID);
 
 			if (success && entity->GetCharacter()) {
 				DestroyableComponent* destComp = entity->GetComponent<DestroyableComponent>();

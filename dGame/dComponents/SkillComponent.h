@@ -93,7 +93,7 @@ public:
 	 * @param bitStream the bitSteam given by the client to determine the behavior path
 	 * @param target the explicit target of the skill
 	 */
-	bool CastPlayerSkill(uint32_t behaviorId, uint32_t skillUid, RakNet::BitStream* bitStream, LWOOBJID target, uint32_t skillID = 0);
+	bool CastPlayerSkill(uint32_t behaviorId, uint32_t skillUid, RakNet::BitStream* bitStream, LWOOBJID target, bool usedMouse, uint32_t skillID = 0);
 
 	/**
 	 * Continues a player skill. Should only be called when the server receives a sync message from the client.

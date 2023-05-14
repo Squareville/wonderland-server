@@ -54,6 +54,8 @@ struct BehaviorContext
 {
 	LWOOBJID originator = LWOOBJID_EMPTY;
 
+	LWOOBJID target = LWOOBJID_EMPTY;
+
 	bool foundTarget = false;
 
 	float skillTime = 0;
@@ -77,6 +79,8 @@ struct BehaviorContext
 	bool unmanaged = false;
 
 	LWOOBJID caster = LWOOBJID_EMPTY;
+	
+	bool usedMouse = false;
 
 	uint32_t GetUniqueSkillId() const;
 
@@ -108,7 +112,7 @@ struct BehaviorContext
 
 	std::vector<LWOOBJID> GetValidTargets(int32_t ignoreFaction = 0, int32_t includeFaction = 0, const bool targetSelf = false, const bool targetEnemy = true, const bool targetFriend = false) const;
 
-	explicit BehaviorContext(LWOOBJID originator, bool calculation = false);
+	explicit BehaviorContext(LWOOBJID originator, bool calculation = false, bool usedMouse = false, LWOOBJID target = LWOOBJID_EMPTY);
 
 	~BehaviorContext();
 };

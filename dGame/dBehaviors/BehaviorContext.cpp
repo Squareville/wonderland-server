@@ -125,7 +125,7 @@ void BehaviorContext::SyncBehavior(const uint32_t syncId, RakNet::BitStream* bit
 	}
 
 	if (!found) {
-		Game::logger->Log("BehaviorContext", "Failed to find behavior sync entry with sync id (%i)!", syncId);
+		Game::logger->Log("BehaviorContext", "skill %i Failed to find behavior sync entry with sync id (%i) used mouse %i skilluid %i caster %llu target %llu!", this->skillID, syncId, this->usedMouse, this->skillUId, this->caster, this->target);
 
 		return;
 	}
@@ -350,10 +350,12 @@ std::vector<LWOOBJID> BehaviorContext::GetValidTargets(int32_t ignoreFaction, in
 }
 
 
-BehaviorContext::BehaviorContext(const LWOOBJID originator, const bool calculation) {
+BehaviorContext::BehaviorContext(const LWOOBJID originator, const bool calculation, bool usedMouse, LWOOBJID target) {
 	this->originator = originator;
 	this->syncEntries = {};
 	this->timerEntries = {};
+	this->usedMouse = usedMouse;
+	this->target = target;
 
 	if (calculation) {
 		this->skillUId = GetUniqueSkillId();
