@@ -212,6 +212,7 @@
 
 // DLU Scripts
 #include "DLUVanityNPC.h"
+#include "DLURaidManager.h"
 
 // AM Scripts
 #include "AmConsoleTeleportServer.h"
@@ -764,7 +765,7 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 
 	// Ninjago
 	else if (scriptName == "scripts\\02_server\\Map\\njhub\\L_GARMADON_CELEBRATION_SERVER.lua")
-		script = new NjGarmadonCelebration();
+		script = new NjGarmadonCelebration(); 
 	else if (scriptName == "scripts\\02_server\\Map\\njhub\\L_WU_NPC.lua")
 		script = new NjWuNPC();
 	else if (scriptName == "scripts\\02_server\\Map\\njhub\\L_SCROLL_CHEST_SERVER.lua")
@@ -825,6 +826,8 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 	//DLU:
 	else if (scriptName == "scripts\\02_server\\DLU\\DLUVanityNPC.lua")
 		script = new DLUVanityNPC();
+	else if (scriptName == "scripts\\02_server\\DLU\\DLURaidManager.lua")
+		script = new DLURaidManager();
 
 	// Survival minigame
 	else if (scriptName == "scripts\\02_server\\Enemy\\Survival\\L_AG_SURVIVAL_STROMBIE.lua")

@@ -29,6 +29,7 @@
 #include "BinaryPathFinder.h"
 #include "eConnectionType.h"
 #include "eMasterMessageType.h"
+#include "Raid.h"
 
 //RakNet includes:
 #include "RakNetDefines.h"
@@ -60,9 +61,12 @@ dLogger* SetupLogger();
 void StartAuthServer();
 void StartChatServer();
 void HandlePacket(Packet* packet);
+
 std::map<uint32_t, std::string> activeSessions;
 SystemAddress authServerMasterPeerSysAddr;
 SystemAddress chatServerMasterPeerSysAddr;
+
+Raid* raidCache = nullptr;
 
 int main(int argc, char** argv) {
 	constexpr uint32_t masterFramerate = mediumFramerate;
@@ -774,6 +778,8 @@ void HandlePacket(Packet* packet) {
 
 			Game::logger->Log("MasterServer", "Ready zone %i", zoneID);
 			Game::im->ReadyInstance(instance);
+
+			MasterPackets::SendRaidInfo(Game::server, instance->GetSysAddr(), raidCache);
 			break;
 		}
 
@@ -854,6 +860,35 @@ void HandlePacket(Packet* packet) {
 			} else {
 				Game::logger->Log("MasterServer","Failed to find instance!\n");
 			}
+			break;
+		}
+
+		case eMasterMessageType::PREPARE_FOR_RAID: {
+			RakNet::BitStream inStream(packet->data, packet->length, false);
+			uint64_t header = inStream.Read(header);
+
+			uint32_t zoneID;
+			inStream.Read(zoneID);
+
+			uint32_t minutesTillRaid;
+			inStream.Read(minutesTillRaid);
+
+			Game::logger->Log("MasterServer", "Preparing for raid on zone %i in %i minutes", zoneID, minutesTillRaid);
+
+			auto now = std::chrono::system_clock::now();
+			auto raidTime = now + std::chrono::minutes(minutesTillRaid);
+
+			uint64_t startTimestamp = std::chrono::duration_cast<std::chrono::seconds>(raidTime.time_since_epoch()).count();
+
+			Raid* raid = (Raid*)malloc(sizeof(Raid));
+			raid->m_RaidTime = startTimestamp;
+			raid->m_RaidZone = zoneID;
+			raidCache = raid;
+
+			for (const auto* instance : Game::im->GetInstances()) {
+				MasterPackets::SendRaidInfo(Game::server, instance->GetSysAddr(), raidCache);
+			}
+
 			break;
 		}
 

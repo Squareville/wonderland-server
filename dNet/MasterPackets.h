@@ -3,8 +3,11 @@
 
 #include <cstdint>
 #include <string>
+
 #include "RakNetTypes.h"
 #include "dCommonVars.h"
+#include "Raid.h"
+
 class dServer;
 
 namespace MasterPackets {
@@ -24,6 +27,8 @@ namespace MasterPackets {
 	void SendWorldReady(dServer* server, LWOMAPID zoneId, LWOINSTANCEID instanceId);
 
 	void HandleSetSessionKey(Packet* packet);
+
+	void SendRaidInfo(dServer* server, const SystemAddress& sysAddr, Raid* raidInfo);
 }
 
 #endif // MASTERPACKETS_H

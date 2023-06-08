@@ -757,6 +757,32 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 		GameMessages::SendStopFXEffect(entity, true, args[0]);
 	}
 
+	if (chatCommand == "startraid" && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER && args.size() >= 1) {
+		uint32_t raidWorld = 0;
+
+		if (!GeneralUtils::TryParse(args[0], raidWorld)) {
+			return;
+		}
+
+		uint32_t minutesTillRaid = 10;
+		if (args.size() == 2) {
+			if (!GeneralUtils::TryParse(args[1], minutesTillRaid)) {
+				return;
+			}
+		}
+
+		SendAnnouncement("Start Preparing!", "A global event is starting in " + std::to_string(minutesTillRaid) + " minutes, head to the war room in Nexus Tower!");
+
+		CBITSTREAM;
+		PacketUtils::WriteHeader(bitStream, eConnectionType::MASTER, eMasterMessageType::PREPARE_FOR_RAID);
+		bitStream.Write(raidWorld);
+		bitStream.Write(minutesTillRaid);
+
+		Game::server->SendToMaster(&bitStream);
+
+		ChatPackets::SendSystemMessage(sysAddr, u"Sent announcement to all worlds and preppared the game for a raid.");
+	}
+
 	if (chatCommand == "setanntitle" && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER) {
 		if (args.size() < 0) return;
 

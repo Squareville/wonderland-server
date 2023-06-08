@@ -121,3 +121,18 @@ void MasterPackets::SendServerInfo(dServer* server, Packet* packet) {
 
 	server->SendToMaster(&bitStream);
 }
+
+void MasterPackets::SendRaidInfo(dServer* server, const SystemAddress& sysAddr, Raid* raidInfo) {
+	RakNet::BitStream bitStream;
+	PacketUtils::WriteHeader(bitStream, eConnectionType::MASTER, eMasterMessageType::RESPOND_RAID_INFORMATION);
+
+	if (raidInfo) {
+		bitStream.Write1();
+		bitStream.Write(raidInfo->m_RaidZone);
+		bitStream.Write(raidInfo->m_RaidTime);
+	} else {
+		bitStream.Write0();
+	}
+
+	server->Send(&bitStream, sysAddr, false);
+}

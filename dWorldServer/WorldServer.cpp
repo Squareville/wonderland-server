@@ -72,6 +72,9 @@
 #include "eGameMessageType.h"
 #include "ZCompression.h"
 
+#include "ScriptComponent.h"
+#include "DLURaidManager.h"
+
 namespace Game {
 	dLogger* logger = nullptr;
 	dServer* server = nullptr;
@@ -881,6 +884,54 @@ void HandlePacket(Packet* packet) {
 				inStream.Read(instanceID);
 				ChatPackets::SendSystemMessage(player->GetSystemAddress(), u"<ZoneID: " + (GeneralUtils::to_u16string(zoneID)) + u" Clone: " + (GeneralUtils::to_u16string(cloneID)) + u" Instance: " + (GeneralUtils::to_u16string(instanceID)) + u">");
 			}
+			break;
+		}
+
+		case eMasterMessageType::RESPOND_RAID_INFORMATION: {
+			if (Game::server->GetZoneID() != 1900) break;
+
+			RakNet::BitStream inStream(packet->data, packet->length, false);
+			uint64_t header = inStream.Read(header);
+
+			if (inStream.ReadBit()) {
+				Raid info;
+				inStream.Read(info.m_RaidZone);
+				inStream.Read(info.m_RaidTime);
+
+				auto consoles = EntityManager::Instance()->GetEntitiesByLOT(13835);
+
+				bool raidInProgress = false;
+
+				for (const auto& console : consoles) {
+					if (console->GetBoolean(u"isRaidConsole")) {
+						raidInProgress = true;
+					}
+				}
+
+				if (raidInProgress) {
+					Game::logger->Log("WorldServer", "Raid is in progress, not processing raid information.");
+					break;
+				}
+
+				Game::logger->Log("WorldServer", "Got raid information from master, people are heading to zone %i", info.m_RaidZone);
+
+				EntityInfo entityInfo;
+				entityInfo.lot = 65535;
+				entityInfo.pos = NiPoint3(-508.145, 1124.05, -103.796); // yippieee, magical numbers
+				entityInfo.rot = NiQuaternion(-0.472899, 0, 0.881117, 0);
+				entityInfo.spawner = nullptr;
+				entityInfo.spawnerID = EntityManager::Instance()->GetZoneControlEntity()->GetObjectID();
+				entityInfo.spawnerNodeID = 0;
+
+				auto* entity = EntityManager::Instance()->CreateEntity(entityInfo, nullptr);
+				entity->SetBoolean(u"isRaidConsole", true);
+
+				auto* script = (DLURaidManager*)entity->GetComponent<ScriptComponent>()->GetScript();
+				script->SetRaid(info);
+
+				EntityManager::Instance()->ConstructEntity(entity);
+			}
+
 			break;
 		}
 
