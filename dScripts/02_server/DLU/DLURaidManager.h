@@ -13,8 +13,11 @@ public:
 	void EndPreperationStage();
 	
 	void SetRaid(Raid raid);
-private:
-	std::vector<Entity*> m_PlayerLeaders;
+	Raid GetRaid();
 
+	uint32_t GetPlayerCount();
+	uint32_t GetTeamCount();
+private:
 	Raid m_Raid;
+	std::vector<Entity*> m_PlayerLeaders;
 };

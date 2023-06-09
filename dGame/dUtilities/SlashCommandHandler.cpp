@@ -89,6 +89,8 @@
 #include "eChatInternalMessageType.h"
 #include "eMasterMessageType.h"
 #include "ePlayerFlag.h"
+#include "ScriptComponent.h"
+#include "DLURaidManager.h"
 
 #include "CDObjectsTable.h"
 #include "CDZoneTableTable.h"
@@ -781,6 +783,33 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 		Game::server->SendToMaster(&bitStream);
 
 		ChatPackets::SendSystemMessage(sysAddr, u"Sent announcement to all worlds and preppared the game for a raid.");
+	}
+
+	if (chatCommand == "raidstatus" && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER) {
+		if (dZoneManager::Instance()->GetZoneID().GetMapID() != 1900) {
+			ChatPackets::SendSystemMessage(sysAddr, u"You need to be in Nexus Tower to get the current status of the raid.");
+			return;
+		}
+
+		auto entities = EntityManager::Instance()->GetEntitiesByLOT(65535);
+		if (entities.empty()) {
+			ChatPackets::SendSystemMessage(sysAddr, u"There is no raid currently in progress.");
+			return;
+		}
+
+		auto terminal = entities[0];
+
+		auto* scriptComp = terminal->GetComponent<ScriptComponent>();
+		auto* raidManager = (DLURaidManager*)scriptComp->GetScript();
+
+		auto raidInfo = raidManager->GetRaid();
+		auto playerCount = raidManager->GetPlayerCount();
+		auto teamCount = raidManager->GetTeamCount();
+
+		ChatPackets::SendSystemMessage(sysAddr,
+			u"The raid is headed to " + GeneralUtils::ASCIIToUTF16(std::to_string(raidInfo.m_RaidZone)) + u"\n" + 
+			u"There are currently " + GeneralUtils::ASCIIToUTF16(std::to_string(playerCount)) + u" players in the raid (" + GeneralUtils::ASCIIToUTF16(std::to_string(teamCount)) + u" teams).\n"
+		);
 	}
 
 	if (chatCommand == "setanntitle" && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER) {

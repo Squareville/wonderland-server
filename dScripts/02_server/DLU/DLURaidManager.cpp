@@ -7,14 +7,40 @@
 #include "ZoneInstanceManager.h"
 #include "CharacterComponent.h"
 #include "WorldPackets.h"
+#include "ChatPackets.h"
 
 void DLURaidManager::OnStartup(Entity* self) {
 	
 }
 
 void DLURaidManager::OnUse(Entity* self, Entity* user) {
+	auto* team = TeamManager::Instance()->GetTeam(user->GetObjectID());
+	if (!team) {
+		return;
+	}
+
+	bool teamSignedUp = false;
+
+	for (const auto& playerObjectId : team->members) {
+		for (const auto& leader : m_PlayerLeaders) {
+			if (leader->GetObjectID() == playerObjectId) {
+				teamSignedUp = true;
+				break;
+			}
+		}
+		if (teamSignedUp) break;
+	}
+
+	if (teamSignedUp) {
+		Game::logger->Log("RaidManager", "Team of signing up user %s, is already signed up for the raid.", user->GetCharacter()->GetName().c_str());
+
+		ChatPackets::SendSystemMessage(user->GetSystemAddress(), u"Your team is already signed up for the raid.");
+
+		return;
+	}
+	
 	m_PlayerLeaders.push_back(user);
-	Game::logger->Log("RaidManager", "OnUse, user: %s", user->GetCharacter()->GetName().c_str());
+	Game::logger->Log("RaidManager", "Added new team with leader %s adding them.", user->GetCharacter()->GetName().c_str());
 }
 
 void DLURaidManager::OnUpdate(Entity* self) {
@@ -75,4 +101,25 @@ void DLURaidManager::EndPreperationStage() {
 
 void DLURaidManager::SetRaid(Raid raid) {
 	m_Raid = raid;
+}
+
+Raid DLURaidManager::GetRaid() {
+	return m_Raid;
+}
+
+uint32_t DLURaidManager::GetTeamCount() {
+	return m_PlayerLeaders.size();
+}
+
+uint32_t DLURaidManager::GetPlayerCount() {
+	uint32_t rollingCount = 0;
+	for (const auto* player : m_PlayerLeaders) {
+		auto team = TeamManager::Instance()->GetTeam(player->GetObjectID());
+
+		if (team) {
+			rollingCount += team->members.size();
+		}
+	}
+
+	return rollingCount;
 }
