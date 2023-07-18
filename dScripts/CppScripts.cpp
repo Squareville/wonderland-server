@@ -298,6 +298,7 @@
 #include "YrkActor.h"
 #include "MazeTroll.h"
 #include "HydrantQb.h"
+#include "ActPetInstance.h"
 
 // Frostburgh Scripts
 #include "RockHydrantBroken.h"
@@ -902,6 +903,8 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new MazeTroll();
 	else if (scriptName == R"S(scripts\ai\YRK\L_HYDRANT_QB.lua)S")
 		script = new HydrantQb();
+	else if (scriptName == R"S(scripts\ai\ACT\L_ACT_PET_INSTANCE.lua)S")
+		script = new ActPetInstance();
 
 	// FB
 	else if (scriptName == "scripts\\ai\\NS\\WH\\L_ROCKHYDRANT_BROKEN.lua")

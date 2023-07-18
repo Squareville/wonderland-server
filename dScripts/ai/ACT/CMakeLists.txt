@@ -1,5 +1,6 @@
 set(DSCRIPTS_SOURCES_AI_ACT
 	"ActMine.cpp"
+	"ActPetInstance.cpp"
 	"ActPlayerDeathTrigger.cpp"
 	"ActVehicleDeathTrigger.cpp")
 
