@@ -4,10 +4,11 @@
 #include "RebuildComponent.h"
 #include "ZorilloContants.h"
 #include "dCommonVars.h"
+#include "eRebuildState.h"
 
 void HazmatTruck::OnRebuildNotifyState(Entity* self, eRebuildState state) {
 	self->CancelAllTimers();
-	if (state == eRebuildState::REBUILD_OPEN) {
+	if (state == eRebuildState::OPEN) {
 		self->AddTimer("BreakTimer", ZorilloConstants::hazmatRebuildResetTime);
 	}
 }

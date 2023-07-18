@@ -56,7 +56,7 @@ void Spout::OnTimerDone(Entity* self, std::string timerName) {
 bool Spout::ArePlayersInProximity(Entity* self) {
 	auto& targetsInPhantom = self->GetTargetsInPhantom();
 	for (auto& target : targetsInPhantom) {
-		auto* possiblePlayer = EntityManager::Instance()->GetEntity(target);
+		auto* possiblePlayer = Game::entityManager->GetEntity(target);
 		if (possiblePlayer && possiblePlayer->IsPlayer()) {
 			// Game::logger->Log("Spout", "A player is in proximity!"); Still needs to be tested.
 			return true;

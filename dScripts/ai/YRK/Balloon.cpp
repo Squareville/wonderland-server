@@ -89,7 +89,7 @@ void Balloon::LaunchBalloon(Entity* self) {
 void Balloon::UpdateStinkAtSwitch(Entity* self) {
 	Game::logger->Log("Balloon", "updating stink at switch");
 	auto triggerID = self->GetVar<LWOOBJID>(u"triggerID");
-	auto* triggerEntity = EntityManager::Instance()->GetEntity(triggerID);
+	auto* triggerEntity = Game::entityManager->GetEntity(triggerID);
 	// triggerID = getObjectByName(self, "triggerID")
 
 	if (!triggerEntity) return;
@@ -101,7 +101,7 @@ void Balloon::UpdateStinkAtSwitch(Entity* self) {
 	uint32_t stinkAmount = 0;
 
 	for (auto pair : objs) {
-		auto* targetEntity = EntityManager::Instance()->GetEntity(pair.first);
+		auto* targetEntity = Game::entityManager->GetEntity(pair.first);
 		if (!targetEntity) continue;
 		auto* destroyableComponent = targetEntity->GetComponent<DestroyableComponent>();
 		if (!destroyableComponent) continue;
@@ -140,7 +140,7 @@ void Balloon::SetRecheckTimer(Entity* self) {
 void Balloon::GiveCreditForLaunching(Entity* self) {
 	Game::logger->Log("Balloon", "give credit for launching");
 	auto triggerID = self->GetVar<LWOOBJID>(u"triggerID");
-	auto* triggerEntity = EntityManager::Instance()->GetEntity(triggerID);
+	auto* triggerEntity = Game::entityManager->GetEntity(triggerID);
 	if (!triggerEntity) return;
 
 	auto* proximityMonitorComponent = triggerEntity->GetComponent<ProximityMonitorComponent>();
@@ -151,7 +151,7 @@ void Balloon::GiveCreditForLaunching(Entity* self) {
 		bool skunkStink = false;
 		bool imitationStink = false;
 
-		auto* targetEntity = EntityManager::Instance()->GetEntity(pair.first);
+		auto* targetEntity = Game::entityManager->GetEntity(pair.first);
 		if (!targetEntity) continue;
 
 		auto* destroyableComponent = targetEntity->GetComponent<DestroyableComponent>();

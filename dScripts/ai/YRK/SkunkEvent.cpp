@@ -114,13 +114,13 @@ void SkunkEvent::DoDoneTransitionActions(Entity* self) {
 
 void SkunkEvent::SendStateToSpouts(Entity* self) {
 	// Game::logger->Log("SkunkEvent", "sending state to sprouts");
-	auto spouts = EntityManager::Instance()->GetEntitiesByLOT(ZorilloConstants::spoutLot);
+	auto spouts = Game::entityManager->GetEntitiesByLOT(ZorilloConstants::spoutLot);
 	for (auto* spout : spouts) spout->NotifyObject(self, "zone_state_change", static_cast<int32_t>(GetZoneState(self)));
 }
 
 void SkunkEvent::SendStateToBubbleBlowers(Entity* self) {
 	// Game::logger->Log("SkunkEvent", "sending state to bubble blowers");
-	auto bubbleBlowers = EntityManager::Instance()->GetEntitiesByLOT(ZorilloConstants::bubbleBlowerLot);
+	auto bubbleBlowers = Game::entityManager->GetEntitiesByLOT(ZorilloConstants::bubbleBlowerLot);
 	for (auto* bubbleBlower : bubbleBlowers) bubbleBlower->NotifyObject(self, "zone_state_change", static_cast<int32_t>(GetZoneState(self)));
 }
 
@@ -206,7 +206,7 @@ void SkunkEvent::OnChildLoaded(Entity* self, Entity* child) {
 
 		LWOOBJID spawnedVanId = self->GetVar<LWOOBJID>(u"HazmatVanID");
 		if (spawnedVanId != LWOOBJID_EMPTY) {
-			auto* vanEntity = EntityManager::Instance()->GetEntity(spawnedVanId);
+			auto* vanEntity = Game::entityManager->GetEntity(spawnedVanId);
 			if (vanEntity) {
 				// Game::logger->Log("SkunkEvent", "smashing existing van");
 				vanEntity->Smash();
@@ -222,7 +222,7 @@ void SkunkEvent::OnChildLoaded(Entity* self, Entity* child) {
 
 		LWOOBJID spawnedVanId = self->GetVar<LWOOBJID>(u"HazmatVanID");
 		if (spawnedVanId != LWOOBJID_EMPTY) {
-			auto* vanEntity = EntityManager::Instance()->GetEntity(spawnedVanId);
+			auto* vanEntity = Game::entityManager->GetEntity(spawnedVanId);
 			if (vanEntity) {
 				// Game::logger->Log("SkunkEvent", "2 smashing van");
 				vanEntity->Smash();
@@ -257,7 +257,7 @@ void SkunkEvent::OnObjectLoaded(Entity* self, Entity* loadedEntity) {
 
 void SkunkEvent::OnPlayerLoaded(Entity* self, Entity* player) {
 	GameMessages::SendNotifyClientZoneObject(self->GetObjectID(), u"zone_state_change", static_cast<int32_t>(GetZoneState(self)), 0, LWOOBJID_EMPTY, "", player->GetSystemAddress());
-	auto* balloon = EntityManager::Instance()->GetEntity(self->GetVar<LWOOBJID>(u"Balloon"));
+	auto* balloon = Game::entityManager->GetEntity(self->GetVar<LWOOBJID>(u"Balloon"));
 	if (balloon) balloon->NotifyObject(self, "playerLoaded");
 
 	for (auto flower : spawnedFlowers) {
@@ -288,7 +288,7 @@ void SkunkEvent::OnTimerDone(Entity* self, std::string timerName) {
 		if (animTime > 0) self->AddTimer("HazmatVanStartDone", animTime);
 		// Game::logger->Log("SkunkEvent", "anim time was %f", animTime);
 	} else if (timerName == "PoleSlideTimer") {
-		auto* slider = EntityManager::Instance()->GetEntity(self->GetVar<LWOOBJID>(u"PoleSlideNPC"));
+		auto* slider = Game::entityManager->GetEntity(self->GetVar<LWOOBJID>(u"PoleSlideNPC"));
 
 		if (slider) GameMessages::SendPlayAnimation(slider, u"slide");
 	} else if (timerName == "HazmatVanStartDone") {
@@ -335,9 +335,9 @@ void SkunkEvent::SpawnGarageVan(Entity* self) {
 	spawnedVanInfo.rot = startingWaypoint.rotation;
 	spawnedVanInfo.spawnerID = self->GetObjectID();
 
-	auto* createdVanEntity = EntityManager::Instance()->CreateEntity(spawnedVanInfo, nullptr, self);
+	auto* createdVanEntity = Game::entityManager->CreateEntity(spawnedVanInfo, nullptr, self);
 	// Game::logger->Log("SkunkEvent", "spawned a van %i at %f %f %f", createdVanEntity->GetLOT(), startingWaypoint.position.x, startingWaypoint.position.y, startingWaypoint.position.z);
-	if (createdVanEntity) EntityManager::Instance()->ConstructEntity(createdVanEntity);
+	if (createdVanEntity) Game::entityManager->ConstructEntity(createdVanEntity);
 }
 
 void SkunkEvent::SpawnRebuildVan(Entity* self) {
@@ -353,9 +353,9 @@ void SkunkEvent::SpawnRebuildVan(Entity* self) {
 	spawnedVanInfo.rot = startingWaypoint.rotation;
 	spawnedVanInfo.spawnerID = self->GetObjectID();
 
-	auto* createdVanEntity = EntityManager::Instance()->CreateEntity(spawnedVanInfo, nullptr, self);
+	auto* createdVanEntity = Game::entityManager->CreateEntity(spawnedVanInfo, nullptr, self);
 	// Game::logger->Log("SkunkEvent", "spawned a rebuild van %i at %f %f %f", createdVanEntity->GetLOT(), startingWaypoint.position.x, startingWaypoint.position.y, startingWaypoint.position.z);
-	if (createdVanEntity) EntityManager::Instance()->ConstructEntity(createdVanEntity);
+	if (createdVanEntity) Game::entityManager->ConstructEntity(createdVanEntity);
 }
 
 void SkunkEvent::SpawnSkunks(Entity* self) {
@@ -400,9 +400,9 @@ void SkunkEvent::SpawnSingleSkunk(Entity* self, uint32_t pathNumber, bool respaw
 	spawnedSkunkInfo.spawnerID = self->GetObjectID();
 	spawnedSkunkInfo.settings = settings;
 
-	auto* spawnedSkunk = EntityManager::Instance()->CreateEntity(spawnedSkunkInfo, nullptr, self);
+	auto* spawnedSkunk = Game::entityManager->CreateEntity(spawnedSkunkInfo, nullptr, self);
 	// Game::logger->Log("SkunkEvent", "skunk %i spawned at %f %f %f", spawnedSkunk->GetLOT(), spawnedSkunkInfo.pos.x, spawnedSkunkInfo.pos.y, spawnedSkunkInfo.pos.z);
-	if (spawnedSkunk) EntityManager::Instance()->ConstructEntity(spawnedSkunk);
+	if (spawnedSkunk) Game::entityManager->ConstructEntity(spawnedSkunk);
 }
 
 uint32_t SkunkEvent::GetRandomWaypoint(std::string path) {
@@ -480,9 +480,9 @@ void SkunkEvent::SpawnSingleStinkCloud(Entity* self, uint32_t num) {
 	spawnedStinkCloudInfo.spawnerID = self->GetObjectID();
 	spawnedStinkCloudInfo.settings = settings;
 
-	auto* stinkCloudEntity = EntityManager::Instance()->CreateEntity(spawnedStinkCloudInfo, nullptr, self);
+	auto* stinkCloudEntity = Game::entityManager->CreateEntity(spawnedStinkCloudInfo, nullptr, self);
 	// Game::logger->Log("SkunkEvent", "spawned stink cloud %i at %f %f %f", stinkCloudEntity->GetLOT(), spawnPosition.x, spawnPosition.y, spawnPosition.z);
-	if (stinkCloudEntity) EntityManager::Instance()->ConstructEntity(stinkCloudEntity);
+	if (stinkCloudEntity) Game::entityManager->ConstructEntity(stinkCloudEntity);
 }
 
 void SkunkEvent::KillStinkClouds(Entity* self) {
@@ -585,7 +585,7 @@ bool SkunkEvent::IsValidSkunk(LOT templateId) {
 }
 
 float SkunkEvent::AnimateVan(Entity* self, std::u16string name) {
-	auto* hazmatVan = EntityManager::Instance()->GetEntity(self->GetVar<LWOOBJID>(u"HazmatVanID"));
+	auto* hazmatVan = Game::entityManager->GetEntity(self->GetVar<LWOOBJID>(u"HazmatVanID"));
 	float animTime = 0.0f;
 	// Game::logger->Log("SkunkEvent", "hazmat van is null %i", hazmatVan == nullptr);
 	if (!hazmatVan) return animTime;
@@ -624,7 +624,7 @@ void SkunkEvent::SpawnSingleHazmatNPC(Entity* self, uint32_t num) {
 		firstWaypoint = lookedUpPath->pathWaypoints.front().position;
 	}
 
-	auto* vanEntity = EntityManager::Instance()->GetEntity(self->GetVar<LWOOBJID>(u"HazmatVanID"));
+	auto* vanEntity = Game::entityManager->GetEntity(self->GetVar<LWOOBJID>(u"HazmatVanID"));
 	if (vanEntity) {
 		// Game::logger->Log("SkunkEvent", "adjusting rotation");
 		rotation.x = 0.0 - vanEntity->GetRotation().z;
@@ -640,9 +640,9 @@ void SkunkEvent::SpawnSingleHazmatNPC(Entity* self, uint32_t num) {
 	spawnedHazmatVanInfo.settings = settings;
 	spawnedHazmatVanInfo.spawnerID = self->GetObjectID();
 
-	auto* spawnedHazmatVan = EntityManager::Instance()->CreateEntity(spawnedHazmatVanInfo, nullptr, self);
+	auto* spawnedHazmatVan = Game::entityManager->CreateEntity(spawnedHazmatVanInfo, nullptr, self);
 	// Game::logger->Log("SkunkEvent", "spawned van %i at %f %f %f", spawnedHazmatVan->GetLOT(), firstWaypoint.x, firstWaypoint.y, firstWaypoint.z);
-	if (spawnedHazmatVan) EntityManager::Instance()->ConstructEntity(spawnedHazmatVan);
+	if (spawnedHazmatVan) Game::entityManager->ConstructEntity(spawnedHazmatVan);
 }
 
 void SkunkEvent::KillHazmatNPCs(Entity* self) {
@@ -658,7 +658,7 @@ void SkunkEvent::KillHazmatNPCs(Entity* self) {
 
 void SkunkEvent::OnRequestFollow(Entity* self, Entity* requestor) {
 
-	auto* motherEntity = EntityManager::Instance()->GetEntity(self->GetVar<LWOOBJID>(u"MotherSkunkID"));
+	auto* motherEntity = Game::entityManager->GetEntity(self->GetVar<LWOOBJID>(u"MotherSkunkID"));
 
 	if (motherEntity) {
 		// Game::logger->Log("SkunkEvent", "Mother not null");
@@ -704,9 +704,9 @@ void SkunkEvent::LoadSporeAnimals(Entity* self) {
 		spawnedSpore1.lot = 3712;
 		spawnedSpore1.rot = NiQuaternion(0.0f, 0.0f, 0.0f, 0.0f);
 
-		auto* spawnedSpore = EntityManager::Instance()->CreateEntity(spawnedSpore1, nullptr, self);
+		auto* spawnedSpore = Game::entityManager->CreateEntity(spawnedSpore1, nullptr, self);
 		// Game::logger->Log("SkunkEvent", "spawned a spore 1 %i at %f %f %f", spawnedSpore->GetLOT(), firstWaypoint.x, firstWaypoint.y, firstWaypoint.z);
-		if (spawnedSpore) EntityManager::Instance()->ConstructEntity(spawnedSpore);
+		if (spawnedSpore) Game::entityManager->ConstructEntity(spawnedSpore);
 		copyOfStartingNum--;
 	}
 
@@ -723,9 +723,9 @@ void SkunkEvent::LoadSporeAnimals(Entity* self) {
 		spawnedSpore2.lot = 3713;
 		spawnedSpore2.rot = NiQuaternion(0.0f, 0.0f, 0.0f, 0.0f);
 
-		auto* spawnedSpore = EntityManager::Instance()->CreateEntity(spawnedSpore2, nullptr, self);
+		auto* spawnedSpore = Game::entityManager->CreateEntity(spawnedSpore2, nullptr, self);
 		// Game::logger->Log("SkunkEvent", "spawned a spore 2 %i at %f %f %f", spawnedSpore->GetLOT(), firstWaypoint.x, firstWaypoint.y, firstWaypoint.z);
-		if (spawnedSpore) EntityManager::Instance()->ConstructEntity(spawnedSpore);
+		if (spawnedSpore) Game::entityManager->ConstructEntity(spawnedSpore);
 		copyOfStartingNum--;
 	}
 
@@ -742,9 +742,9 @@ void SkunkEvent::LoadSporeAnimals(Entity* self) {
 		spawnedSpore3.lot = 3714;
 		spawnedSpore3.rot = NiQuaternion(0.0f, 0.0f, 0.0f, 0.0f);
 
-		auto* spawnedSpore = EntityManager::Instance()->CreateEntity(spawnedSpore3, nullptr, self);
+		auto* spawnedSpore = Game::entityManager->CreateEntity(spawnedSpore3, nullptr, self);
 		// Game::logger->Log("SkunkEvent", "spawned a spore 3 %i at %f %f %f", spawnedSpore->GetLOT(), firstWaypoint.x, firstWaypoint.y, firstWaypoint.z);
-		if (spawnedSpore) EntityManager::Instance()->ConstructEntity(spawnedSpore);
+		if (spawnedSpore) Game::entityManager->ConstructEntity(spawnedSpore);
 		copyOfStartingNum--;
 	}
 }

@@ -1,10 +1,14 @@
 set(DSCRIPTS_SOURCES_AI_YRK
+	"BabySkunk.cpp"
 	"Balloon.cpp"
 	"BalloonTrigger.cpp"
 	"BubbleStatue.cpp"
 	"HazmatMissionGiver.cpp"
 	"HazmatTruck.cpp"
+	"HydrantQb.cpp"
+	"MazeTroll.cpp"
 	"Spout.cpp"
 	"SkunkBouncer.cpp"
 	"SkunkEvent.cpp"
+	"YrkActor.cpp"
 	PARENT_SCOPE)

@@ -294,6 +294,10 @@
 #include "SkunkBouncer.h"
 #include "SkunkEvent.h"
 #include "HazmatMissionGiver.h"
+#include "BabySkunk.h"
+#include "YrkActor.h"
+#include "MazeTroll.h"
+#include "HydrantQb.h"
 
 // Frostburgh Scripts
 #include "RockHydrantBroken.h"
@@ -890,6 +894,14 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new HazmatMissionGiver();
 	else if (scriptName == "scripts\\EquipmentScripts\\stunImmunity.lua")
 		script = new StunImmunity();
+	else if (scriptName == R"S(scripts\ai\YRK\L_BABY_SKUNKS.lua)S")
+		script = new BabySkunk();
+	else if (scriptName == R"S(scripts\ai\YRK\L_YRK_ACTOR.lua)S")
+		script = new YrkActor();
+	else if (scriptName == R"S(scripts\ai\YRK\L_MAZE_TROLL.lua)S")
+		script = new MazeTroll();
+	else if (scriptName == R"S(scripts\ai\YRK\L_HYDRANT_QB.lua)S")
+		script = new HydrantQb();
 
 	// FB
 	else if (scriptName == "scripts\\ai\\NS\\WH\\L_ROCKHYDRANT_BROKEN.lua")
