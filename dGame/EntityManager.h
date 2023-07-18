@@ -1,33 +1,24 @@
 #ifndef ENTITYMANAGER_H
 #define ENTITYMANAGER_H
 
-#include "dCommonVars.h"
 #include <map>
 #include <stack>
 #include <vector>
 #include <unordered_map>
 
+#include "dCommonVars.h"
+
 class Entity;
 class EntityInfo;
 class Player;
 class User;
+enum class eReplicaComponentType : uint32_t;
 
 struct SystemAddress;
 
 class EntityManager {
 public:
-	static EntityManager* Instance() {
-		if (!m_Address) {
-			m_Address = new EntityManager();
-			m_Address->Initialize();
-		}
-
-		return m_Address;
-	}
-
 	void Initialize();
-
-	~EntityManager();
 
 	void UpdateEntities(float deltaTime);
 	Entity* CreateEntity(EntityInfo info, User* user = nullptr, Entity* parentEntity = nullptr, bool controller = false, LWOOBJID explicitId = LWOOBJID_EMPTY);
@@ -35,7 +26,7 @@ public:
 	void DestroyEntity(Entity* entity);
 	Entity* GetEntity(const LWOOBJID& objectId) const;
 	std::vector<Entity*> GetEntitiesInGroup(const std::string& group);
-	std::vector<Entity*> GetEntitiesByComponent(int componentType) const;
+	std::vector<Entity*> GetEntitiesByComponent(eReplicaComponentType componentType) const;
 	std::vector<Entity*> GetEntitiesByLOT(const LOT& lot) const;
 	Entity* GetZoneControlEntity() const;
 
@@ -84,7 +75,10 @@ public:
 	const uint32_t GetHardcoreUscoreEnemiesMultiplier() { return m_HardcoreUscoreEnemiesMultiplier; };
 
 private:
-	static EntityManager* m_Address; //For singleton method
+	void SerializeEntities();
+	void KillEntities();
+	void DeleteEntities();
+
 	static std::vector<LWOMAPID> m_GhostingExcludedZones;
 	static std::vector<LOT> m_GhostingExcludedLOTs;
 

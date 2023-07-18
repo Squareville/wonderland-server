@@ -6,10 +6,12 @@
 #include "tinyxml2.h"
 #include "Entity.h"
 #include "Component.h"
+#include "eReplicaComponentType.h"
 
 namespace CppScripts {
 	class Script;
 }; //! namespace CppScripts
+enum class eStateChangeType : uint32_t;
 
 /**
  * Represents the stats of an entity, for example its health, imagination and armor. Also handles factions, which
@@ -17,7 +19,7 @@ namespace CppScripts {
  */
 class DestroyableComponent : public Component {
 public:
-	static const uint32_t ComponentType = COMPONENT_TYPE_DESTROYABLE;
+	static const eReplicaComponentType ComponentType = eReplicaComponentType::DESTROYABLE;
 
 	DestroyableComponent(Entity* parentEntity);
 	~DestroyableComponent() override;
@@ -237,7 +239,7 @@ public:
 	 * Returns whether or not this entity has bricks flying out when smashed
 	 * @return whether or not this entity has bricks flying out when smashed
 	 */
-	bool GetHasBricks() const { return m_HasBricks; }
+	bool GetHasBricks() const { return m_IsModuleAssembly; }
 
 	/**
 	 * Sets the multiplier for the explosion that's visible when the bricks fly out when this entity is smashed
@@ -544,7 +546,7 @@ private:
 	/**
 	 * Whether this entity has bricks flying out when smashed (causes the client to look up the files)
 	 */
-	bool m_HasBricks;
+	bool m_IsModuleAssembly;
 
 	/**
 	 * The rate at which bricks fly out when smashed

@@ -13,6 +13,7 @@
 #include "Character.h"
 #include "dZoneManager.h"
 #include "LevelProgressionComponent.h"
+#include "eStateChangeType.h"
 
 ControllablePhysicsComponent::ControllablePhysicsComponent(Entity* entity) : Component(entity) {
 	m_Position = {};
@@ -299,7 +300,7 @@ void ControllablePhysicsComponent::RemovePickupRadiusScale(float value) {
 		auto candidateRadius = m_ActivePickupRadiusScales[i];
 		if (m_PickupRadius < candidateRadius) m_PickupRadius = candidateRadius;
 	}
-	EntityManager::Instance()->SerializeEntity(m_Parent);
+	Game::entityManager->SerializeEntity(m_Parent);
 }
 
 void ControllablePhysicsComponent::AddSpeedboost(float value) {
@@ -319,14 +320,14 @@ void ControllablePhysicsComponent::RemoveSpeedboost(float value) {
 
 	// Recalculate speedboost since we removed one
 	m_SpeedBoost = 0.0f;
-	if (m_ActiveSpeedBoosts.size() == 0) { // no active speed boosts left, so return to base speed
+	if (m_ActiveSpeedBoosts.empty()) { // no active speed boosts left, so return to base speed
 		auto* levelProgressionComponent = m_Parent->GetComponent<LevelProgressionComponent>();
 		if (levelProgressionComponent) m_SpeedBoost = levelProgressionComponent->GetSpeedBase();
 	} else { // Used the last applied speedboost
 		m_SpeedBoost = m_ActiveSpeedBoosts.back();
 	}
 	SetSpeedMultiplier(m_SpeedBoost / 500.0f); // 500 being the base speed
-	EntityManager::Instance()->SerializeEntity(m_Parent);
+	Game::entityManager->SerializeEntity(m_Parent);
 }
 
 void ControllablePhysicsComponent::ActivateBubbleBuff(eBubbleType bubbleType, bool specialAnims){
@@ -338,13 +339,13 @@ void ControllablePhysicsComponent::ActivateBubbleBuff(eBubbleType bubbleType, bo
 	m_IsInBubble = true;
 	m_DirtyBubble = true;
 	m_SpecialAnims = specialAnims;
-	EntityManager::Instance()->SerializeEntity(m_Parent);
+	Game::entityManager->SerializeEntity(m_Parent);
 }
 
 void ControllablePhysicsComponent::DeactivateBubbleBuff(){
 	m_DirtyBubble = true;
 	m_IsInBubble = false;
-	EntityManager::Instance()->SerializeEntity(m_Parent);
+	Game::entityManager->SerializeEntity(m_Parent);
 };
 
 void ControllablePhysicsComponent::SetStunImmunity(

@@ -10,6 +10,7 @@
 #include "NiPoint3.h"
 #include "NiQuaternion.h"
 #include "LDFFormat.h"
+#include "eKillType.h"
 
 namespace Loot {
 	class Info;
@@ -17,9 +18,6 @@ namespace Loot {
 
 namespace tinyxml2 {
 	class XMLDocument;
-};
-namespace LUTriggers {
-	struct Trigger;
 };
 
 class Player;
@@ -33,6 +31,11 @@ class Component;
 class Item;
 class Character;
 class EntityCallbackTimer;
+enum class eTriggerEventType;
+enum class eGameMasterLevel : uint8_t;
+enum class eReplicaComponentType : uint32_t;
+enum class eReplicaPacketType : uint8_t;
+enum class eCinematicEvent : uint32_t;
 
 namespace CppScripts {
 	class Script;
@@ -61,13 +64,11 @@ public:
 
 	Character* GetCharacter() const { return m_Character; }
 
-	uint8_t GetGMLevel() const { return m_GMLevel; }
+	eGameMasterLevel GetGMLevel() const { return m_GMLevel; }
 
 	uint8_t GetCollectibleID() const { return uint8_t(m_CollectibleID); }
 
 	Entity* GetParentEntity() const { return m_ParentEntity; }
-
-	LUTriggers::Trigger* GetTrigger() const { return m_Trigger; }
 
 	std::vector<std::string>& GetGroups() { return m_Groups; };
 
@@ -111,7 +112,7 @@ public:
 
 	void SetCharacter(Character* value) { m_Character = value; }
 
-	void SetGMLevel(uint8_t value);
+	void SetGMLevel(eGameMasterLevel value);
 
 	void SetOwnerOverride(LWOOBJID value);
 
@@ -135,17 +136,17 @@ public:
 	 * Component management
 	 */
 
-	Component* GetComponent(int32_t componentID) const;
+	Component* GetComponent(eReplicaComponentType componentID) const;
 
 	template<typename T>
 	T* GetComponent() const;
 
 	template<typename T>
-	bool TryGetComponent(int32_t componentId, T*& component) const;
+	bool TryGetComponent(eReplicaComponentType componentId, T*& component) const;
 
-	bool HasComponent(int32_t componentId) const;
+	bool HasComponent(eReplicaComponentType componentId) const;
 
-	void AddComponent(int32_t componentId, Component* component);
+	void AddComponent(eReplicaComponentType componentId, Component* component);
 
 	std::vector<ScriptComponent*> GetScriptComponents();
 
@@ -168,7 +169,7 @@ public:
 	void AddToGroup(const std::string& group);
 	bool IsPlayer() const;
 
-	std::unordered_map<int32_t, Component*>& GetComponents() { return m_Components; } // TODO: Remove
+	std::unordered_map<eReplicaComponentType, Component*>& GetComponents() { return m_Components; } // TODO: Remove
 
 	void WriteBaseReplicaData(RakNet::BitStream* outBitStream, eReplicaPacketType packetType);
 	void WriteComponents(RakNet::BitStream* outBitStream, eReplicaPacketType packetType);
@@ -206,6 +207,7 @@ public:
 
 	void OnMessageBoxResponse(Entity* sender, int32_t button, const std::u16string& identifier, const std::u16string& userData);
 	void OnChoiceBoxResponse(Entity* sender, int32_t button, const std::u16string& buttonIdentifier, const std::u16string& identifier);
+	void RequestActivityExit(Entity* sender, LWOOBJID player, bool canceled);
 
 	void Smash(const LWOOBJID source = LWOOBJID_EMPTY, const eKillType killType = eKillType::VIOLENT, const std::u16string& deathType = u"");
 	void Kill(Entity* murderer = nullptr);
@@ -222,9 +224,8 @@ public:
 	void RegisterCoinDrop(uint64_t count);
 
 	void ScheduleKillAfterUpdate(Entity* murderer = nullptr);
-	void TriggerEvent(std::string eveneventtID, Entity* optionalTarget = nullptr);
+	void TriggerEvent(eTriggerEventType event, Entity* optionalTarget = nullptr);
 	void ScheduleDestructionAfterUpdate() { m_ShouldDestroyAfterUpdate = true; }
-	void HandleTriggerCommand(std::string id, std::string target, std::string targetName, std::string args, Entity* optionalTarget);
 
 	virtual NiPoint3 GetRespawnPosition() const { return NiPoint3::ZERO; }
 	virtual NiQuaternion GetRespawnRotation() const { return NiQuaternion::IDENTITY; }
@@ -309,20 +310,18 @@ protected:
 	bool m_HasSpawnerNodeID;
 	uint32_t m_SpawnerNodeID;
 
-	LUTriggers::Trigger* m_Trigger;
-
 	Character* m_Character;
 
 	Entity* m_ParentEntity; //For spawners and the like
 	std::vector<Entity*> m_ChildEntities;
-	uint8_t m_GMLevel;
+	eGameMasterLevel m_GMLevel;
 	uint16_t m_CollectibleID;
 	std::vector<std::string> m_Groups;
 	uint16_t m_NetworkID;
 	std::vector<std::function<void()>> m_DieCallbacks;
 	std::vector<std::function<void(Entity* target)>> m_PhantomCollisionCallbacks;
 
-	std::unordered_map<int32_t, Component*> m_Components; //The int is the ID of the component
+	std::unordered_map<eReplicaComponentType, Component*> m_Components;
 	std::vector<EntityTimer*> m_Timers;
 	std::vector<EntityTimer*> m_PendingTimers;
 	std::vector<EntityCallbackTimer*> m_CallbackTimers;
@@ -352,7 +351,7 @@ protected:
  */
 
 template<typename T>
-bool Entity::TryGetComponent(const int32_t componentId, T*& component) const {
+bool Entity::TryGetComponent(const eReplicaComponentType componentId, T*& component) const {
 	const auto& index = m_Components.find(componentId);
 
 	if (index == m_Components.end()) {

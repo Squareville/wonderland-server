@@ -8,6 +8,10 @@
 #include "dLogger.h"
 #include "dConfig.h"
 #include "CDClientManager.h"
+#include "GeneralUtils.h"
+#include "Entity.h"
+
+#include "CDActivitiesTable.h"
 
 Leaderboard::Leaderboard(uint32_t gameID, uint32_t infoType, bool weekly, std::vector<LeaderboardEntry> entries,
 	LWOOBJID relatedPlayer, LeaderboardType leaderboardType) {
@@ -62,14 +66,14 @@ uint32_t Leaderboard::GetInfoType() const {
 }
 
 void Leaderboard::Send(LWOOBJID targetID) const {
-	auto* player = EntityManager::Instance()->GetEntity(relatedPlayer);
+	auto* player = Game::entityManager->GetEntity(relatedPlayer);
 	if (player != nullptr) {
 		GameMessages::SendActivitySummaryLeaderboardData(targetID, this, player->GetSystemAddress());
 	}
 }
 
 void LeaderboardManager::SaveScore(LWOOBJID playerID, uint32_t gameID, uint32_t score, uint32_t time) {
-	const auto* player = EntityManager::Instance()->GetEntity(playerID);
+	const auto* player = Game::entityManager->GetEntity(playerID);
 	if (player == nullptr)
 		return;
 
@@ -231,7 +235,7 @@ Leaderboard* LeaderboardManager::GetLeaderboard(uint32_t gameID, InfoType infoTy
 	if (infoType == Standings || infoType == Friends) {
 		auto characterID = 0;
 
-		const auto* player = EntityManager::Instance()->GetEntity(playerID);
+		const auto* player = Game::entityManager->GetEntity(playerID);
 		if (player != nullptr) {
 			auto* character = player->GetCharacter();
 			if (character != nullptr)
@@ -273,7 +277,7 @@ void LeaderboardManager::SendLeaderboard(uint32_t gameID, InfoType infoType, boo
 }
 
 LeaderboardType LeaderboardManager::GetLeaderboardType(uint32_t gameID) {
-	auto* activitiesTable = CDClientManager::Instance()->GetTable<CDActivitiesTable>("Activities");
+	auto* activitiesTable = CDClientManager::Instance().GetTable<CDActivitiesTable>();
 	std::vector<CDActivities> activities = activitiesTable->Query([=](const CDActivities& entry) {
 		return (entry.ActivityID == gameID);
 		});
