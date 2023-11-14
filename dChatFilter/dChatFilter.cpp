@@ -8,7 +8,7 @@
 #include <regex>
 
 #include "dCommonVars.h"
-#include "dLogger.h"
+#include "Logger.h"
 #include "dConfig.h"
 #include "Database.h"
 #include "Game.h"
@@ -144,7 +144,7 @@ std::vector<std::pair<uint8_t, uint8_t>> dChatFilter::IsSentenceOkay(const std::
 			listOfBadSegments.emplace_back(position, originalSegment.length());
 		}
 
-		position += segment.length() + 1;
+		position += originalSegment.length() + 1;
 	}
 
 	return listOfBadSegments;

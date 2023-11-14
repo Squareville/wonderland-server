@@ -9,7 +9,7 @@
 #include "PhantomPhysicsComponent.h"
 #include "Game.h"
 #include "LDFFormat.h"
-#include "dLogger.h"
+#include "Logger.h"
 #include "Entity.h"
 #include "EntityManager.h"
 #include "ControllablePhysicsComponent.h"
@@ -27,14 +27,13 @@
 #include "dpShapeBox.h"
 #include "dpShapeSphere.h"
 
-PhantomPhysicsComponent::PhantomPhysicsComponent(Entity* parent) : Component(parent) {
+PhantomPhysicsComponent::PhantomPhysicsComponent(Entity* parent) : PhysicsComponent(parent) {
 	m_Position = m_Parent->GetDefaultPosition();
 	m_Rotation = m_Parent->GetDefaultRotation();
 	m_Scale = m_Parent->GetDefaultScale();
 	m_dpEntity = nullptr;
 
 	m_EffectInfoDirty = false;
-	m_PositionInfoDirty = false;
 
 	m_IsPhysicsEffectActive = false;
 	m_EffectType = ePhysicsEffectType::PUSH;
@@ -229,7 +228,7 @@ PhantomPhysicsComponent::PhantomPhysicsComponent(Entity* parent) : Component(par
 			m_dpEntity->SetPosition(m_Position);
 			dpWorld::Instance().AddEntity(m_dpEntity);
 		} else {
-			//Game::logger->Log("PhantomPhysicsComponent", "This one is supposed to have %s", info->physicsAsset.c_str());
+			//LOG("This one is supposed to have %s", info->physicsAsset.c_str());
 
 			//add fallback cube:
 			m_dpEntity = new dpEntity(m_Parent->GetObjectID(), 2.0f, 2.0f, 2.0f);
@@ -311,19 +310,8 @@ void PhantomPhysicsComponent::CreatePhysics() {
 	m_HasCreatedPhysics = true;
 }
 
-void PhantomPhysicsComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) {
-	outBitStream->Write(m_PositionInfoDirty || bIsInitialUpdate);
-	if (m_PositionInfoDirty || bIsInitialUpdate) {
-		outBitStream->Write(m_Position.x);
-		outBitStream->Write(m_Position.y);
-		outBitStream->Write(m_Position.z);
-		outBitStream->Write(m_Rotation.x);
-		outBitStream->Write(m_Rotation.y);
-		outBitStream->Write(m_Rotation.z);
-		outBitStream->Write(m_Rotation.w);
-
-		m_PositionInfoDirty = false;
-	}
+void PhantomPhysicsComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate) {
+	PhysicsComponent::Serialize(outBitStream, bIsInitialUpdate);
 
 	outBitStream->Write(m_EffectInfoDirty || bIsInitialUpdate);
 	if (m_EffectInfoDirty || bIsInitialUpdate) {
@@ -353,9 +341,28 @@ void PhantomPhysicsComponent::Serialize(RakNet::BitStream* outBitStream, bool bI
 	}
 }
 
-void PhantomPhysicsComponent::ResetFlags() {
-	m_EffectInfoDirty = false;
-	m_PositionInfoDirty = false;
+// Even if we were to implement Friction server side,
+// it also defaults to 1.0f in the last argument, so we dont need two functions to do the same thing.
+void ApplyCollisionEffect(const LWOOBJID& target, const ePhysicsEffectType effectType, const float effectScale) {
+	switch (effectType) {
+	case ePhysicsEffectType::GRAVITY_SCALE: {
+		auto* targetEntity = Game::entityManager->GetEntity(target);
+		if (targetEntity) {
+			auto* controllablePhysicsComponent = targetEntity->GetComponent<ControllablePhysicsComponent>();
+			// dont want to apply an effect to nothing.
+			if (!controllablePhysicsComponent) return;
+			controllablePhysicsComponent->SetGravityScale(effectScale);
+			GameMessages::SendSetGravityScale(target, effectScale, targetEntity->GetSystemAddress());
+		}
+	}
+	// The other types are not handled by the server
+	case ePhysicsEffectType::ATTRACT:
+	case ePhysicsEffectType::FRICTION:
+	case ePhysicsEffectType::PUSH:
+	case ePhysicsEffectType::REPULSE:
+	default:
+		break;
+	}
 }
 
 void PhantomPhysicsComponent::Update(float deltaTime) {
@@ -363,6 +370,8 @@ void PhantomPhysicsComponent::Update(float deltaTime) {
 
 	//Process enter events
 	for (auto en : m_dpEntity->GetNewObjects()) {
+		if (!en) continue;
+		ApplyCollisionEffect(en->GetObjectID(), m_EffectType, m_DirectionalMultiplier);
 		m_Parent->OnCollisionPhantom(en->GetObjectID());
 
 		//If we are a respawn volume, inform the client:
@@ -379,6 +388,8 @@ void PhantomPhysicsComponent::Update(float deltaTime) {
 
 	//Process exit events
 	for (auto en : m_dpEntity->GetRemovedObjects()) {
+		if (!en) continue;
+		ApplyCollisionEffect(en->GetObjectID(), m_EffectType, 1.0f);
 		m_Parent->OnCollisionLeavePhantom(en->GetObjectID());
 	}
 }
@@ -436,13 +447,11 @@ void PhantomPhysicsComponent::SetMax(uint32_t max) {
 }
 
 void PhantomPhysicsComponent::SetPosition(const NiPoint3& pos) {
-	m_Position = pos;
-
+	PhysicsComponent::SetPosition(pos);
 	if (m_dpEntity) m_dpEntity->SetPosition(pos);
 }
 
 void PhantomPhysicsComponent::SetRotation(const NiQuaternion& rot) {
-	m_Rotation = rot;
-
+	PhysicsComponent::SetRotation(rot);
 	if (m_dpEntity) m_dpEntity->SetRotation(rot);
 }

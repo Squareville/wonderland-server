@@ -3,7 +3,7 @@
 #include "MissionTask.h"
 
 #include "Game.h"
-#include "dLogger.h"
+#include "Logger.h"
 #include "Mission.h"
 #include "Character.h"
 #include "dServer.h"
@@ -233,7 +233,7 @@ void MissionTask::Progress(int32_t value, LWOOBJID associate, const std::string&
 		entity = Game::entityManager->GetEntity(associate);
 		if (entity == nullptr) {
 			if (associate != LWOOBJID_EMPTY) {
-				Game::logger->Log("MissionTask", "Failed to find associated entity (%llu)!", associate);
+				LOG("Failed to find associated entity (%llu)!", associate);
 			}
 			break;
 		}
@@ -275,7 +275,7 @@ void MissionTask::Progress(int32_t value, LWOOBJID associate, const std::string&
 		entity = Game::entityManager->GetEntity(associate);
 
 		if (entity == nullptr) {
-			Game::logger->Log("MissionTask", "Failed to find associated entity (%llu)!", associate);
+			LOG("Failed to find associated entity (%llu)!", associate);
 
 			break;
 		}
@@ -349,7 +349,7 @@ void MissionTask::Progress(int32_t value, LWOOBJID associate, const std::string&
 		entity = Game::entityManager->GetEntity(associate);
 
 		if (entity == nullptr) {
-			Game::logger->Log("MissionTask", "Failed to find associated entity (%llu)!", associate);
+			LOG("Failed to find associated entity (%llu)!", associate);
 
 			break;
 		}
@@ -449,8 +449,11 @@ void MissionTask::Progress(int32_t value, LWOOBJID associate, const std::string&
 		AddProgress(count);
 		break;
 	}
+	case eMissionTaskType::DONATION:
+		AddProgress(count);
+		break;
 	default:
-		Game::logger->Log("MissionTask", "Invalid mission task type (%i)!", static_cast<int>(type));
+		LOG("Invalid mission task type (%i)!", static_cast<int>(type));
 		return;
 	}
 

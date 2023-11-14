@@ -29,6 +29,7 @@
 #include "RenderComponent.h"
 #include "eObjectBits.h"
 #include "eGameMasterLevel.h"
+#include "eMissionState.h"
 
 std::unordered_map<LOT, PetComponent::PetPuzzleData> PetComponent::buildCache{};
 std::unordered_map<LWOOBJID, LWOOBJID> PetComponent::currentActivities{};
@@ -107,7 +108,7 @@ PetComponent::PetComponent(Entity* parent, uint32_t componentId): Component(pare
 	result.finalize();
 }
 
-void PetComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) {
+void PetComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate) {
 	const bool tamed = m_Owner != LWOOBJID_EMPTY;
 
 	outBitStream->Write1(); // Always serialize as dirty for now
@@ -240,7 +241,7 @@ void PetComponent::OnUse(Entity* originator) {
 
 	if (bricks.empty()) {
 		ChatPackets::SendSystemMessage(originator->GetSystemAddress(), u"Failed to load the puzzle minigame for this pet.");
-		Game::logger->Log("PetComponent", "Couldn't find %s for minigame!", buildFile.c_str());
+		LOG("Couldn't find %s for minigame!", buildFile.c_str());
 
 		return;
 	}
@@ -395,7 +396,7 @@ void PetComponent::Update(float deltaTime) {
 	}
 
 	auto destination = owner->GetPosition();
-	NiPoint3 position = m_MovementAI->GetCurrentPosition();
+	NiPoint3 position = m_MovementAI->GetParent()->GetPosition();
 
 	float distanceToOwner = Vector3::DistanceSquared(position, destination);
 
@@ -439,9 +440,15 @@ void PetComponent::Update(float deltaTime) {
 		}
 	}
 
+	auto* missionComponent = owner->GetComponent<MissionComponent>();
+	if (!missionComponent) return;
+
+	// Determine if the "Lost Tags" mission has been completed and digging has been unlocked
+	const bool digUnlocked = missionComponent->GetMissionState(842) == eMissionState::COMPLETE;
+
 	Entity* closestTresure = PetDigServer::GetClosestTresure(position);
 
-	if (closestTresure != nullptr) {
+	if (closestTresure != nullptr && digUnlocked) {
 		// Skeleton Dragon Pat special case for bone digging
 		if (closestTresure->GetLOT() == 12192 && m_Parent->GetLOT() != 13067) {
 			goto skipTresure;
@@ -449,7 +456,7 @@ void PetComponent::Update(float deltaTime) {
 
 		NiPoint3 tresurePosition = closestTresure->GetPosition();
 		float distance = Vector3::DistanceSquared(position, tresurePosition);
-		if (distance < 3 * 3) {
+		if (distance < 5 * 5) {
 			m_Interaction = closestTresure->GetObjectID();
 
 			Command(NiPoint3::ZERO, LWOOBJID_EMPTY, 1, 202, true);
@@ -466,7 +473,7 @@ skipTresure:
 
 	m_MovementAI->SetHaltDistance(haltDistance);
 
-	m_MovementAI->SetSpeed(2.5f);
+	m_MovementAI->SetMaxSpeed(2.5f);
 
 	m_MovementAI->SetDestination(destination);
 
@@ -647,7 +654,7 @@ void PetComponent::RequestSetPetName(std::u16string name) {
 		return;
 	}
 
-	Game::logger->Log("PetComponent", "Got set pet name (%s)", GeneralUtils::UTF16ToWTF8(name).c_str());
+	LOG("Got set pet name (%s)", GeneralUtils::UTF16ToWTF8(name).c_str());
 
 	auto* inventoryComponent = tamer->GetComponent<InventoryComponent>();
 
@@ -822,17 +829,17 @@ void PetComponent::Wander() {
 		destination.y = dpWorld::Instance().GetNavMesh()->GetHeightAtPoint(destination);
 	}
 
-	if (Vector3::DistanceSquared(destination, m_MovementAI->GetCurrentPosition()) < 2 * 2) {
+	if (Vector3::DistanceSquared(destination, m_MovementAI->GetParent()->GetPosition()) < 2 * 2) {
 		m_MovementAI->Stop();
 
 		return;
 	}
 
-	m_MovementAI->SetSpeed(info.wanderSpeed);
+	m_MovementAI->SetMaxSpeed(info.wanderSpeed);
 
 	m_MovementAI->SetDestination(destination);
 
-	m_Timer += (m_MovementAI->GetCurrentPosition().x - destination.x) / info.wanderSpeed;
+	m_Timer += (m_MovementAI->GetParent()->GetPosition().x - destination.x) / info.wanderSpeed;
 }
 
 void PetComponent::Activate(Item* item, bool registerPet, bool fromTaming) {
@@ -923,7 +930,7 @@ void PetComponent::AddDrainImaginationTimer(Item* item, bool fromTaming) {
 	// Set this to a variable so when this is called back from the player the timer doesn't fire off.
 	m_Parent->AddCallbackTimer(imaginationDrainRate, [playerDestroyableComponent, this, item]() {
 		if (!playerDestroyableComponent) {
-			Game::logger->Log("PetComponent", "No petComponent and/or no playerDestroyableComponent");
+			LOG("No petComponent and/or no playerDestroyableComponent");
 			return;
 		}
 

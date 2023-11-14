@@ -23,8 +23,10 @@
 #include "dConfig.h"
 #include "Loot.h"
 #include "eMissionTaskType.h"
+#include "LeaderboardManager.h"
 #include "dZoneManager.h"
 #include "CDActivitiesTable.h"
+#include <ctime>
 
 #ifndef M_PI
 #define M_PI 3.14159265358979323846264338327950288
@@ -60,23 +62,27 @@ RacingControlComponent::RacingControlComponent(Entity* parent)
 RacingControlComponent::~RacingControlComponent() {}
 
 void RacingControlComponent::OnPlayerLoaded(Entity* player) {
-	// If the race has already started, send the player back to the main world.
-	if (m_Loaded) {
-		auto* playerInstance = dynamic_cast<Player*>(player);
-
-		playerInstance->SendToZone(m_MainWorld);
-
+	auto* inventoryComponent = player->GetComponent<InventoryComponent>();
+	if (!inventoryComponent) {
 		return;
 	}
 
-	const auto objectID = player->GetObjectID();
+	auto* vehicle = inventoryComponent->FindItemByLot(8092);
+
+	// If the race has already started, send the player back to the main world.
+	if (m_Loaded || !vehicle) {
+		auto* playerInstance = dynamic_cast<Player*>(player);
+		if(playerInstance){
+			playerInstance->SendToZone(m_MainWorld);
+		}
+		return;
+	}
 
 	m_LoadedPlayers++;
 
-	Game::logger->Log("RacingControlComponent", "Loading player %i",
+	LOG("Loading player %i",
 		m_LoadedPlayers);
-
-	m_LobbyPlayers.push_back(objectID);
+	m_LobbyPlayers.push_back(player->GetObjectID());
 }
 
 void RacingControlComponent::LoadPlayerVehicle(Entity* player,
@@ -98,9 +104,14 @@ void RacingControlComponent::LoadPlayerVehicle(Entity* player,
 	auto* item = inventoryComponent->FindItemByLot(8092);
 
 	if (item == nullptr) {
-		Game::logger->Log("RacingControlComponent", "Failed to find item");
-
+		LOG("Failed to find item");
+		auto* playerInstance = dynamic_cast<Player*>(player);
+		if(playerInstance){
+			m_LoadedPlayers--;
+			playerInstance->SendToZone(m_MainWorld);
+		}
 		return;
+		
 	}
 
 	// Calculate the vehicle's starting position.
@@ -367,9 +378,7 @@ void RacingControlComponent::HandleMessageBoxResponse(Entity* player, int32_t bu
 	}
 
 	if (id == "rewardButton") {
-		if (data->collectedRewards) {
-			return;
-		}
+		if (data->collectedRewards) return;
 
 		data->collectedRewards = true;
 
@@ -380,7 +389,7 @@ void RacingControlComponent::HandleMessageBoxResponse(Entity* player, int32_t bu
 		}
 
         const auto score = playersRating * 10 + data->finished;
-		LootGenerator::Instance().GiveActivityLoot(player, m_Parent, m_ActivityID, score);
+		Loot::GiveActivityLoot(player, m_Parent, m_ActivityID, score);
 
 		// Giving rewards
 		GameMessages::SendNotifyRacingClient(
@@ -425,9 +434,7 @@ void RacingControlComponent::HandleMessageBoxResponse(Entity* player, int32_t bu
 	}
 }
 
-void RacingControlComponent::Serialize(RakNet::BitStream* outBitStream,
-	bool bIsInitialUpdate,
-	unsigned int& flags) {
+void RacingControlComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate) {
 	// BEGIN Scripted Activity
 
 	outBitStream->Write1();
@@ -546,12 +553,10 @@ void RacingControlComponent::Update(float deltaTime) {
 		// From the first 2 players loading in the rest have a max of 15 seconds
 		// to load in, can raise this if it's too low
 		if (m_LoadTimer >= 15) {
-			Game::logger->Log("RacingControlComponent",
-				"Loading all players...");
+			LOG("Loading all players...");
 
 			for (size_t positionNumber = 0; positionNumber < m_LobbyPlayers.size(); positionNumber++) {
-				Game::logger->Log("RacingControlComponent",
-					"Loading player now!");
+				LOG("Loading player now!");
 
 				auto* player =
 					Game::entityManager->GetEntity(m_LobbyPlayers[positionNumber]);
@@ -560,8 +565,7 @@ void RacingControlComponent::Update(float deltaTime) {
 					return;
 				}
 
-				Game::logger->Log("RacingControlComponent",
-					"Loading player now NOW!");
+				LOG("Loading player now NOW!");
 
 				LoadPlayerVehicle(player, positionNumber + 1, true);
 
@@ -711,7 +715,7 @@ void RacingControlComponent::Update(float deltaTime) {
 
 				m_Started = true;
 
-				Game::logger->Log("RacingControlComponent", "Starting race");
+				LOG("Starting race");
 
 				Game::entityManager->SerializeEntity(m_Parent);
 
@@ -814,8 +818,7 @@ void RacingControlComponent::Update(float deltaTime) {
 				if (player.bestLapTime == 0 || player.bestLapTime > lapTime) {
 					player.bestLapTime = lapTime;
 
-					Game::logger->Log("RacingControlComponent",
-						"Best lap time (%llu)", lapTime);
+					LOG("Best lap time (%llu)", lapTime);
 				}
 
 				auto* missionComponent =
@@ -835,10 +838,10 @@ void RacingControlComponent::Update(float deltaTime) {
 
 						player.raceTime = raceTime;
 
-						Game::logger->Log("RacingControlComponent",
-							"Completed time %llu, %llu",
+						LOG("Completed time %llu, %llu",
 							raceTime, raceTime * 1000);
 
+						LeaderboardManager::SaveScore(playerEntity->GetObjectID(), m_ActivityID, static_cast<float>(player.raceTime), static_cast<float>(player.bestLapTime), static_cast<float>(player.finished == 1));
 						// Entire race time
 						missionComponent->Progress(eMissionTaskType::RACING, (raceTime) * 1000, (LWOOBJID)eRacingTaskParam::TOTAL_TRACK_TIME);
 
@@ -851,13 +854,11 @@ void RacingControlComponent::Update(float deltaTime) {
 					}
 				}
 
-				Game::logger->Log("RacingControlComponent",
-					"Lapped (%i) in (%llu)", player.lap,
+				LOG("Lapped (%i) in (%llu)", player.lap,
 					lapTime);
 			}
 
-			Game::logger->Log("RacingControlComponent",
-				"Reached point (%i)/(%i)", player.respawnIndex,
+			LOG("Reached point (%i)/(%i)", player.respawnIndex,
 				path->pathWaypoints.size());
 
 			break;

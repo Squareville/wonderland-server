@@ -8,7 +8,7 @@
 #include "GeneralUtils.h"
 #include "dZoneManager.h"
 #include "EntityManager.h"
-#include "dLogger.h"
+#include "Logger.h"
 #include "GameMessages.h"
 #include "CppScripts.h"
 #include "SimplePhysicsComponent.h"
@@ -32,7 +32,7 @@ MoverSubComponent::MoverSubComponent(const NiPoint3& startPos) {
 
 MoverSubComponent::~MoverSubComponent() = default;
 
-void MoverSubComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) const {
+void MoverSubComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate) {
 	outBitStream->Write<bool>(true);
 
 	outBitStream->Write<uint32_t>(static_cast<uint32_t>(mState));
@@ -63,7 +63,7 @@ MovingPlatformComponent::MovingPlatformComponent(Entity* parent, const std::stri
 	m_NoAutoStart = false;
 
 	if (m_Path == nullptr) {
-		Game::logger->Log("MovingPlatformComponent", "Path not found: %s", pathName.c_str());
+		LOG("Path not found: %s", pathName.c_str());
 	}
 }
 
@@ -71,7 +71,7 @@ MovingPlatformComponent::~MovingPlatformComponent() {
 	delete static_cast<MoverSubComponent*>(m_MoverSubComponent);
 }
 
-void MovingPlatformComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) {
+void MovingPlatformComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate) {
 	// Here we don't serialize the moving platform to let the client simulate the movement
 
 	if (!m_Serialize) {
@@ -112,7 +112,7 @@ void MovingPlatformComponent::Serialize(RakNet::BitStream* outBitStream, bool bI
 		if (m_MoverSubComponentType == eMoverSubComponentType::simpleMover) {
 			// TODO
 		} else {
-			mover->Serialize(outBitStream, bIsInitialUpdate, flags);
+			mover->Serialize(outBitStream, bIsInitialUpdate);
 		}
 	}
 }

@@ -4,7 +4,7 @@
 #include "GameMessages.h"
 #include "EntityManager.h"
 #include "Game.h"
-#include "dLogger.h"
+#include "Logger.h"
 #include "CharacterComponent.h"
 #include "MissionComponent.h"
 #include "eMissionTaskType.h"
@@ -39,7 +39,7 @@ RebuildComponent::RebuildComponent(Entity* entity) : Component(entity) {
 		GeneralUtils::TryParse(positionAsVector[1], m_ActivatorPosition.y) &&
 		GeneralUtils::TryParse(positionAsVector[2], m_ActivatorPosition.z)) {
 	} else {
-		Game::logger->Log("RebuildComponent", "Failed to find activator position for lot %i.  Defaulting to parents position.", m_Parent->GetLOT());
+		LOG("Failed to find activator position for lot %i.  Defaulting to parents position.", m_Parent->GetLOT());
 		m_ActivatorPosition = m_Parent->GetPosition();
 	}
 
@@ -57,7 +57,7 @@ RebuildComponent::~RebuildComponent() {
 	DespawnActivator();
 }
 
-void RebuildComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) {
+void RebuildComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate) {
 	if (m_Parent->GetComponent(eReplicaComponentType::DESTROYABLE) == nullptr) {
 		if (bIsInitialUpdate) {
 			outBitStream->Write(false);
@@ -180,7 +180,7 @@ void RebuildComponent::Update(float deltaTime) {
 	{
 		Entity* builder = GetBuilder();
 
-		if (builder == nullptr) {
+		if (!builder) {
 			ResetRebuild(false);
 
 			return;
@@ -198,16 +198,16 @@ void RebuildComponent::Update(float deltaTime) {
 			if (!destComp) break;
 
 			int newImagination = destComp->GetImagination();
-			if (newImagination <= 0) {
-				CancelRebuild(builder, eQuickBuildFailReason::OUT_OF_IMAGINATION, true);
-				break;
-			}
 
 			++m_DrainedImagination;
 			--newImagination;
 			destComp->SetImagination(newImagination);
 			Game::entityManager->SerializeEntity(builder);
 
+			if (newImagination <= 0) {
+				CancelRebuild(builder, eQuickBuildFailReason::OUT_OF_IMAGINATION, true);
+				break;
+			}
 
 		}
 
@@ -439,7 +439,7 @@ void RebuildComponent::CompleteRebuild(Entity* user) {
 		characterComponent->SetCurrentActivity(eGameActivity::NONE);
 		characterComponent->TrackRebuildComplete();
 	} else {
-		Game::logger->Log("RebuildComponent", "Some user tried to finish the rebuild but they didn't have a character somehow.");
+		LOG("Some user tried to finish the rebuild but they didn't have a character somehow.");
 		return;
 	}
 
@@ -482,11 +482,11 @@ void RebuildComponent::CompleteRebuild(Entity* user) {
 					if (missionComponent) missionComponent->Progress(eMissionTaskType::ACTIVITY, m_ActivityId);
 				}
 			}
-		} else{
+		} else {
 			auto* missionComponent = builder->GetComponent<MissionComponent>();
 			if (missionComponent) missionComponent->Progress(eMissionTaskType::ACTIVITY, m_ActivityId);
 		}
-		LootGenerator::Instance().DropActivityLoot(builder, m_Parent, m_ActivityId, 1);
+		Loot::DropActivityLoot(builder, m_Parent, m_ActivityId, 1);
 	}
 
 	// Notify scripts

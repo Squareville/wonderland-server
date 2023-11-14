@@ -6,12 +6,12 @@
 #include "dZoneManager.h"
 #include "ZoneInstanceManager.h"
 #include "Game.h"
-#include "dLogger.h"
+#include "Logger.h"
 #include <WorldPackets.h>
 #include "EntityManager.h"
 #include "ChatPackets.h"
 #include "Player.h"
-#include "PacketUtils.h"
+#include "BitStreamUtils.h"
 #include "dServer.h"
 #include "GeneralUtils.h"
 #include "dZoneManager.h"
@@ -36,7 +36,7 @@ ScriptedActivityComponent::ScriptedActivityComponent(Entity* parent, int activit
 
 	for (CDActivities activity : activities) {
 		m_ActivityInfo = activity;
-		if (static_cast<LeaderboardType>(activity.leaderboardType) == LeaderboardType::Racing && Game::config->GetValue("solo_racing") == "1") {
+		if (static_cast<Leaderboard::Type>(activity.leaderboardType) == Leaderboard::Type::Racing && Game::config->GetValue("solo_racing") == "1") {
 			m_ActivityInfo.minTeamSize = 1;
 			m_ActivityInfo.minTeams = 1;
 		}
@@ -82,7 +82,7 @@ ScriptedActivityComponent::ScriptedActivityComponent(Entity* parent, int activit
 ScriptedActivityComponent::~ScriptedActivityComponent()
 = default;
 
-void ScriptedActivityComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate, unsigned int& flags) const {
+void ScriptedActivityComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUpdate) {
 	outBitStream->Write(true);
 	outBitStream->Write<uint32_t>(m_ActivityPlayers.size());
 
@@ -273,7 +273,7 @@ void ScriptedActivityComponent::Update(float deltaTime) {
 
 		// The timer has elapsed, start the instance
 		if (lobby->timer <= 0.0f) {
-			Game::logger->Log("ScriptedActivityComponent", "Setting up instance.");
+			LOG("Setting up instance.");
 			ActivityInstance* instance = NewInstance();
 			LoadPlayersIntoInstance(instance, lobby->players);
 			instance->StartZone();
@@ -516,7 +516,7 @@ void ActivityInstance::StartZone() {
 	// only make a team if we have more than one participant
 	if (participants.size() > 1) {
 		CBITSTREAM;
-		PacketUtils::WriteHeader(bitStream, eConnectionType::CHAT_INTERNAL, eChatInternalMessageType::CREATE_TEAM);
+		BitStreamUtils::WriteHeader(bitStream, eConnectionType::CHAT_INTERNAL, eChatInternalMessageType::CREATE_TEAM);
 
 		bitStream.Write(leader->GetObjectID());
 		bitStream.Write(m_Participants.size());
@@ -539,7 +539,7 @@ void ActivityInstance::StartZone() {
 			if (player == nullptr)
 				return;
 
-			Game::logger->Log("UserManager", "Transferring %s to Zone %i (Instance %i | Clone %i | Mythran Shift: %s) with IP %s and Port %i", player->GetCharacter()->GetName().c_str(), zoneID, zoneInstance, zoneClone, mythranShift == true ? "true" : "false", serverIP.c_str(), serverPort);
+			LOG("Transferring %s to Zone %i (Instance %i | Clone %i | Mythran Shift: %s) with IP %s and Port %i", player->GetCharacter()->GetName().c_str(), zoneID, zoneInstance, zoneClone, mythranShift == true ? "true" : "false", serverIP.c_str(), serverPort);
 			if (player->GetCharacter()) {
 				player->GetCharacter()->SetZoneID(zoneID);
 				player->GetCharacter()->SetZoneInstance(zoneInstance);
@@ -576,7 +576,7 @@ void ActivityInstance::RewardParticipant(Entity* participant) {
 			maxCoins = currencyTable[0].maxvalue;
 		}
 
-		LootGenerator::Instance().DropLoot(participant, m_Parent, activityRewards[0].LootMatrixIndex, minCoins, maxCoins);
+		Loot::DropLoot(participant, m_Parent, activityRewards[0].LootMatrixIndex, minCoins, maxCoins);
 	}
 }
 
