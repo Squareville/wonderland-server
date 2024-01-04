@@ -4,7 +4,7 @@
 #include "Entity.h"
 #include "EntityManager.h"
 
-void SpawnSnowmanOnDeath::OnRebuildComplete(Entity* self, Entity* target) {
+void SpawnSnowmanOnDeath::OnQuickBuildComplete(Entity* self, Entity* target) {
 	// becuase some snowmen are high up and it would be stupid to spawn on them
 	if (self->GetPosition().y > 550) return;
 	auto chance = GeneralUtils::GenerateRandomNumber<uint32_t>(1, 100);
