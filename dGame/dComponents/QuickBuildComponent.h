@@ -170,8 +170,8 @@ public:
 	void SetDoReset(bool doReset) {	m_DoReset = doReset; };
 
 	/**
-	 * Returns the time it takes for an incomplete rebuild to be smashed automatically
-	 * @return the time it takes for an incomplete rebuild to be smashed automatically
+	 * Returns the time it takes for an incomplete quickbuild to be smashed automatically
+	 * @return the time it takes for an incomplete quickbuild to be smashed automatically
 	 */
 	float GetTimeBeforeSmash();
 
