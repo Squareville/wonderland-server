@@ -55,6 +55,7 @@
 //CDB includes:
 #include "CDClientManager.h"
 #include "CDEmoteTable.h"
+#include "CDMapFacesAndHairTable.h"
 
 //Component includes:
 #include "ControllablePhysicsComponent.h"
@@ -4666,19 +4667,93 @@ void GameMessages::HandleBuyFromVendor(RakNet::BitStream* inStream, Entity* enti
 		return;
 	}
 
+	Character* character = player->GetCharacter();
+	if (!character) return;
+
 	CDComponentsRegistryTable* compRegistryTable = CDClientManager::Instance().GetTable<CDComponentsRegistryTable>();
 	CDItemComponentTable* itemComponentTable = CDClientManager::Instance().GetTable<CDItemComponentTable>();
+	CDMapFacesAndHairTable* faceAndHairTable = CDClientManager::Instance().GetTable<CDMapFacesAndHairTable>();
 
 	int itemCompID = compRegistryTable->GetByIDAndType(item, eReplicaComponentType::ITEM);
 	CDItemComponent itemComp = itemComponentTable->GetItemComponentByID(itemCompID);
 
-	Character* character = player->GetCharacter();
-	if (!character) return;
+	CDMapFacesAndHair faceAndHairId = faceAndHairTable->GetByLot(item);
+	CDMapFacesAndHair oldEyes = faceAndHairTable->GetByEyes(character->GetEyes());
+
+	uint32_t bobEyes = 9;
+	uint32_t bobMouth = 8;
+	uint32_t bobEyebrows = 33;
+
+	uint32_t eyesToSet = 0;
+	uint32_t mouthToSet = 0;
+	uint32_t eyebrowsToSet = 0;
+
+	// if we are buying a face vendor item
+    if (faceAndHairId.id != 0) {
+		if (faceAndHairId.eyes != 0) { // we have new eyes
+			eyesToSet = faceAndHairId.eyes;
+			if (oldEyes.eyebrows != 0) eyebrowsToSet = bobEyebrows;
+			if (oldEyes.mouth != 0)	mouthToSet = bobMouth;
+		}
+
+		if (faceAndHairId.eyebrows != 0) { // we have new eyebrows
+			eyebrowsToSet = faceAndHairId.eyebrows;
+			if (oldEyes.eyebrows != 0 && eyesToSet == 0) {
+				eyesToSet = bobEyes;
+				if (oldEyes.mouth != 0)	mouthToSet = bobMouth;
+			}
+		}
+
+		if (faceAndHairId.mouth != 0) { // we have a new mouth
+			mouthToSet = faceAndHairId.mouth;
+
+			if (oldEyes.mouth != 0 && eyesToSet == 0) {
+				eyesToSet = bobEyes;
+				if (oldEyes.eyebrows != 0) eyebrowsToSet = bobEyebrows;
+			}
+		}
+
+		if (faceAndHairId.haircolor != -1) {
+			character->SetHairColor(faceAndHairId.haircolor);
+			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"UpdateHairColor", faceAndHairId.haircolor, 0, LWOOBJID_EMPTY, "", sysAddr);
+			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"SomeoneElseUpdatedHairColor", faceAndHairId.haircolor, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
+		}
+
+		if (faceAndHairId.hairstyle != -1) {
+			character->SetHairStyle(faceAndHairId.hairstyle);
+			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"UpdateHairStyle", faceAndHairId.hairstyle, 0, LWOOBJID_EMPTY, "", sysAddr);
+			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"SomeoneElseUpdatedHairStyle", faceAndHairId.hairstyle, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
+		}
+
+		if (eyebrowsToSet != 0) {
+			character->SetEyebrows(eyebrowsToSet);
+			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"UpdateEyebrows", eyebrowsToSet, 0, LWOOBJID_EMPTY, "", sysAddr);
+			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"SomeoneElseUpdatedEyebrows", eyebrowsToSet, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
+		}
+
+		if (eyesToSet != 0) {
+			character->SetEyes(eyesToSet);
+			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"UpdateEyes", eyesToSet, 0, LWOOBJID_EMPTY, "", sysAddr);
+			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"SomeoneElseUpdatedEyes", eyesToSet, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
+		}
+
+		if (mouthToSet != 0) {
+			character->SetMouth(mouthToSet);
+			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"UpdateMouth", mouthToSet, 0, LWOOBJID_EMPTY, "", sysAddr);
+			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"SomeoneElseUpdatedMouth", mouthToSet, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
+		}
+
+		GameMessages::SendVendorTransactionResult(entity, sysAddr);
+
+		character->SaveXMLToDatabase();
+
+		return;
+	}
 
 	// Extra currency that needs to be deducted in case of crafting
 	auto craftingCurrencies = CDItemComponentTable::ParseCraftingCurrencies(itemComp);
 	for (const auto& craftingCurrency : craftingCurrencies) {
-		inv->RemoveItem(craftingCurrency.first, craftingCurrency.second * count);
+		inv->RemoveItemFromAllInventories(craftingCurrency.first, craftingCurrency.second * count);
 	}
 
 	if (isCommendationVendor) {

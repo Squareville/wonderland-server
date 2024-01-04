@@ -15,7 +15,7 @@ public:
 
 	/**
 	 * Fetch a table from CDClient
-	 * 
+	 *
 	 * @tparam Table type to fetch
 	 * @return A pointer to the requested table.
 	 */

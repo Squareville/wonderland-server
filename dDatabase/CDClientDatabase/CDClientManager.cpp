@@ -37,6 +37,7 @@
 #include "CDPropertyTemplateTable.h"
 #include "CDFeatureGatingTable.h"
 #include "CDRailActivatorComponent.h"
+#include "CDMapFacesAndHairTable.h"
 #include "CDRewardCodesTable.h"
 
 // Uncomment this to cache the full cdclient database into memory. This will make the server load faster, but will use more memory.
@@ -66,6 +67,7 @@ CDClientManager::CDClientManager() {
 	CDItemSetSkillsTable::Instance().LoadValuesFromDatabase();
 	CDItemSetsTable::Instance().LoadValuesFromDatabase();
 	CDLevelProgressionLookupTable::Instance().LoadValuesFromDatabase();
+	CDMapFacesAndHairTable::Instance().LoadValuesFromDatabase();
 	CDCLIENT_DONT_CACHE_TABLE(CDLootMatrixTable::Instance().LoadValuesFromDatabase());
 	CDCLIENT_DONT_CACHE_TABLE(CDLootTableTable::Instance().LoadValuesFromDatabase());
 	CDMissionEmailTable::Instance().LoadValuesFromDatabase();
