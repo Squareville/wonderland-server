@@ -214,6 +214,7 @@
 #include "NTNaomiDirtServer.h"
 #include "MinigameBlueMark.h"
 #include "NtNaomiBreadcrumbServer.h"
+#include "VisToggleNotifierServer.h"
 
 // DLU Scripts
 #include "DLUVanityNPC.h"
@@ -282,6 +283,7 @@
 #include "ImaginationBackpackHealServer.h"
 #include "LegoDieRoll.h"
 #include "BuccaneerValiantShip.h"
+#include "XMarksTheSpotChest.h"
 #include "GemPack.h"
 #include "ShardArmor.h"
 #include "TeslaPack.h"
@@ -316,7 +318,14 @@
 #include "WildNinjaStudent.h"
 #include "WildNinjaSensei.h"
 #include "WildNinjaBricks.h"
-#include "VisToggleNotifierServer.h"
+#include "RubyScepterDrop.h"
+
+// Wonderland
+#include "SpawnSkeletonOnDeath.h"
+#include "DieAfterXSeconds.h"
+#include "DamageReduction.h"
+#include "SpawnSnowmanOnDeath.h"
+
 
 namespace {
 	InvalidScript* invalidToReturn = new InvalidScript();
@@ -866,6 +875,8 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new LegoDieRoll();
 	else if (scriptName == "scripts\\EquipmentScripts\\BuccaneerValiantShip.lua")
 		script = new BuccaneerValiantShip();
+	else if (scriptName == "scripts\\EquipmentScripts\\XMarksTheSpot1.lua")
+		script = new XMarksTheSpotChest();
 	else if (scriptName == "scripts\\EquipmentScripts\\FireFirstSkillonStartup.lua")
 		script = new FireFirstSkillonStartup();
 	else if (scriptName == "scripts\\equipmenttriggers\\gempack.lua")
@@ -922,6 +933,8 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new SpecialPowerupSpawner(747);
 	else if (scriptName == "scripts\\ai\\SPEC\\L_SPECIAL_SPEED_BUFF_SPAWNER.lua")
 		script = new SpecialSpeedBuffSpawner();
+	else if (scriptName == "scripts\\DLU\\L_RUBY_SCEPTER_DROP.lua")
+		script = new RubyScepterDrop();
 
 	// Wild
 	if (scriptName == "scripts\\ai\\WILD\\L_WILD_GF_RAT.lua" || scriptName == "scripts\\ai\\WILD\\L_WILD_GF_SNAIL.lua")
@@ -938,6 +951,28 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new WildNinjaStudent();
 	else if (scriptName == "scripts\\ai\\WILD\\L_WILD_NINJA_SENSEI.lua")
 		script = new WildNinjaSensei();
+
+	// newcontent
+	if (scriptName == "scripts\\newcontent\\server\\spawnskeletonondeath.lua")
+		script = new SpawnSkeletonOnDeath();
+	else if (scriptName == "scripts\\newcontent\\server\\dieafter10seconds.lua")
+		script = new DieAfterXSeconds(10);
+	else if (scriptName == "scripts\\newcontent\\server\\dieafter20seconds.lua")
+		script = new DieAfterXSeconds(20);
+	else if (scriptName == "scripts\\newcontent\\server\\dieafter30seconds.lua")
+		script = new DieAfterXSeconds(30);
+	else if (scriptName == "scripts\\newcontent\\server\\dieafter40seconds.lua")
+		script = new DieAfterXSeconds(40);
+	else if (scriptName == "scripts\\newcontent\\server\\dieafter50seconds.lua")
+		script = new DieAfterXSeconds(50);
+	else if (scriptName == "scripts\\newcontent\\server\\dieafter60seconds.lua")
+		script = new DieAfterXSeconds(60);
+	else if (scriptName == R"(scripts\newcontent\server\damagereduction999.lua)")
+		script = new DamageReduction(1996);
+	else if (scriptName == R"(scripts\newcontent\server\halloweenskeleton.lua)")
+		script = new DamageReduction(1996, true);
+	else if (scriptName == R"(scripts\newcontent\server\spawnsnowmanondeath.lua)")
+		script = new SpawnSnowmanOnDeath();
 
 	// handle invalid script reporting if the path is greater than zero and it's not an ignored script
 	// information not really needed for sys admins but is for developers
