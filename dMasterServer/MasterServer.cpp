@@ -7,11 +7,7 @@
 #include <thread>
 #include <fstream>
 
-#ifdef _WIN32
 #include <bcrypt/BCrypt.hpp>
-#else
-#include <bcrypt.h>
-#endif
 
 #include <csignal>
 
@@ -43,6 +39,7 @@
 #include "PacketUtils.h"
 #include "FdbToSqlite.h"
 #include "BitStreamUtils.h"
+#include "Start.h"
 
 namespace Game {
 	Logger* logger = nullptr;
@@ -50,16 +47,15 @@ namespace Game {
 	InstanceManager* im = nullptr;
 	dConfig* config = nullptr;
 	AssetManager* assetManager = nullptr;
-	bool shouldShutdown = false;
+	Game::signal_t lastSignal = 0;
+	bool universeShutdownRequested = false;
 	std::mt19937 randomEngine;
 } //namespace Game
 
 bool shutdownSequenceStarted = false;
-void ShutdownSequence(int32_t signal = -1);
+int ShutdownSequence(int32_t signal = -1);
 int32_t FinalizeShutdown(int32_t signal = -1);
 Logger* SetupLogger();
-void StartAuthServer();
-void StartChatServer();
 void HandlePacket(Packet* packet);
 std::map<uint32_t, std::string> activeSessions;
 SystemAddress authServerMasterPeerSysAddr;
@@ -78,39 +74,39 @@ int main(int argc, char** argv) {
 
 	//Triggers the shutdown sequence at application exit
 	std::atexit([]() { ShutdownSequence(); });
-	signal(SIGINT, [](int32_t signal) { ShutdownSequence(EXIT_FAILURE); });
-	signal(SIGTERM, [](int32_t signal) { ShutdownSequence(EXIT_FAILURE); });
+	std::signal(SIGINT, Game::OnSignal);
+	std::signal(SIGTERM, Game::OnSignal);
 
 	//Create all the objects we need to run our service:
 	Game::logger = SetupLogger();
 	if (!Game::logger) return EXIT_FAILURE;
 
-	if (!std::filesystem::exists(BinaryPathFinder::GetBinaryDir() / "authconfig.ini")) {
+	if (!dConfig::Exists("authconfig.ini")) {
 		LOG("Couldnt find authconfig.ini");
 		return EXIT_FAILURE;
 	}
 
-	if (!std::filesystem::exists(BinaryPathFinder::GetBinaryDir() / "chatconfig.ini")) {
+	if (!dConfig::Exists("chatconfig.ini")) {
 		LOG("Couldnt find chatconfig.ini");
 		return EXIT_FAILURE;
 	}
 
-	if (!std::filesystem::exists(BinaryPathFinder::GetBinaryDir() / "masterconfig.ini")) {
+	if (!dConfig::Exists("masterconfig.ini")) {
 		LOG("Couldnt find masterconfig.ini");
 		return EXIT_FAILURE;
 	}
 
-	if (!std::filesystem::exists(BinaryPathFinder::GetBinaryDir() / "sharedconfig.ini")) {
+	if (!dConfig::Exists("sharedconfig.ini")) {
 		LOG("Couldnt find sharedconfig.ini");
 		return EXIT_FAILURE;
 	}
 
-	if (!std::filesystem::exists(BinaryPathFinder::GetBinaryDir() / "worldconfig.ini")) {
+	if (!dConfig::Exists("worldconfig.ini")) {
 		LOG("Couldnt find worldconfig.ini");
 		return EXIT_FAILURE;
 	}
 
-	Game::config = new dConfig((BinaryPathFinder::GetBinaryDir() / "masterconfig.ini").string());
+	Game::config = new dConfig("masterconfig.ini");
 	Game::logger->SetLogToConsole(Game::config->GetValue("log_to_console") != "0");
 	Game::logger->SetLogDebugStatements(Game::config->GetValue("log_debug_statements") == "1");
 
@@ -126,7 +122,7 @@ int main(int argc, char** argv) {
 	LOG("Using net version %s", Game::config->GetValue("client_net_version").c_str());
 
 	LOG("Starting Master server...");
-	LOG("Version: %i.%i", PROJECT_VERSION_MAJOR, PROJECT_VERSION_MINOR);
+	LOG("Version: %s", PROJECT_VERSION);
 	LOG("Compiled on: %s", __TIMESTAMP__);
 
 	//Connect to the MySQL Database
@@ -289,9 +285,9 @@ int main(int argc, char** argv) {
 	uint32_t maxClients = 999;
 	uint32_t ourPort = 1000;
 	if (Game::config->GetValue("max_clients") != "") maxClients = std::stoi(Game::config->GetValue("max_clients"));
-	if (Game::config->GetValue("port") != "") ourPort = std::stoi(Game::config->GetValue("port"));
+	if (Game::config->GetValue("master_server_port") != "") ourPort = std::stoi(Game::config->GetValue("master_server_port"));
 
-	Game::server = new dServer(Game::config->GetValue("external_ip"), ourPort, 0, maxClients, true, false, Game::logger, "", 0, ServerType::Master, Game::config, &Game::shouldShutdown);
+	Game::server = new dServer(Game::config->GetValue("external_ip"), ourPort, 0, maxClients, true, false, Game::logger, "", 0, ServerType::Master, Game::config, &Game::lastSignal);
 
 	//Query for the database for a server labeled "master"
 
@@ -326,7 +322,8 @@ int main(int argc, char** argv) {
 	uint32_t framesSinceLastSQLPing = 0;
 	uint32_t framesSinceKillUniverseCommand = 0;
 
-	while (true) {
+	Game::logger->Flush();
+	while (!Game::ShouldShutdown()) {
 		//In world we'd update our other systems here.
 
 		//Check for packets here:
@@ -360,10 +357,10 @@ int main(int argc, char** argv) {
 			framesSinceLastSQLPing++;
 
 		//10m shutdown for universe kill command
-		if (Game::shouldShutdown) {
+		if (Game::universeShutdownRequested) {
 			if (framesSinceKillUniverseCommand >= shutdownUniverseTime) {
 				//Break main loop and exit
-				break;
+				Game::lastSignal = -1;
 			} else
 				framesSinceKillUniverseCommand++;
 		}
@@ -407,7 +404,7 @@ int main(int argc, char** argv) {
 		t += std::chrono::milliseconds(masterFrameDelta);
 		std::this_thread::sleep_until(t);
 	}
-	return FinalizeShutdown(EXIT_SUCCESS);
+	return ShutdownSequence(EXIT_SUCCESS);
 }
 
 Logger* SetupLogger() {
@@ -804,7 +801,7 @@ void HandlePacket(Packet* packet) {
 
 		case eMasterMessageType::SHUTDOWN_UNIVERSE: {
 			LOG("Received shutdown universe command, shutting down in 10 minutes.");
-			Game::shouldShutdown = true;
+			Game::universeShutdownRequested = true;
 			break;
 		}
 
@@ -880,46 +877,12 @@ void HandlePacket(Packet* packet) {
 	}
 }
 
-void StartChatServer() {
-	if (Game::shouldShutdown) {
-		LOG("Currently shutting down.  Chat will not be restarted.");
-		return;
-	}
-#ifdef __APPLE__
-	//macOS doesn't need sudo to run on ports < 1024
-	auto result = system(((BinaryPathFinder::GetBinaryDir() / "ChatServer").string() + "&").c_str());
-#elif _WIN32
-	auto result = system(("start " + (BinaryPathFinder::GetBinaryDir() / "ChatServer.exe").string()).c_str());
-#else
-	if (std::atoi(Game::config->GetValue("use_sudo_chat").c_str())) {
-		auto result = system(("sudo " + (BinaryPathFinder::GetBinaryDir() / "ChatServer").string() + "&").c_str());
-	} else {
-		auto result = system(((BinaryPathFinder::GetBinaryDir() / "ChatServer").string() + "&").c_str());
-}
-#endif
-}
-
-void StartAuthServer() {
-	if (Game::shouldShutdown) {
-		LOG("Currently shutting down.  Auth will not be restarted.");
-		return;
-	}
-#ifdef __APPLE__
-	auto result = system(((BinaryPathFinder::GetBinaryDir() / "AuthServer").string() + "&").c_str());
-#elif _WIN32
-	auto result = system(("start " + (BinaryPathFinder::GetBinaryDir() / "AuthServer.exe").string()).c_str());
-#else
-	if (std::atoi(Game::config->GetValue("use_sudo_auth").c_str())) {
-		auto result = system(("sudo " + (BinaryPathFinder::GetBinaryDir() / "AuthServer").string() + "&").c_str());
-	} else {
-		auto result = system(((BinaryPathFinder::GetBinaryDir() / "AuthServer").string() + "&").c_str());
-}
-#endif
-}
-
-void ShutdownSequence(int32_t signal) {
+int ShutdownSequence(int32_t signal) {
+	if (!Game::logger) return -1;
+	LOG("Recieved Signal %d", signal);
 	if (shutdownSequenceStarted) {
-		return;
+		LOG("Duplicate Shutdown Sequence");
+		return -1;
 	}
 
 	if (!Game::im) {
@@ -928,7 +891,7 @@ void ShutdownSequence(int32_t signal) {
 
 	Game::im->SetIsShuttingDown(true);
 	shutdownSequenceStarted = true;
-	Game::shouldShutdown = true;
+	Game::lastSignal = -1;
 
 	{
 		CBITSTREAM;
@@ -997,16 +960,20 @@ void ShutdownSequence(int32_t signal) {
 		}
 	}
 
-	FinalizeShutdown(signal);
+	return FinalizeShutdown(signal);
 }
 
 int32_t FinalizeShutdown(int32_t signal) {
 	//Delete our objects here:
 	Database::Destroy("MasterServer");
 	if (Game::config) delete Game::config;
+	Game::config = nullptr;
 	if (Game::im) delete Game::im;
+	Game::im = nullptr;
 	if (Game::server) delete Game::server;
+	Game::server = nullptr;
 	if (Game::logger) delete Game::logger;
+	Game::logger = nullptr;
 
 	if (signal != EXIT_SUCCESS) exit(signal);
 	return signal;

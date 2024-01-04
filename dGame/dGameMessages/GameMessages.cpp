@@ -64,7 +64,7 @@
 #include "MissionComponent.h"
 #include "DestroyableComponent.h"
 #include "ScriptComponent.h"
-#include "RebuildComponent.h"
+#include "QuickBuildComponent.h"
 #include "VendorComponent.h"
 #include "InventoryComponent.h"
 #include "RocketLaunchpadControlComponent.h"
@@ -390,7 +390,7 @@ void GameMessages::SendPlatformResync(Entity* entity, const SystemAddress& sysAd
 	bitStream.Write(bReverse);
 	bitStream.Write(bStopAtDesiredWaypoint);
 	bitStream.Write(eCommand);
-	bitStream.Write<int32_t>(static_cast<int32_t>(movementState));
+	bitStream.Write(static_cast<int32_t>(movementState));
 	bitStream.Write(eUnexpectedCommand);
 	bitStream.Write(fIdleTimeElapsed);
 	bitStream.Write(fMoveTimeElapsed);
@@ -583,7 +583,7 @@ void GameMessages::SendNotifyMissionTask(Entity* entity, const SystemAddress& sy
 
 	bitStream.Write(missionID);
 	bitStream.Write(taskMask);
-	bitStream.Write((unsigned char)updates.size());
+	bitStream.Write<unsigned char>(updates.size());
 
 	for (uint32_t i = 0; i < updates.size(); ++i) {
 		bitStream.Write(updates[i]);
@@ -768,7 +768,7 @@ void GameMessages::SendSetCurrency(Entity* entity, int64_t currency, int lootTyp
 	SEND_PACKET;
 }
 
-void GameMessages::SendRebuildNotifyState(Entity* entity, eRebuildState prevState, eRebuildState state, const LWOOBJID& playerID) {
+void GameMessages::SendQuickBuildNotifyState(Entity* entity, eQuickBuildState prevState, eQuickBuildState state, const LWOOBJID& playerID) {
 	CBITSTREAM;
 	CMSGHEADER;
 
@@ -782,7 +782,7 @@ void GameMessages::SendRebuildNotifyState(Entity* entity, eRebuildState prevStat
 	SEND_PACKET_BROADCAST;
 }
 
-void GameMessages::SendEnableRebuild(Entity* entity, bool enable, bool fail, bool success, eQuickBuildFailReason failReason, float duration, const LWOOBJID& playerID) {
+void GameMessages::SendEnableQuickBuild(Entity* entity, bool enable, bool fail, bool success, eQuickBuildFailReason failReason, float duration, const LWOOBJID& playerID) {
 	CBITSTREAM;
 	CMSGHEADER;
 
@@ -1951,7 +1951,7 @@ void GameMessages::SendBBBSaveResponse(const LWOOBJID& objectId, const LWOOBJID&
 		bitStream.Write(buffer[i]);
 
 	SEND_PACKET;
-	PacketUtils::SavePacket("eGameMessageType::BBB_SAVE_RESPONSE.bin", (char*)bitStream.GetData(), bitStream.GetNumberOfBytesUsed());
+	//PacketUtils::SavePacket("eGameMessageType::BBB_SAVE_RESPONSE.bin", reinterpret_cast<char*>(bitStream.GetData()), bitStream.GetNumberOfBytesUsed());
 }
 
 // Property
@@ -4991,7 +4991,7 @@ void GameMessages::HandleFireEventServerSide(RakNet::BitStream* inStream, Entity
 			mapId = Game::zoneManager->GetZoneID().GetMapID(); // Fallback to sending the player back to the same zone.
 		}
 
-		LOG("Player %llu has requested zone transfer to (%i, %i).", sender->GetObjectID(), (int)mapId, (int)cloneId);
+		LOG("Player %llu has requested zone transfer to (%i, %i).", sender->GetObjectID(), static_cast<int>(mapId), static_cast<int>(cloneId));
 
 		auto* character = player->GetCharacter();
 
@@ -5021,17 +5021,17 @@ void GameMessages::HandleRequestPlatformResync(RakNet::BitStream* inStream, Enti
 	GameMessages::SendPlatformResync(entity, sysAddr);
 }
 
-void GameMessages::HandleRebuildCancel(RakNet::BitStream* inStream, Entity* entity) {
+void GameMessages::HandleQuickBuildCancel(RakNet::BitStream* inStream, Entity* entity) {
 	bool bEarlyRelease;
 	LWOOBJID userID;
 
 	inStream->Read(bEarlyRelease);
 	inStream->Read(userID);
 
-	RebuildComponent* rebComp = static_cast<RebuildComponent*>(entity->GetComponent(eReplicaComponentType::QUICK_BUILD));
-	if (!rebComp) return;
+	auto* quickBuildComponent = static_cast<QuickBuildComponent*>(entity->GetComponent(eReplicaComponentType::QUICK_BUILD));;
+	if (!quickBuildComponent) return;
 
-	rebComp->CancelRebuild(Game::entityManager->GetEntity(userID), eQuickBuildFailReason::CANCELED_EARLY);
+	quickBuildComponent->CancelQuickBuild(Game::entityManager->GetEntity(userID), eQuickBuildFailReason::CANCELED_EARLY);
 }
 
 void GameMessages::HandleRequestUse(RakNet::BitStream* inStream, Entity* entity, const SystemAddress& sysAddr) {
@@ -5357,7 +5357,7 @@ void GameMessages::HandleRequestDie(RakNet::BitStream* inStream, Entity* entity)
 	/*uint32_t deathTypeLength = deathType.size();
 	inStream->Read(deathTypeLength);
 	for (uint32_t k = 0; k < deathTypeLength; k++) {
-		inStream->Read(static_cast<uint16_t>(deathType[k]));
+		inStream->Read<uint16_t>(deathType[k]);
 	}*/
 
 	inStream->Read(directionRelative_AngleXZ);
@@ -6145,7 +6145,7 @@ void GameMessages::HandleUpdatePlayerStatistic(RakNet::BitStream* inStream, Enti
 
 	auto* characterComponent = entity->GetComponent<CharacterComponent>();
 	if (characterComponent != nullptr) {
-		characterComponent->UpdatePlayerStatistic((StatisticID)updateID, (uint64_t)std::max(updateValue, int64_t(0)));
+		characterComponent->UpdatePlayerStatistic(static_cast<StatisticID>(updateID), static_cast<uint64_t>(std::max(updateValue, static_cast<int64_t>(0))));
 	}
 }
 
