@@ -5,13 +5,14 @@
 
 #include "SlashCommandHandler.h"
 
-#include <sstream>
-#include <iostream>
-#include <fstream>
-#include <exception>
-#include "dZoneManager.h"
+#include <stdio.h> /* defines FILENAME_MAX */
 
-#include <stdio.h>  /* defines FILENAME_MAX */
+#include <exception>
+#include <fstream>
+#include <iostream>
+#include <sstream>
+#include "WorldConfig.h"
+#include "dZoneManager.h"
 #ifdef _WIN32
 #include <direct.h>
 #define GetCurrentDir _getcwd
@@ -20,34 +21,27 @@
 #define GetCurrentDir getcwd
 #endif
 
-#include "Metrics.hpp"
-
-#include "User.h"
-#include "UserManager.h"
 #include "BitStream.h"
-#include "dCommonVars.h"
-#include "GeneralUtils.h"
-#include "Entity.h"
-#include "EntityManager.h"
 #include "Logger.h"
-#include "WorldPackets.h"
-#include "GameMessages.h"
 #include "CDClientDatabase.h"
-#include "ZoneInstanceManager.h"
-#include "ControllablePhysicsComponent.h"
-#include "NiPoint3.h"
-#include "NiQuaternion.h"
-#include "ChatPackets.h"
-#include "InventoryComponent.h"
-#include "Game.h"
 #include "CharacterComponent.h"
+#include "ChatPackets.h"
+#include "ControllablePhysicsComponent.h"
 #include "Database.h"
 #include "DestroyableComponent.h"
-#include "dServer.h"
-#include "MissionComponent.h"
-#include "Mail.h"
-#include "dpWorld.h"
+#include "Entity.h"
+#include "EntityManager.h"
+#include "Game.h"
+#include "GameMessages.h"
+#include "GeneralUtils.h"
+#include "InventoryComponent.h"
 #include "Item.h"
+#include "LevelProgressionComponent.h"
+#include "Mail.h"
+#include "Metrics.hpp"
+#include "MissionComponent.h"
+#include "NiPoint3.h"
+#include "NiQuaternion.h"
 #include "PropertyManagementComponent.h"
 #include "BitStreamUtils.h"
 #include "Loot.h"
@@ -55,15 +49,25 @@
 #include "LUTriggers.h"
 #include "Player.h"
 #include "PhantomPhysicsComponent.h"
-#include "ProximityMonitorComponent.h"
-#include "dpShapeSphere.h"
+#include "Player.h"
 #include "PossessableComponent.h"
 #include "PossessorComponent.h"
+#include "ProximityMonitorComponent.h"
 #include "HavokVehiclePhysicsComponent.h"
 #include "BuffComponent.h"
 #include "SkillComponent.h"
 #include "VanityUtilities.h"
 #include "ScriptedActivityComponent.h"
+#include "SkillComponent.h"
+#include "User.h"
+#include "UserManager.h"
+#include "VanityUtilities.h"
+#include "WorldPackets.h"
+#include "ZoneInstanceManager.h"
+#include "dCommonVars.h"
+#include "dServer.h"
+#include "dpShapeSphere.h"
+#include "dpWorld.h"
 #include "LevelProgressionComponent.h"
 #include "AssetManager.h"
 #include "BinaryPathFinder.h"
@@ -82,6 +86,7 @@
 #include "eConnectionType.h"
 #include "eChatInternalMessageType.h"
 #include "eMasterMessageType.h"
+#include "ePlayerFlag.h"
 
 #include "CDRewardCodesTable.h"
 #include "CDObjectsTable.h"
@@ -191,6 +196,29 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
 	//HANDLE ALL NON GM SLASH COMMANDS RIGHT HERE!
 	//!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!
+
+	// If the entity that uses this command is at the level cap, they will get rewards
+	// the same way they did before hitting the level cap.  If used below the cap nothing should happen
+	// and if used again this will allow players to get only coins again.
+	if (chatCommand == "togglexp") {
+		auto levelComponent = entity->GetComponent<LevelProgressionComponent>();
+		if (levelComponent != nullptr) {
+			if (levelComponent->GetLevel() >= Game::zoneManager->GetWorldConfig()->levelCap) {
+				auto character = entity->GetCharacter();
+				character->SetPlayerFlag(
+					ePlayerFlag::GIVE_USCORE_FROM_MISSIONS_AT_MAX_LEVEL,
+					!character->GetPlayerFlag(ePlayerFlag::GIVE_USCORE_FROM_MISSIONS_AT_MAX_LEVEL));
+				character->GetPlayerFlag(
+					ePlayerFlag::GIVE_USCORE_FROM_MISSIONS_AT_MAX_LEVEL) == true
+					? ChatPackets::SendSystemMessage(
+						sysAddr, u"You will now get coins and u-score as rewards.")
+					: ChatPackets::SendSystemMessage(
+						sysAddr, u"You will now get only coins as rewards.");
+				return;
+			}
+			ChatPackets::SendSystemMessage(sysAddr, u"You must be at the max level to use this command.");
+		}
+	}
 
 	if (chatCommand == "pvp") {
 		auto* character = entity->GetComponent<CharacterComponent>();
@@ -739,6 +767,28 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 
 		// FIXME: use fallible ASCIIToUTF16 conversion, because non-ascii isn't valid anyway
 		GameMessages::SendPlayFXEffect(entity->GetObjectID(), effectID, GeneralUtils::ASCIIToUTF16(args[1]), args[2]);
+	}
+
+	if (chatCommand == "printallobjects" && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER) {
+		auto allEntities = Game::entityManager->GetAllEntities();
+		std::ofstream output((BinaryPathFinder::GetBinaryDir() / std::to_string(Game::zoneManager->GetZoneID().GetMapID())).string() + "_Objects.txt");
+		auto* cdobjectsTable = CDClientManager::Instance().GetTable<CDObjectsTable>();
+		std::map<std::string, std::pair<CDObjects, uint32_t>> objects;
+		for (const auto& [id, entity] : allEntities) {
+			const auto lotInfo = cdobjectsTable->GetByID(entity->GetLOT());
+			std::string name = lotInfo.name.empty() ? "Object_" + std::to_string(entity->GetLOT()) + "_name" : lotInfo.name;
+			auto itr = objects.find(name);
+			if (itr == objects.end()) {
+				objects.insert_or_assign(name, std::pair<CDObjects, uint32_t>(lotInfo, 1));
+			} else {
+				itr->second.second++;
+			}
+		}
+		// now output the LOT, name, type and count of each object
+		for (const auto& [name, pair] : objects) {
+			output << "LOT: " << pair.first.id << ", " << std::quoted(name) << ", " << pair.first.type << ": " << pair.second << " instances\n";
+		}
+		ChatPackets::SendSystemMessage(sysAddr, u"Printed all objects to " + GeneralUtils::ASCIIToUTF16((BinaryPathFinder::GetBinaryDir() / std::to_string(Game::zoneManager->GetZoneID().GetMapID())).string() + "_Objects.txt"));
 	}
 
 	if (chatCommand == "stopeffect" && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER && args.size() >= 1) {
@@ -1432,6 +1482,61 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 
 		auto* ch = entity->GetCharacter();
 		ch->SetCoins(ch->GetCoins() + money, eLootSourceType::MODERATION);
+	}
+
+	if (chatCommand == "killinstance" && args.size() >= 2 && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER) {
+		uint32_t zoneID;
+		uint32_t instanceID;
+
+		if (!GeneralUtils::TryParse(args[0], zoneID)) {
+			ChatPackets::SendSystemMessage(sysAddr, u"Invalid zoneID.");
+			return;
+		}
+
+		if (!GeneralUtils::TryParse(args[1], instanceID)) {
+			ChatPackets::SendSystemMessage(sysAddr, u"Invalid cloneID.");
+			return;
+		}
+
+		CBITSTREAM
+
+			BitStreamUtils::WriteHeader(bitStream, eConnectionType::MASTER, eMasterMessageType::SHUTDOWN_INSTANCE);
+
+		bitStream.Write(zoneID);
+		bitStream.Write<uint16_t>(instanceID);
+
+		Game::server->SendToMaster(&bitStream);
+
+		Game::logger->Log("Instance", "Triggered world shutdown\n");
+	}
+
+	if (chatCommand == "getinstances" && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER) {
+		CBITSTREAM
+
+			BitStreamUtils::WriteHeader(bitStream, eConnectionType::MASTER, eMasterMessageType::GET_INSTANCES);
+
+		bitStream.Write(entity->GetObjectID());
+
+		if (args.size() >= 1) {
+			uint32_t zoneID;
+			if (!GeneralUtils::TryParse(args[0], zoneID)) {
+				ChatPackets::SendSystemMessage(sysAddr, u"Invalid zoneID");
+				return;
+			}
+			bitStream.Write(zoneID >= 0);
+			if (zoneID >= 0) {
+				bitStream.Write<uint16_t>(zoneID);
+			}
+		} else {
+			bitStream.Write0();
+		}
+
+		const auto zoneId = Game::zoneManager->GetZone()->GetZoneID();
+
+		bitStream.Write(zoneId.GetMapID());
+		bitStream.Write(zoneId.GetInstanceID());
+
+		Game::server->SendToMaster(&bitStream);
 	}
 
 	if ((chatCommand == "setcurrency") && args.size() == 1 && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER) {

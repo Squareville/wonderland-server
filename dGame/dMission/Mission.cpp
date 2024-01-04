@@ -24,6 +24,8 @@
 #include "eMissionTaskType.h"
 #include "eMissionLockState.h"
 #include "eReplicaComponentType.h"
+#include "ePlayerFlag.h"
+#include "Database.h"
 
 #include "CDMissionEmailTable.h"
 
@@ -444,8 +446,8 @@ void Mission::YieldRewards() {
 	int32_t coinsToSend = 0;
 	if (info.LegoScore > 0) {
 		eLootSourceType lootSource = info.isMission ? eLootSourceType::MISSION : eLootSourceType::ACHIEVEMENT;
-		if (levelComponent->GetLevel() >= Game::zoneManager->GetWorldConfig()->levelCap) {
-			// Since the character is at the level cap we reward them with coins instead of UScore.
+		if (levelComponent->GetLevel() >= Game::zoneManager->GetWorldConfig()->levelCap && !entity->GetCharacter()->GetPlayerFlag(ePlayerFlag::GIVE_USCORE_FROM_MISSIONS_AT_MAX_LEVEL)) {
+			// If player is at the level cap and doesnt want to keep earning UScore at max level we convert it here.
 			coinsToSend += info.LegoScore * Game::zoneManager->GetWorldConfig()->levelCapCurrencyConversion;
 		} else {
 			characterComponent->SetUScore(characterComponent->GetUScore() + info.LegoScore);
@@ -470,11 +472,6 @@ void Mission::YieldRewards() {
 
 			// If a mission rewards zero of an item, make it reward 1.
 			auto count = pair.second > 0 ? pair.second : 1;
-
-			// Sanity check, 6 is the max any mission yields
-			if (count > 6) {
-				count = 0;
-			}
 
 			inventoryComponent->AddItem(pair.first, count, IsMission() ? eLootSourceType::MISSION : eLootSourceType::ACHIEVEMENT);
 		}
@@ -503,11 +500,6 @@ void Mission::YieldRewards() {
 
 		// If a mission rewards zero of an item, make it reward 1.
 		auto count = pair.second > 0 ? pair.second : 1;
-
-		// Sanity check, 6 is the max any mission yields
-		if (count > 6) {
-			count = 0;
-		}
 
 		inventoryComponent->AddItem(pair.first, count, IsMission() ? eLootSourceType::MISSION : eLootSourceType::ACHIEVEMENT);
 	}
