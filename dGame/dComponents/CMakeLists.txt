@@ -1,4 +1,6 @@
-set(DGAME_DCOMPONENTS_SOURCES "BaseCombatAIComponent.cpp"
+set(DGAME_DCOMPONENTS_SOURCES
+	"ActivityComponent.cpp"
+	"BaseCombatAIComponent.cpp"
 	"BouncerComponent.cpp"
 	"BuffComponent.cpp"
 	"BuildBorderComponent.cpp"
@@ -31,12 +33,11 @@ set(DGAME_DCOMPONENTS_SOURCES "BaseCombatAIComponent.cpp"
 	"ProximityMonitorComponent.cpp"
 	"RacingControlComponent.cpp"
 	"RailActivatorComponent.cpp"
-	"RebuildComponent.cpp"
+	"QuickBuildComponent.cpp"
 	"RenderComponent.cpp"
 	"RigidbodyPhantomPhysicsComponent.cpp"
 	"MultiZoneEntranceComponent.cpp"
 	"RocketLaunchpadControlComponent.cpp"
-	"ScriptedActivityComponent.cpp"
 	"ShootingGalleryComponent.cpp"
 	"SimplePhysicsComponent.cpp"
 	"SkillComponent.cpp"
@@ -46,5 +47,11 @@ set(DGAME_DCOMPONENTS_SOURCES "BaseCombatAIComponent.cpp"
 	"HavokVehiclePhysicsComponent.cpp"
 	"VendorComponent.cpp"
 	"MiniGameControlComponent.cpp"
-	PARENT_SCOPE
 )
+
+add_library(dComponents STATIC ${DGAME_DCOMPONENTS_SOURCES})
+target_include_directories(dComponents PRIVATE ${PROJECT_SOURCE_DIR}/dScripts/02_server/Map/General) # PetDigServer.h
+target_precompile_headers(dComponents REUSE_FROM dGameBase)
+target_link_libraries(dComponents
+	PUBLIC dPhysics dDatabase
+	INTERFACE dUtilities dCommon dBehaviors dChatFilter dMission dInventory)

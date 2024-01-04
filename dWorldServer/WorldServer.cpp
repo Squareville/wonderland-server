@@ -88,9 +88,10 @@ namespace Game {
 	RakPeerInterface* chatServer = nullptr;
 	std::mt19937 randomEngine;
 	SystemAddress chatSysAddr;
-	bool shouldShutdown = false;
+	Game::signal_t lastSignal = 0;
 	EntityManager* entityManager = nullptr;
 	dZoneManager* zoneManager = nullptr;
+	std::string projectVersion = PROJECT_VERSION;
 } // namespace Game
 
 bool chatDisabled = false;
@@ -123,8 +124,8 @@ int main(int argc, char** argv) {
 	// Triggers the shutdown sequence at application exit
 	std::atexit(WorldShutdownSequence);
 
-	signal(SIGINT, [](int) { WorldShutdownSequence(); });
-	signal(SIGTERM, [](int) { WorldShutdownSequence(); });
+	std::signal(SIGINT, Game::OnSignal);
+	std::signal(SIGTERM, Game::OnSignal);
 
 	uint32_t zoneID = 1000;
 	uint32_t cloneID = 0;
@@ -147,12 +148,12 @@ int main(int argc, char** argv) {
 	if (!Game::logger) return EXIT_FAILURE;
 
 	//Read our config:
-	Game::config = new dConfig((BinaryPathFinder::GetBinaryDir() / "worldconfig.ini").string());
+	Game::config = new dConfig("worldconfig.ini");
 	Game::logger->SetLogToConsole(Game::config->GetValue("log_to_console") != "0");
 	Game::logger->SetLogDebugStatements(Game::config->GetValue("log_debug_statements") == "1");
 
 	LOG("Starting World server...");
-	LOG("Version: %i.%i", PROJECT_VERSION_MAJOR, PROJECT_VERSION_MINOR);
+	LOG("Version: %s", Game::projectVersion.c_str());
 	LOG("Compiled on: %s", __TIMESTAMP__);
 
 	if (Game::config->GetValue("disable_chat") == "1") chatDisabled = true;
@@ -211,7 +212,7 @@ int main(int argc, char** argv) {
 	UserManager::Instance()->Initialize();
 	Game::chatFilter = new dChatFilter(Game::assetManager->GetResPath().string() + "/chatplus_en_us", bool(std::stoi(Game::config->GetValue("dont_generate_dcf"))));
 
-	Game::server = new dServer(masterIP, ourPort, instanceID, maxClients, false, true, Game::logger, masterIP, masterPort, ServerType::World, Game::config, &Game::shouldShutdown, zoneID);
+	Game::server = new dServer(masterIP, ourPort, instanceID, maxClients, false, true, Game::logger, masterIP, masterPort, ServerType::World, Game::config, &Game::lastSignal, zoneID);
 
 	//Connect to the chat server:
 	uint32_t chatPort = 1501;
@@ -312,6 +313,8 @@ int main(int argc, char** argv) {
 	uint32_t saveTime = 10 * 60 * currentFramerate; // 10 minutes in frames
 	uint32_t sqlPingTime = 10 * 60 * currentFramerate; // 10 minutes in frames
 	uint32_t emptyShutdownTime = (cloneID == 0 ? 30 : 5) * 60 * currentFramerate; // 30 minutes for main worlds, 5 for all others.
+
+	Game::logger->Flush(); // once immediately before the main loop
 	while (true) {
 		Metrics::StartMeasurement(MetricVariable::Frame);
 		Metrics::StartMeasurement(MetricVariable::GameLoop);
@@ -362,9 +365,9 @@ int main(int argc, char** argv) {
 		if (!Game::server->GetIsConnectedToMaster()) {
 			framesSinceMasterDisconnect++;
 
-			if (framesSinceMasterDisconnect >= noMasterConnectionTimeout && !Game::shouldShutdown) {
+			if (framesSinceMasterDisconnect >= noMasterConnectionTimeout && !Game::ShouldShutdown()) {
 				LOG("Game loop running but no connection to master for %d frames, shutting down", noMasterConnectionTimeout);
-				Game::shouldShutdown = true;
+				Game::lastSignal = -1;
 			}
 		} else framesSinceMasterDisconnect = 0;
 
@@ -459,7 +462,7 @@ int main(int argc, char** argv) {
 
 			//If we haven't had any players for a while, time out and shut down:
 			if (framesSinceLastUser >= emptyShutdownTime) {
-				Game::shouldShutdown = true;
+				Game::lastSignal = -1;
 			}
 		} else {
 			framesSinceLastUser = 0;
@@ -512,7 +515,7 @@ int main(int argc, char** argv) {
 			}
 		}
 
-		if (Game::shouldShutdown && !worldShutdownSequenceComplete) {
+		if (Game::ShouldShutdown() && !worldShutdownSequenceComplete) {
 			WorldShutdownProcess(zoneID);
 			break;
 		}
@@ -821,7 +824,7 @@ void HandlePacket(Packet* packet) {
 		}
 
 		case eMasterMessageType::SHUTDOWN: {
-			Game::shouldShutdown = true;
+			Game::lastSignal = -1;
 			LOG("Got shutdown request from master, zone (%i), instance (%i)", Game::server->GetZoneID(), Game::server->GetInstanceID());
 			break;
 		}
@@ -1316,13 +1319,16 @@ void WorldShutdownProcess(uint32_t zoneId) {
 }
 
 void WorldShutdownSequence() {
-	Game::shouldShutdown = true;
+	bool shouldShutdown = Game::ShouldShutdown() || worldShutdownSequenceComplete;
+	Game::lastSignal = -1;
 #ifndef DARKFLAME_PLATFORM_WIN32
-	if (Game::shouldShutdown || worldShutdownSequenceComplete)
+	if (shouldShutdown)
 #endif
 	{
 		return;
 	}
+
+	if (!Game::logger) return;
 
 	LOG("Zone (%i) instance (%i) shutting down outside of main loop!", Game::server->GetZoneID(), instanceID);
 	WorldShutdownProcess(Game::server->GetZoneID());

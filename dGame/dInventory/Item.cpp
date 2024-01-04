@@ -249,9 +249,9 @@ bool Item::IsEquipped() const {
 bool Item::Consume() {
 	auto* skillsTable = CDClientManager::Instance().GetTable<CDObjectSkillsTable>();
 
-	auto skills = skillsTable->Query([=](const CDObjectSkills entry) {
+	auto skills = skillsTable->Query([this](const CDObjectSkills entry) {
 		return entry.objectTemplate == static_cast<uint32_t>(lot);
-		});
+	});
 
 	auto success = false;
 

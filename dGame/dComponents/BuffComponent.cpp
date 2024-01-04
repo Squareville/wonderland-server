@@ -41,7 +41,7 @@ void BuffComponent::Serialize(RakNet::BitStream* outBitStream, bool bIsInitialUp
 		for (const auto& [id, buff] : m_Buffs) {
 			outBitStream->Write<uint32_t>(id);
 			outBitStream->Write(buff.time != 0.0f);
-			if (buff.time != 0.0f) outBitStream->Write(static_cast<uint32_t>(buff.time * 1000.0f));
+			if (buff.time != 0.0f) outBitStream->Write<uint32_t>(buff.time * 1000.0f);
 			outBitStream->Write(buff.cancelOnDeath);
 			outBitStream->Write(buff.cancelOnZone);
 			outBitStream->Write(buff.cancelOnDamaged);
@@ -95,10 +95,16 @@ void BuffComponent::Update(float deltaTime) {
 
 		if (buff.second.time <= 0.0f) {
 			RemoveBuff(buff.first);
-
-			break;
 		}
 	}
+
+	if (m_BuffsToRemove.empty()) return;
+
+	for (const auto& buff : m_BuffsToRemove) {
+		m_Buffs.erase(buff);
+	}
+
+	m_BuffsToRemove.clear();
 }
 
 const std::string& GetFxName(const std::string& buffname) {
@@ -147,8 +153,8 @@ void BuffComponent::ApplyBuff(const int32_t id, const float duration, const LWOO
 		addedByTeammate = std::count(team->members.begin(), team->members.end(), m_Parent->GetObjectID()) > 0;
 	}
 
-	GameMessages::SendAddBuff(const_cast<LWOOBJID&>(m_Parent->GetObjectID()), source, (uint32_t)id,
-		(uint32_t)duration * 1000, addImmunity, cancelOnDamaged, cancelOnDeath,
+	GameMessages::SendAddBuff(const_cast<LWOOBJID&>(m_Parent->GetObjectID()), source, static_cast<uint32_t>(id),
+		static_cast<uint32_t>(duration) * 1000, addImmunity, cancelOnDamaged, cancelOnDeath,
 		cancelOnLogout, cancelOnRemoveBuff, cancelOnUi, cancelOnUnequip, cancelOnZone, addedByTeammate, applyOnTeammates);
 
 	float tick = 0;
@@ -216,7 +222,7 @@ void BuffComponent::RemoveBuff(int32_t id, bool fromUnEquip, bool removeImmunity
 
 	GameMessages::SendRemoveBuff(m_Parent, fromUnEquip, removeImmunity, id);
 
-	m_Buffs.erase(iter);
+	m_BuffsToRemove.push_back(id);
 
 	RemoveBuffEffect(id);
 }
@@ -431,7 +437,7 @@ const std::vector<BuffParameter>& BuffComponent::GetBuffParameters(int32_t buffI
 	}
 
 	auto query = CDClientDatabase::CreatePreppedStmt("SELECT * FROM BuffParameters WHERE BuffID = ?;");
-	query.bind(1, (int)buffId);
+	query.bind(1, static_cast<int>(buffId));
 
 	auto result = query.execQuery();
 
