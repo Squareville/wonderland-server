@@ -18,6 +18,11 @@ using namespace dChatFilterDCF;
 
 dChatFilter::dChatFilter(const std::string& filepath, bool dontGenerateDCF) {
 	m_DontGenerateDCF = dontGenerateDCF;
+    if (Game::config->GetValue("use_chat_words_as_whitelist") == "") {
+        m_UseWhitelist = true;
+	} else {
+        m_UseWhitelist = bool(std::stoi(Game::config->GetValue("use_chat_words_as_whitelist")));
+	}
 
 	if (!BinaryIO::DoesFileExist(filepath + ".dcf") || m_DontGenerateDCF) {
 		ReadWordlistPlaintext(filepath + ".txt", true);
@@ -27,8 +32,8 @@ dChatFilter::dChatFilter(const std::string& filepath, bool dontGenerateDCF) {
 		ExportWordlistToDCF(filepath + ".dcf", true);
 	}
 
-	if (BinaryIO::DoesFileExist("blacklist.dcf")) {
-		ReadWordlistDCF("blacklist.dcf", false);
+	if (BinaryIO::DoesFileExist("blacklist_en_us.txt")) {
+		ReadWordlistPlaintext("blacklist_en_us.txt", false);
 	}
 
 	//Read player names that are ok as well:
@@ -108,6 +113,7 @@ void dChatFilter::ExportWordlistToDCF(const std::string& filepath, bool whiteLis
 std::vector<std::pair<uint8_t, uint8_t>> dChatFilter::IsSentenceOkay(const std::string& message, eGameMasterLevel gmLevel, bool whiteList) {
 	if (gmLevel > eGameMasterLevel::FORUM_MODERATOR) return { }; //If anything but a forum mod, return true.
 	if (message.empty()) return { };
+	if (!m_UseWhitelist) whiteList = false;
 	if (!whiteList && m_DeniedWords.empty()) return { { 0, message.length() } };
 
 	std::stringstream sMessage(message);
