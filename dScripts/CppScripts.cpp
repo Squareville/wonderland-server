@@ -506,7 +506,7 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new AgQbWall();
 
 	//GF:
-	else if (scriptName == "scripts\\02_server\\Map\\GF\\L_GF_TORCH.lua")
+	if (scriptName == "scripts\\02_server\\Map\\GF\\L_GF_TORCH.lua")
 		script = new GfTikiTorch();
 	else if (scriptName == "scripts\\ai\\GF\\L_SPECIAL_FIREPIT.lua")
 		script = new GfCampfire();
@@ -548,13 +548,13 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new GfParrotCrash();
 
 	// SG
-	else if (scriptName == "scripts\\ai\\MINIGAME\\SG_GF\\SERVER\\SG_CANNON.lua")
+	if (scriptName == "scripts\\ai\\MINIGAME\\SG_GF\\SERVER\\SG_CANNON.lua")
 		script = new SGCannon();
 	else if (scriptName == "scripts\\ai\\MINIGAME\\SG_GF\\L_ZONE_SG_SERVER.lua")
 		script = new ZoneSGServer();
 
 	//PR:
-	else if (scriptName == "scripts\\client\\ai\\PR\\L_PR_WHISTLE.lua")
+	if (scriptName == "scripts\\client\\ai\\PR\\L_PR_WHISTLE.lua")
 		script = new PrWhistle();
 	else if (scriptName == "scripts\\02_server\\Map\\PR\\L_PR_SEAGULL_FLY.lua")
 		script = new PrSeagullFly();
@@ -576,7 +576,7 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new SpawnGryphonServer();
 
 	//FV Scripts:
-	else if (scriptName == "scripts\\02_server\\Map\\FV\\L_ACT_CANDLE.lua")
+	if (scriptName == "scripts\\02_server\\Map\\FV\\L_ACT_CANDLE.lua")
 		script = new FvCandle();
 	else if (scriptName == "scripts\\02_server\\Map\\FV\\L_ENEMY_RONIN_SPAWNER.lua")
 		script = new EnemyRoninSpawner();
@@ -653,7 +653,7 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new ActMine();
 
 	//Racing:
-	else if (scriptName == "scripts\\ai\\RACING\\OBJECTS\\RACE_IMAGINE_CRATE_SERVER.lua")
+	if (scriptName == "scripts\\ai\\RACING\\OBJECTS\\RACE_IMAGINE_CRATE_SERVER.lua")
 		script = new RaceImagineCrateServer();
 	else if (scriptName == "scripts\\ai\\ACT\\L_ACT_VEHICLE_DEATH_TRIGGER.lua")
 		script = new ActVehicleDeathTrigger();
@@ -667,7 +667,7 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new RaceSmashServer();
 
 	//NT:
-	else if (scriptName == "scripts\\02_server\\Map\\NT\\L_NT_SENTINELWALKWAY_SERVER.lua")
+	if (scriptName == "scripts\\02_server\\Map\\NT\\L_NT_SENTINELWALKWAY_SERVER.lua")
 		script = new NtSentinelWalkwayServer();
 	else if (scriptName == "scripts\\02_server\\Map\\NT\\L_NT_PARADOXTELE_SERVER.lua")
 		script = new NtParadoxTeleServer();
@@ -735,7 +735,7 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new NTNaomiDirtServer();
 
 	//AM:
-	else if (scriptName == "scripts\\02_server\\Map\\AM\\L_AM_CONSOLE_TELEPORT_SERVER.lua")
+	if (scriptName == "scripts\\02_server\\Map\\AM\\L_AM_CONSOLE_TELEPORT_SERVER.lua")
 		script = new AmConsoleTeleportServer();
 	else if (scriptName == "scripts\\02_server\\Map\\AM\\L_RANDOM_SPAWNER_FIN.lua")
 		script = new RandomSpawnerFin();
@@ -783,7 +783,7 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new AmTeapotServer();
 
 	// Ninjago
-	else if (scriptName == "scripts\\02_server\\Map\\njhub\\L_GARMADON_CELEBRATION_SERVER.lua")
+	if (scriptName == "scripts\\02_server\\Map\\njhub\\L_GARMADON_CELEBRATION_SERVER.lua")
 		script = new NjGarmadonCelebration();
 	else if (scriptName == "scripts\\02_server\\Map\\njhub\\L_WU_NPC.lua")
 		script = new NjWuNPC();
@@ -843,11 +843,11 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new NjNyaMissionitems();
 
 	//DLU:
-	else if (scriptName == "scripts\\02_server\\DLU\\DLUVanityNPC.lua")
+	if (scriptName == "scripts\\02_server\\DLU\\DLUVanityNPC.lua")
 		script = new DLUVanityNPC();
 
 	// Survival minigame
-	else if (scriptName == "scripts\\02_server\\Enemy\\Survival\\L_AG_SURVIVAL_STROMBIE.lua")
+	if (scriptName == "scripts\\02_server\\Enemy\\Survival\\L_AG_SURVIVAL_STROMBIE.lua")
 		script = new AgSurvivalStromling();
 	else if (scriptName == "scripts\\02_server\\Enemy\\Survival\\L_AG_SURVIVAL_DARKLING_MECH.lua")
 		script = new AgSurvivalMech();
@@ -855,7 +855,7 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new AgSurvivalSpiderling();
 
 	// Scripted equipment
-	else if (scriptName == "scripts\\EquipmentScripts\\Sunflower.lua")
+	if (scriptName == "scripts\\EquipmentScripts\\Sunflower.lua")
 		script = new Sunflower();
 	else if (scriptName == "scripts/EquipmentScripts/AnvilOfArmor.lua")
 		script = new AnvilOfArmor();
@@ -889,13 +889,13 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new StunImmunity();
 
 	// FB
-	else if (scriptName == "scripts\\ai\\NS\\WH\\L_ROCKHYDRANT_BROKEN.lua")
+	if (scriptName == "scripts\\ai\\NS\\WH\\L_ROCKHYDRANT_BROKEN.lua")
 		script = new RockHydrantBroken();
 	else if (scriptName == "scripts\\ai\\NS\\L_NS_WH_FANS.lua")
 		script = new WhFans();
 
 	// WBL
-	else if (scriptName == "scripts\\zone\\LUPs\\WBL_generic_zone.lua")
+	if (scriptName == "scripts\\zone\\LUPs\\WBL_generic_zone.lua")
 		script = new WblGenericZone();
 
 	// Alpha
