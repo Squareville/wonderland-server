@@ -1539,8 +1539,11 @@ void Entity::Kill(Entity* murderer, const eKillType killType) {
 
 		// Live waited a hard coded 12 seconds for death animations of type 0 before networking destruction!
 		constexpr float DelayDeathTime = 12.0f;
-		if (waitForDeathAnimation) AddCallbackTimer(DelayDeathTime, [this]() { Game::entityManager->DestroyEntity(this); });
-		else Game::entityManager->DestroyEntity(this);
+		if (waitForDeathAnimation) {
+			auto* movementAIComponent = GetComponent<MovementAIComponent>();
+			if (movementAIComponent) movementAIComponent->Stop();
+			AddCallbackTimer(DelayDeathTime, [this]() { Game::entityManager->DestroyEntity(this); });
+		} else Game::entityManager->DestroyEntity(this);
 	}
 
 	const auto& grpNameQBShowBricks = GetVar<std::string>(u"grpNameQBShowBricks");

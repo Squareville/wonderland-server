@@ -327,10 +327,12 @@ void ClientPackets::HandleChatModerationRequest(const SystemAddress& sysAddr, Pa
 	stream.Read(chatLevel);
 	stream.Read(requestID);
 
+	bool hasMoreCharacters = true;
 	for (uint32_t i = 0; i < 42; ++i) {
 		uint16_t character;
 		stream.Read(character);
-		receiver.push_back(static_cast<uint8_t>(character));
+		if (character == '\0') hasMoreCharacters = false;
+		if (hasMoreCharacters) receiver.push_back(static_cast<uint8_t>(character));
 	}
 
 	if (!receiver.empty()) {

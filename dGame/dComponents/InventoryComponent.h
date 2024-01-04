@@ -374,6 +374,8 @@ public:
 	bool SetSkill(BehaviorSlot slot, uint32_t skillId);
 
 	~InventoryComponent() override;
+	
+	bool RemoveItemFromAllInventories(const LOT lot, const uint32_t count, const bool ignoreBound = false, const bool silent = false);
 
 private:
 	/**
