@@ -22,9 +22,9 @@ void DamageReductionBehavior::Handle(BehaviorContext* context, RakNet::BitStream
 		return;
 	}
 
-	destroyable->SetDamageReduction(m_ReductionAmount);
+	destroyable->SetDamageReduction(destroyable->GetDamageReduction() + m_ReductionAmount);
 
-	context->RegisterTimerBehavior(this, branch, target->GetObjectID());
+	if (branch.duration > 0.0f) context->RegisterTimerBehavior(this, branch, target->GetObjectID());
 }
 
 void DamageReductionBehavior::Calculate(BehaviorContext* context, RakNet::BitStream* bitStream, BehaviorBranchContext branch) {
@@ -45,8 +45,34 @@ void DamageReductionBehavior::Timer(BehaviorContext* context, BehaviorBranchCont
 	if (destroyable == nullptr) {
 		return;
 	}
+	
+	auto present = static_cast<uint32_t>(destroyable->GetDamageReduction());
 
-	destroyable->SetDamageReduction(0);
+	auto toRemove = std::min(present, this->m_ReductionAmount);
+
+	destroyable->SetDamageReduction(present - toRemove);
+}
+
+void DamageReductionBehavior::UnCast(BehaviorContext* context, BehaviorBranchContext branch) {
+	auto* target = Game::entityManager->GetEntity(branch.target);
+
+	if (target == nullptr) {
+		Game::logger->Log("DamageReductionBehavior", "Failed to find target (%llu)!", branch.target);
+
+		return;
+	}
+
+	auto* destroyable = target->GetComponent<DestroyableComponent>();
+
+	if (destroyable == nullptr) {
+		return;
+	}
+	
+	auto present = static_cast<uint32_t>(destroyable->GetDamageReduction());
+
+	auto toRemove = std::min(present, this->m_ReductionAmount);
+
+	destroyable->SetDamageReduction(present - toRemove);
 }
 
 void DamageReductionBehavior::Load() {

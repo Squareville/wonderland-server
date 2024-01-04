@@ -26,7 +26,7 @@ void DamageAbsorptionBehavior::Handle(BehaviorContext* context, RakNet::BitStrea
 
 	destroyable->SetIsShielded(true);
 
-	context->RegisterTimerBehavior(this, branch, target->GetObjectID());
+	if (branch.duration > 0.0f) context->RegisterTimerBehavior(this, branch, target->GetObjectID());
 }
 
 void DamageAbsorptionBehavior::Calculate(BehaviorContext* context, RakNet::BitStream* bitStream, BehaviorBranchContext branch) {
@@ -53,6 +53,32 @@ void DamageAbsorptionBehavior::Timer(BehaviorContext* context, BehaviorBranchCon
 	const auto toRemove = std::min(present, this->m_absorbAmount);
 
 	destroyable->SetDamageToAbsorb(present - toRemove);
+
+	if (destroyable->GetDamageToAbsorb() == 0) destroyable->SetIsShielded(false);
+}
+
+void DamageAbsorptionBehavior::UnCast(BehaviorContext* context, BehaviorBranchContext branch) {
+	auto* target = Game::entityManager->GetEntity(branch.target);
+
+	if (target == nullptr) {
+		Game::logger->Log("DamageAbsorptionBehavior", "Failed to find target (%llu)!", branch.target);
+
+		return;
+	}
+
+	auto* destroyable = target->GetComponent<DestroyableComponent>();
+
+	if (destroyable == nullptr) {
+		return;
+	}
+
+	const auto present = static_cast<uint32_t>(destroyable->GetDamageToAbsorb());
+
+	const auto toRemove = std::min(present, this->m_absorbAmount);
+
+	destroyable->SetDamageToAbsorb(present - toRemove);
+
+	if (destroyable->GetDamageToAbsorb() == 0) destroyable->SetIsShielded(false);
 }
 
 void DamageAbsorptionBehavior::Load() {
