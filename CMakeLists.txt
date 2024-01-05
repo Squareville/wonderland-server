@@ -255,6 +255,7 @@ set(INCLUDED_DIRECTORIES
 	"thirdparty/recastnavigation"
 	"thirdparty/SQLite"
 	"thirdparty/cpplinq"
+	"thirdparty/cpp-httplib"
 
 	"tests"
 	"tests/dCommonTests"
