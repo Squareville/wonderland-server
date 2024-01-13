@@ -71,10 +71,8 @@ void RacingControlComponent::OnPlayerLoaded(Entity* player) {
 
 	// If the race has already started, send the player back to the main world.
 	if (m_Loaded || !vehicle) {
-		auto* playerInstance = dynamic_cast<Player*>(player);
-		if (playerInstance) {
-			playerInstance->SendToZone(m_MainWorld);
-		}
+		auto* characterComponent = player->GetComponent<CharacterComponent>();
+		if (characterComponent) characterComponent->SendToZone(m_MainWorld);
 		return;
 	}
 
@@ -105,10 +103,11 @@ void RacingControlComponent::LoadPlayerVehicle(Entity* player,
 
 	if (item == nullptr) {
 		LOG("Failed to find item");
-		auto* playerInstance = dynamic_cast<Player*>(player);
-		if (playerInstance) {
+		auto* characterComponent = player->GetComponent<CharacterComponent>();
+
+		if (characterComponent) {
 			m_LoadedPlayers--;
-			playerInstance->SendToZone(m_MainWorld);
+			characterComponent->SendToZone(m_MainWorld);
 		}
 		return;
 
@@ -423,9 +422,9 @@ void RacingControlComponent::HandleMessageBoxResponse(Entity* player, int32_t bu
 			m_Parent->GetObjectID(), 3, 0, LWOOBJID_EMPTY, u"",
 			player->GetObjectID(), UNASSIGNED_SYSTEM_ADDRESS);
 
-		auto* playerInstance = dynamic_cast<Player*>(player);
+		auto* characterComponent = player->GetComponent<CharacterComponent>();
 
-		playerInstance->SendToZone(m_MainWorld);
+		if (characterComponent) characterComponent->SendToZone(m_MainWorld);
 
 		vehicle->Kill();
 	}
@@ -557,9 +556,9 @@ void RacingControlComponent::Update(float deltaTime) {
 					continue;
 				}
 
-				auto* playerInstance = dynamic_cast<Player*>(playerEntity);
+				auto* characterComponent = playerEntity->GetComponent<CharacterComponent>();
 
-				playerInstance->SendToZone(m_MainWorld);
+				if (characterComponent) characterComponent->SendToZone(m_MainWorld);
 			}
 
 			m_LobbyPlayers.clear();
@@ -619,9 +618,9 @@ void RacingControlComponent::Update(float deltaTime) {
 					continue;
 				}
 
-				auto* playerInstance = dynamic_cast<Player*>(playerEntity);
+				auto* characterComponent = playerEntity->GetComponent<CharacterComponent>();
 
-				playerInstance->SendToZone(m_MainWorld);
+				if (characterComponent) characterComponent->SendToZone(m_MainWorld);
 			}
 
 			return;
