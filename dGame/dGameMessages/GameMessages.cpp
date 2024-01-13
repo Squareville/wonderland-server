@@ -1,7 +1,6 @@
 #include "GameMessages.h"
 #include "User.h"
 #include "Entity.h"
-#include "PacketUtils.h"
 #include "BitStreamUtils.h"
 #include "BitStream.h"
 #include "Game.h"
@@ -96,6 +95,7 @@
 #include "eReplicaComponentType.h"
 #include "eClientMessageType.h"
 #include "eGameMessageType.h"
+#include "ePetAbilityType.h"
 #include "ActivityManager.h"
 
 #include "CDComponentsRegistryTable.h"
@@ -1727,8 +1727,6 @@ void GameMessages::SendStartCelebrationEffect(Entity* entity, const SystemAddres
 	bitStream.Write<uint32_t>(0); //subtext
 
 	SEND_PACKET;
-
-	//PacketUtils::SavePacket("StartCelebrationEffect.bin", (char*)bitStream.GetData(), bitStream.GetNumberOfBytesUsed());
 }
 
 
@@ -1951,7 +1949,6 @@ void GameMessages::SendBBBSaveResponse(const LWOOBJID& objectId, const LWOOBJID&
 		bitStream.Write(buffer[i]);
 
 	SEND_PACKET;
-	//PacketUtils::SavePacket("eGameMessageType::BBB_SAVE_RESPONSE.bin", reinterpret_cast<char*>(bitStream.GetData()), bitStream.GetNumberOfBytesUsed());
 }
 
 // Property
@@ -3521,14 +3518,14 @@ void GameMessages::SendClientExitTamingMinigame(LWOOBJID objectId, bool bVolunta
 	SEND_PACKET;
 }
 
-void GameMessages::SendShowPetActionButton(LWOOBJID objectId, int32_t buttonLabel, bool bShow, const SystemAddress& sysAddr) {
+void GameMessages::SendShowPetActionButton(const LWOOBJID objectId, const ePetAbilityType petAbility, const bool bShow, const SystemAddress& sysAddr) {
 	CBITSTREAM;
 	CMSGHEADER;
 
 	bitStream.Write(objectId);
 	bitStream.Write(eGameMessageType::SHOW_PET_ACTION_BUTTON);
 
-	bitStream.Write(buttonLabel);
+	bitStream.Write(petAbility);
 	bitStream.Write(bShow);
 
 	if (sysAddr == UNASSIGNED_SYSTEM_ADDRESS) SEND_PACKET_BROADCAST;
@@ -4631,7 +4628,7 @@ void GameMessages::HandleSetGhostReferencePosition(RakNet::BitStream* inStream, 
 
 
 void GameMessages::HandleBuyFromVendor(RakNet::BitStream* inStream, Entity* entity, const SystemAddress& sysAddr) {
-	bool bConfirmed{}; // this doesnt even do anything, thanks ND!
+	bool bConfirmed{}; // This doesn't appear to do anything.  Further research is needed.
 	bool countIsDefault{};
 	int count = 1;
 	LOT item;
