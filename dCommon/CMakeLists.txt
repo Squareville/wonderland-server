@@ -20,6 +20,12 @@ set(DCOMMON_SOURCES
 		"FdbToSqlite.cpp"
 )
 
+# Workaround for compiler bug where the optimized code could result in a memcpy of 0 bytes, even though that isnt possible.
+# https://gcc.gnu.org/bugzilla/show_bug.cgi?id=97185
+if (CMAKE_CXX_COMPILER_ID STREQUAL "GNU")
+	set_source_files_properties("FdbToSqlite.cpp" PROPERTIES COMPILE_FLAGS "-Wno-stringop-overflow")
+endif()
+
 add_subdirectory(dClient)
 
 foreach(file ${DCOMMON_DCLIENT_SOURCES})
@@ -62,3 +68,8 @@ else ()
 endif ()
 
 target_link_libraries(dCommon ZLIB::ZLIB)
+
+# Disable deprecation warnings on MD5.cpp and SHA512.cpp for Apple Clang
+if (APPLE)
+	set_source_files_properties("MD5.cpp" "SHA512.cpp" PROPERTIES COMPILE_FLAGS "-Wno-deprecated-declarations")
+endif()

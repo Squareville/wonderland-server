@@ -21,6 +21,7 @@
 #include "eMissionTaskType.h"
 #include "eObjectBits.h"
 #include "CharacterComponent.h"
+#include "PlayerManager.h"
 
 #include <vector>
 #include "CppScripts.h"
@@ -227,7 +228,7 @@ void PropertyManagementComponent::OnStartBuilding() {
 
 	if (ownerEntity == nullptr) return;
 
-	const auto players = Player::GetAllPlayers();
+	const auto players = PlayerManager::GetAllPlayers();
 
 	LWOMAPID zoneId = 1100;
 
@@ -296,7 +297,7 @@ void PropertyManagementComponent::UpdateModelPosition(const LWOOBJID id, const N
 
 	const auto modelLOT = item->GetLot();
 
-	if (rotation != NiQuaternion::IDENTITY) {
+	if (rotation != NiQuaternionConstant::IDENTITY) {
 		rotation = { rotation.w, rotation.z, rotation.y, rotation.x };
 	}
 
@@ -480,7 +481,7 @@ void PropertyManagementComponent::DeleteModel(const LWOOBJID id, const int delet
 
 		GameMessages::SendGetModelsOnProperty(entity->GetObjectID(), GetModels(), UNASSIGNED_SYSTEM_ADDRESS);
 
-		GameMessages::SendPlaceModelResponse(entity->GetObjectID(), entity->GetSystemAddress(), NiPoint3::ZERO, LWOOBJID_EMPTY, 16, NiQuaternion::IDENTITY);
+		GameMessages::SendPlaceModelResponse(entity->GetObjectID(), entity->GetSystemAddress(), NiPoint3Constant::ZERO, LWOOBJID_EMPTY, 16, NiQuaternionConstant::IDENTITY);
 
 		if (spawner != nullptr) {
 			Game::zoneManager->RemoveSpawner(spawner->m_Info.spawnerID);
@@ -533,7 +534,7 @@ void PropertyManagementComponent::DeleteModel(const LWOOBJID id, const int delet
 
 	GameMessages::SendGetModelsOnProperty(entity->GetObjectID(), GetModels(), UNASSIGNED_SYSTEM_ADDRESS);
 
-	GameMessages::SendPlaceModelResponse(entity->GetObjectID(), entity->GetSystemAddress(), NiPoint3::ZERO, LWOOBJID_EMPTY, 16, NiQuaternion::IDENTITY);
+	GameMessages::SendPlaceModelResponse(entity->GetObjectID(), entity->GetSystemAddress(), NiPoint3Constant::ZERO, LWOOBJID_EMPTY, 16, NiQuaternionConstant::IDENTITY);
 
 	if (spawner != nullptr) {
 		Game::zoneManager->RemoveSpawner(spawner->m_Info.spawnerID);
