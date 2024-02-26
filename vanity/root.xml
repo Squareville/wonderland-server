@@ -1,5 +1,6 @@
 <files>
 	<file name="dev-tribute.xml" enabled="1"/>
 	<file name="atm.xml" enabled="1"/>
+	<file name="facechanging.xml" enabled="1"/>
 	<file name="misc.xml" enabled="1"/>
 </files>
