@@ -20,7 +20,6 @@
 #include "WorldPackets.h"
 #include "Item.h"
 #include "ZCompression.h"
-#include "Player.h"
 #include "dConfig.h"
 #include "TeamManager.h"
 #include "ChatPackets.h"
@@ -80,6 +79,7 @@
 #include "LevelProgressionComponent.h"
 #include "DonationVendorComponent.h"
 #include "GhostComponent.h"
+#include "AchievementVendorComponent.h"
 
 // Message includes:
 #include "dZoneManager.h"
@@ -99,6 +99,7 @@
 #include "ePetAbilityType.h"
 #include "ActivityManager.h"
 #include "PlayerManager.h"
+#include "eVendorTransactionResult.h"
 
 #include "CDComponentsRegistryTable.h"
 #include "CDObjectsTable.h"
@@ -1118,7 +1119,7 @@ void GameMessages::SendDropClientLoot(Entity* entity, const LWOOBJID& sourceID, 
 
 	// Currency and powerups should not sync
 	if (team != nullptr && currency == 0) {
-		CDObjectsTable* objectsTable = CDClientManager::Instance().GetTable<CDObjectsTable>();
+		CDObjectsTable* objectsTable = CDClientManager::GetTable<CDObjectsTable>();
 
 		const CDObjects& object = objectsTable->GetByID(item);
 
@@ -1325,15 +1326,14 @@ void GameMessages::SendVendorStatusUpdate(Entity* entity, const SystemAddress& s
 	SEND_PACKET;
 }
 
-void GameMessages::SendVendorTransactionResult(Entity* entity, const SystemAddress& sysAddr) {
+void GameMessages::SendVendorTransactionResult(Entity* entity, const SystemAddress& sysAddr, eVendorTransactionResult result) {
 	CBITSTREAM;
 	CMSGHEADER;
 
-	int iResult = 0x02; // success, seems to be the only relevant one
 
 	bitStream.Write(entity->GetObjectID());
 	bitStream.Write(eGameMessageType::VENDOR_TRANSACTION_RESULT);
-	bitStream.Write(iResult);
+	bitStream.Write(result);
 
 	SEND_PACKET;
 }
@@ -2506,7 +2506,7 @@ void GameMessages::HandleControlBehaviors(RakNet::BitStream* inStream, Entity* e
 	auto owner = PropertyManagementComponent::Instance()->GetOwner();
 	if (!owner) return;
 
-	ControlBehaviors::Instance().ProcessCommand(entity, sysAddr, static_cast<AMFArrayValue*>(amfArguments.get()), command, owner);
+	ControlBehaviors::Instance().ProcessCommand(entity, static_cast<AMFArrayValue*>(amfArguments.get()), command, owner);
 }
 
 void GameMessages::HandleBBBSaveRequest(RakNet::BitStream* inStream, Entity* entity, const SystemAddress& sysAddr) {
@@ -2585,6 +2585,7 @@ void GameMessages::HandleBBBSaveRequest(RakNet::BitStream* inStream, Entity* ent
 
 	//We need to get a new ID for our model first:
 	ObjectIDManager::RequestPersistentID([=](uint32_t newID) {
+		if (!entity || !entity->GetCharacter() || !entity->GetCharacter()->GetParentUser()) return;
 		LWOOBJID newIDL = newID;
 		GeneralUtils::SetBit(newIDL, eObjectBits::CHARACTER);
 		GeneralUtils::SetBit(newIDL, eObjectBits::PERSISTENT);
@@ -2607,7 +2608,7 @@ void GameMessages::HandleBBBSaveRequest(RakNet::BitStream* inStream, Entity* ent
 		//Insert into ugc:
 		std::string str(sd0Data.get(), sd0Size);
 		std::istringstream sd0DataStream(str);
-		Database::Get()->InsertNewUgcModel(sd0DataStream, blueprintIDSmall, entity->GetParentUser()->GetAccountID(), entity->GetCharacter()->GetID());
+		Database::Get()->InsertNewUgcModel(sd0DataStream, blueprintIDSmall, entity->GetCharacter()->GetParentUser()->GetAccountID(), entity->GetCharacter()->GetID());
 
 		//Insert into the db as a BBB model:
 		IPropertyContents::Model model;
@@ -3271,7 +3272,7 @@ void GameMessages::HandleClientTradeRequest(RakNet::BitStream* inStream, Entity*
 
 		if (trade != nullptr) {
 			if (!trade->IsParticipant(i64Invitee)) {
-				TradingManager::Instance()->CancelTrade(trade->GetTradeId());
+				TradingManager::Instance()->CancelTrade(entity->GetObjectID(), trade->GetTradeId());
 
 				TradingManager::Instance()->NewTrade(entity->GetObjectID(), i64Invitee);
 			}
@@ -3296,7 +3297,7 @@ void GameMessages::HandleClientTradeCancel(RakNet::BitStream* inStream, Entity* 
 
 	LOG("Trade canceled from (%llu)", entity->GetObjectID());
 
-	TradingManager::Instance()->CancelTrade(trade->GetTradeId());
+	TradingManager::Instance()->CancelTrade(entity->GetObjectID(), trade->GetTradeId());
 }
 
 void GameMessages::HandleClientTradeAccept(RakNet::BitStream* inStream, Entity* entity, const SystemAddress& sysAddr) {
@@ -4665,34 +4666,13 @@ void GameMessages::HandleBuyFromVendor(RakNet::BitStream* inStream, Entity* enti
 	if (!user) return;
 	Entity* player = Game::entityManager->GetEntity(user->GetLoggedInChar());
 	if (!player) return;
-
-	auto* propertyVendorComponent = static_cast<PropertyVendorComponent*>(entity->GetComponent(eReplicaComponentType::PROPERTY_VENDOR));
-
-	if (propertyVendorComponent != nullptr) {
-		propertyVendorComponent->OnBuyFromVendor(player, bConfirmed, item, count);
-
-		return;
-	}
-
-	const auto isCommendationVendor = entity->GetLOT() == 13806;
-
-	auto* vend = entity->GetComponent<VendorComponent>();
-	if (!vend && !isCommendationVendor) return;
-
-	auto* inv = player->GetComponent<InventoryComponent>();
-	if (!inv) return;
-
-	if (!isCommendationVendor && !vend->SellsItem(item)) {
-		LOG("User %llu %s tried to buy an item %i from a vendor when they do not sell said item", player->GetObjectID(), user->GetUsername().c_str(), item);
-		return;
-	}
-
+	
 	Character* character = player->GetCharacter();
 	if (!character) return;
 
-	CDComponentsRegistryTable* compRegistryTable = CDClientManager::Instance().GetTable<CDComponentsRegistryTable>();
-	CDItemComponentTable* itemComponentTable = CDClientManager::Instance().GetTable<CDItemComponentTable>();
-	CDMapFacesAndHairTable* faceAndHairTable = CDClientManager::Instance().GetTable<CDMapFacesAndHairTable>();
+	CDComponentsRegistryTable* compRegistryTable = CDClientManager::GetTable<CDComponentsRegistryTable>();
+	CDItemComponentTable* itemComponentTable = CDClientManager::GetTable<CDItemComponentTable>();
+	CDMapFacesAndHairTable* faceAndHairTable = CDClientManager::GetTable<CDMapFacesAndHairTable>();
 
 	int itemCompID = compRegistryTable->GetByIDAndType(item, eReplicaComponentType::ITEM);
 	CDItemComponent itemComp = itemComponentTable->GetItemComponentByID(itemCompID);
@@ -4735,98 +4715,61 @@ void GameMessages::HandleBuyFromVendor(RakNet::BitStream* inStream, Entity* enti
 
 		if (faceAndHairId.haircolor != -1) {
 			character->SetHairColor(faceAndHairId.haircolor);
-			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"UpdateHairColor", faceAndHairId.haircolor, 0, LWOOBJID_EMPTY, "", sysAddr);
-			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"SomeoneElseUpdatedHairColor", faceAndHairId.haircolor, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
+			GameMessages::SendNotifyClientObject(entity->GetObjectID(), u"UpdateHairColor", faceAndHairId.haircolor, 0, LWOOBJID_EMPTY, "", sysAddr);
+			GameMessages::SendNotifyClientObject(entity->GetObjectID(), u"SomeoneElseUpdatedHairColor", faceAndHairId.haircolor, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
 		}
 
 		if (faceAndHairId.hairstyle != -1) {
 			character->SetHairStyle(faceAndHairId.hairstyle);
-			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"UpdateHairStyle", faceAndHairId.hairstyle, 0, LWOOBJID_EMPTY, "", sysAddr);
-			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"SomeoneElseUpdatedHairStyle", faceAndHairId.hairstyle, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
+			GameMessages::SendNotifyClientObject(entity->GetObjectID(), u"UpdateHairStyle", faceAndHairId.hairstyle, 0, LWOOBJID_EMPTY, "", sysAddr);
+			GameMessages::SendNotifyClientObject(entity->GetObjectID(), u"SomeoneElseUpdatedHairStyle", faceAndHairId.hairstyle, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
 		}
 
 		if (eyebrowsToSet != 0) {
 			character->SetEyebrows(eyebrowsToSet);
-			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"UpdateEyebrows", eyebrowsToSet, 0, LWOOBJID_EMPTY, "", sysAddr);
-			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"SomeoneElseUpdatedEyebrows", eyebrowsToSet, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
+			GameMessages::SendNotifyClientObject(entity->GetObjectID(), u"UpdateEyebrows", eyebrowsToSet, 0, LWOOBJID_EMPTY, "", sysAddr);
+			GameMessages::SendNotifyClientObject(entity->GetObjectID(), u"SomeoneElseUpdatedEyebrows", eyebrowsToSet, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
 		}
 
 		if (eyesToSet != 0) {
 			character->SetEyes(eyesToSet);
-			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"UpdateEyes", eyesToSet, 0, LWOOBJID_EMPTY, "", sysAddr);
-			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"SomeoneElseUpdatedEyes", eyesToSet, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
+			GameMessages::SendNotifyClientObject(entity->GetObjectID(), u"UpdateEyes", eyesToSet, 0, LWOOBJID_EMPTY, "", sysAddr);
+			GameMessages::SendNotifyClientObject(entity->GetObjectID(), u"SomeoneElseUpdatedEyes", eyesToSet, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
 		}
 
 		if (mouthToSet != 0) {
 			character->SetMouth(mouthToSet);
-			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"UpdateMouth", mouthToSet, 0, LWOOBJID_EMPTY, "", sysAddr);
-			GameMessages::SendNotifyClientObject(vend->GetParent()->GetObjectID(), u"SomeoneElseUpdatedMouth", mouthToSet, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
+			GameMessages::SendNotifyClientObject(entity->GetObjectID(), u"UpdateMouth", mouthToSet, 0, LWOOBJID_EMPTY, "", sysAddr);
+			GameMessages::SendNotifyClientObject(entity->GetObjectID(), u"SomeoneElseUpdatedMouth", mouthToSet, 0, player->GetObjectID(), "", UNASSIGNED_SYSTEM_ADDRESS);
 		}
 
-		GameMessages::SendVendorTransactionResult(entity, sysAddr);
+		GameMessages::SendVendorTransactionResult(entity, sysAddr, eVendorTransactionResult::PURCHASE_SUCCESS);
 
 		character->SaveXMLToDatabase();
 
 		return;
 	}
 
-	// Extra currency that needs to be deducted in case of crafting
-	auto craftingCurrencies = CDItemComponentTable::ParseCraftingCurrencies(itemComp);
-	for (const auto& craftingCurrency : craftingCurrencies) {
-		inv->RemoveItemFromAllInventories(craftingCurrency.first, craftingCurrency.second * count);
+	// handle buying normal items
+	auto* vendorComponent = entity->GetComponent<VendorComponent>();
+	if (vendorComponent) {
+		vendorComponent->Buy(player, item, count);
+		return;
 	}
 
-	if (isCommendationVendor) {
-		if (itemComp.commendationLOT != 13763) {
-			return;
-		}
-
-		auto* missionComponent = player->GetComponent<MissionComponent>();
-
-		if (missionComponent == nullptr) {
-			return;
-		}
-
-		LOT tokenId = -1;
-
-		if (missionComponent->GetMissionState(545) == eMissionState::COMPLETE) tokenId = 8318; // "Assembly Token"
-		if (missionComponent->GetMissionState(556) == eMissionState::COMPLETE) tokenId = 8321; // "Venture League Token"
-		if (missionComponent->GetMissionState(567) == eMissionState::COMPLETE) tokenId = 8319; // "Sentinels Token"
-		if (missionComponent->GetMissionState(578) == eMissionState::COMPLETE) tokenId = 8320; // "Paradox Token"
-
-		const uint32_t altCurrencyCost = itemComp.commendationCost * count;
-
-		if (inv->GetLotCount(tokenId) < altCurrencyCost) {
-			return;
-		}
-
-		inv->RemoveItem(tokenId, altCurrencyCost);
-
-		inv->AddItem(item, count, eLootSourceType::VENDOR);
-	} else {
-		float buyScalar = vend->GetBuyScalar();
-
-		const auto coinCost = static_cast<uint32_t>(std::floor((itemComp.baseValue * buyScalar) * count));
-
-		if (character->GetCoins() < coinCost) {
-			return;
-		}
-
-		if (Inventory::IsValidItem(itemComp.currencyLOT)) {
-			const uint32_t altCurrencyCost = std::floor(itemComp.altCurrencyCost * buyScalar) * count;
-
-			if (inv->GetLotCount(itemComp.currencyLOT) < altCurrencyCost) {
-				return;
-			}
-
-			inv->RemoveItem(itemComp.currencyLOT, altCurrencyCost);
-		}
-
-		character->SetCoins(character->GetCoins() - (coinCost), eLootSourceType::VENDOR);
-		inv->AddItem(item, count, eLootSourceType::VENDOR);
+	// handle buying achievement items
+	auto* achievementVendorComponent = entity->GetComponent<AchievementVendorComponent>();
+	if (achievementVendorComponent) {
+		achievementVendorComponent->Buy(player, item, count);
+		return;
 	}
 
-	GameMessages::SendVendorTransactionResult(entity, sysAddr);
+	// Handle buying properties
+	auto* propertyVendorComponent = entity->GetComponent<PropertyVendorComponent>();
+	if (propertyVendorComponent) {
+		propertyVendorComponent->OnBuyFromVendor(player, bConfirmed, item, count);
+		return;
+	}
 }
 
 void GameMessages::HandleSellToVendor(RakNet::BitStream* inStream, Entity* entity, const SystemAddress& sysAddr) {
@@ -4853,14 +4796,17 @@ void GameMessages::HandleSellToVendor(RakNet::BitStream* inStream, Entity* entit
 	Item* item = inv->FindItemById(iObjID);
 	if (!item) return;
 
-	CDComponentsRegistryTable* compRegistryTable = CDClientManager::Instance().GetTable<CDComponentsRegistryTable>();
-	CDItemComponentTable* itemComponentTable = CDClientManager::Instance().GetTable<CDItemComponentTable>();
+	CDComponentsRegistryTable* compRegistryTable = CDClientManager::GetTable<CDComponentsRegistryTable>();
+	CDItemComponentTable* itemComponentTable = CDClientManager::GetTable<CDItemComponentTable>();
 
 	int itemCompID = compRegistryTable->GetByIDAndType(item->GetLot(), eReplicaComponentType::ITEM);
 	CDItemComponent itemComp = itemComponentTable->GetItemComponentByID(itemCompID);
 
 	// Items with a base value of 0 or max int are special items that should not be sold if they're not sub items
-	if (itemComp.baseValue == 0 || itemComp.baseValue == UINT_MAX) return;
+	if (itemComp.baseValue == 0 || itemComp.baseValue == UINT_MAX) {
+		GameMessages::SendVendorTransactionResult(entity, sysAddr, eVendorTransactionResult::SELL_FAIL);
+		return;
+	}
 
 	float sellScalar = vend->GetSellScalar();
 	if (Inventory::IsValidItem(itemComp.currencyLOT)) {
@@ -4868,11 +4814,9 @@ void GameMessages::HandleSellToVendor(RakNet::BitStream* inStream, Entity* entit
 		inv->AddItem(itemComp.currencyLOT, std::floor(altCurrency), eLootSourceType::VENDOR); // Return alt currencies like faction tokens.
 	}
 
-	//inv->RemoveItem(count, -1, iObjID);
 	inv->MoveItemToInventory(item, eInventoryType::VENDOR_BUYBACK, count, true, false, true);
 	character->SetCoins(std::floor(character->GetCoins() + (static_cast<uint32_t>(itemComp.baseValue * sellScalar) * count)), eLootSourceType::VENDOR);
-	//Game::entityManager->SerializeEntity(player); // so inventory updates
-	GameMessages::SendVendorTransactionResult(entity, sysAddr);
+	GameMessages::SendVendorTransactionResult(entity, sysAddr, eVendorTransactionResult::SELL_SUCCESS);
 }
 
 void GameMessages::HandleBuybackFromVendor(RakNet::BitStream* inStream, Entity* entity, const SystemAddress& sysAddr) {
@@ -4903,8 +4847,8 @@ void GameMessages::HandleBuybackFromVendor(RakNet::BitStream* inStream, Entity* 
 	Item* item = inv->FindItemById(iObjID);
 	if (!item) return;
 
-	CDComponentsRegistryTable* compRegistryTable = CDClientManager::Instance().GetTable<CDComponentsRegistryTable>();
-	CDItemComponentTable* itemComponentTable = CDClientManager::Instance().GetTable<CDItemComponentTable>();
+	CDComponentsRegistryTable* compRegistryTable = CDClientManager::GetTable<CDComponentsRegistryTable>();
+	CDItemComponentTable* itemComponentTable = CDClientManager::GetTable<CDItemComponentTable>();
 
 	int itemCompID = compRegistryTable->GetByIDAndType(item->GetLot(), eReplicaComponentType::ITEM);
 	CDItemComponent itemComp = itemComponentTable->GetItemComponentByID(itemCompID);
@@ -4914,16 +4858,16 @@ void GameMessages::HandleBuybackFromVendor(RakNet::BitStream* inStream, Entity* 
 	const auto cost = static_cast<uint32_t>(std::floor(((itemComp.baseValue * sellScalar) * count)));
 
 	if (character->GetCoins() < cost) {
+		GameMessages::SendVendorTransactionResult(entity, sysAddr, eVendorTransactionResult::PURCHASE_FAIL);
 		return;
 	}
 
 	if (Inventory::IsValidItem(itemComp.currencyLOT)) {
 		const uint32_t altCurrencyCost = std::floor(itemComp.altCurrencyCost * sellScalar) * count;
-
 		if (inv->GetLotCount(itemComp.currencyLOT) < altCurrencyCost) {
+			GameMessages::SendVendorTransactionResult(entity, sysAddr, eVendorTransactionResult::PURCHASE_FAIL);
 			return;
 		}
-
 		inv->RemoveItem(itemComp.currencyLOT, altCurrencyCost);
 	}
 
@@ -4931,7 +4875,7 @@ void GameMessages::HandleBuybackFromVendor(RakNet::BitStream* inStream, Entity* 
 	inv->MoveItemToInventory(item, Inventory::FindInventoryTypeForLot(item->GetLot()), count, true, false);
 	character->SetCoins(character->GetCoins() - cost, eLootSourceType::VENDOR);
 	//Game::entityManager->SerializeEntity(player); // so inventory updates
-	GameMessages::SendVendorTransactionResult(entity, sysAddr);
+	GameMessages::SendVendorTransactionResult(entity, sysAddr, eVendorTransactionResult::PURCHASE_SUCCESS);
 }
 
 void GameMessages::HandleParseChatMessage(RakNet::BitStream* inStream, Entity* entity, const SystemAddress& sysAddr) {
@@ -5116,7 +5060,7 @@ void GameMessages::HandlePlayEmote(RakNet::BitStream* inStream, Entity* entity) 
 	if (emoteID == 0) return;
 	std::string sAnimationName = "deaded"; //Default name in case we fail to get the emote
 
-	CDEmoteTableTable* emotes = CDClientManager::Instance().GetTable<CDEmoteTableTable>();
+	CDEmoteTableTable* emotes = CDClientManager::GetTable<CDEmoteTableTable>();
 	if (emotes) {
 		CDEmoteTable* emote = emotes->GetEmote(emoteID);
 		if (emote) sAnimationName = emote->animationName;
@@ -5185,13 +5129,8 @@ void GameMessages::HandleSetFlag(RakNet::BitStream* inStream, Entity* entity) {
 	inStream->Read(bFlag);
 	inStream->Read(iFlagID);
 
-	auto user = entity->GetParentUser();
-	if (user) {
-		auto character = user->GetLastUsedChar();
-		if (!character) return;
-
-		character->SetPlayerFlag(iFlagID, bFlag);
-	}
+	auto character = entity->GetCharacter();
+	if (character) character->SetPlayerFlag(iFlagID, bFlag);
 }
 
 void GameMessages::HandleRespondToMission(RakNet::BitStream* inStream, Entity* entity) {

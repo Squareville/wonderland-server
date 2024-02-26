@@ -25,7 +25,7 @@
 #include "eMissionLockState.h"
 #include "eReplicaComponentType.h"
 #include "ePlayerFlag.h"
-#include "Database.h"
+#include "Character.h"
 
 #include "CDMissionEmailTable.h"
 
@@ -42,7 +42,7 @@ Mission::Mission(MissionComponent* missionComponent, const uint32_t missionId) {
 
 	m_State = eMissionState::UNKNOWN;
 
-	auto* missionsTable = CDClientManager::Instance().GetTable<CDMissionsTable>();
+	auto* missionsTable = CDClientManager::GetTable<CDMissionsTable>();
 
 	auto* mis = missionsTable->GetPtrByMissionID(missionId);
 	info = *mis;
@@ -53,7 +53,7 @@ Mission::Mission(MissionComponent* missionComponent, const uint32_t missionId) {
 		return;
 	}
 
-	auto* tasksTable = CDClientManager::Instance().GetTable<CDMissionTasksTable>();
+	auto* tasksTable = CDClientManager::GetTable<CDMissionTasksTable>();
 
 	auto tasks = tasksTable->GetByMissionID(missionId);
 
@@ -181,7 +181,7 @@ void Mission::UpdateXml(tinyxml2::XMLElement* element) {
 }
 
 bool Mission::IsValidMission(const uint32_t missionId) {
-	auto* table = CDClientManager::Instance().GetTable<CDMissionsTable>();
+	auto* table = CDClientManager::GetTable<CDMissionsTable>();
 
 	const auto missions = table->Query([=](const CDMissions& entry) {
 		return entry.id == static_cast<int>(missionId);
@@ -191,7 +191,7 @@ bool Mission::IsValidMission(const uint32_t missionId) {
 }
 
 bool Mission::IsValidMission(const uint32_t missionId, CDMissions& info) {
-	auto* table = CDClientManager::Instance().GetTable<CDMissionsTable>();
+	auto* table = CDClientManager::GetTable<CDMissionsTable>();
 
 	const auto missions = table->Query([=](const CDMissions& entry) {
 		return entry.id == static_cast<int>(missionId);
@@ -210,8 +210,8 @@ Entity* Mission::GetAssociate() const {
 	return m_MissionComponent->GetParent();
 }
 
-User* Mission::GetUser() const {
-	return GetAssociate()->GetParentUser();
+Character* Mission::GetCharacter() const {
+	return GetAssociate()->GetCharacter();
 }
 
 uint32_t Mission::GetMissionId() const {
@@ -335,7 +335,7 @@ void Mission::Complete(const bool yieldRewards) {
 
 	missionComponent->Progress(eMissionTaskType::RACING, info.id, static_cast<LWOOBJID>(eRacingTaskParam::COMPLETE_TRACK_TASKS));
 
-	auto* missionEmailTable = CDClientManager::Instance().GetTable<CDMissionEmailTable>();
+	auto* missionEmailTable = CDClientManager::GetTable<CDMissionEmailTable>();
 
 	const auto missionId = GetMissionId();
 
@@ -392,7 +392,7 @@ void Mission::Catchup() {
 
 		if (type == eMissionTaskType::PLAYER_FLAG) {
 			for (int32_t target : task->GetAllTargets()) {
-				const auto flag = GetUser()->GetLastUsedChar()->GetPlayerFlag(target);
+				const auto flag = GetCharacter()->GetPlayerFlag(target);
 
 				if (!flag) {
 					continue;
@@ -415,7 +415,7 @@ void Mission::YieldRewards() {
 		return;
 	}
 
-	auto* character = GetUser()->GetLastUsedChar();
+	auto* character = GetCharacter();
 
 	auto* inventoryComponent = entity->GetComponent<InventoryComponent>();
 	auto* levelComponent = entity->GetComponent<LevelProgressionComponent>();
@@ -591,8 +591,10 @@ void Mission::SetMissionState(const eMissionState state, const bool sendingRewar
 	if (entity == nullptr) {
 		return;
 	}
+	auto* characterComponent = entity->GetComponent<CharacterComponent>();
+	if (!characterComponent) return;
 
-	GameMessages::SendNotifyMission(entity, entity->GetParentUser()->GetSystemAddress(), info.id, static_cast<int>(state), sendingRewards);
+	GameMessages::SendNotifyMission(entity, characterComponent->GetSystemAddress(), info.id, static_cast<int>(state), sendingRewards);
 }
 
 void Mission::SetMissionTypeState(eMissionLockState state, const std::string& type, const std::string& subType) {

@@ -12,10 +12,7 @@ struct CDMapFacesAndHair {
     int32_t hairstyle;
 };
 
-class CDMapFacesAndHairTable : public CDTable<CDMapFacesAndHairTable> {
-  private:
-    std::vector<CDMapFacesAndHair> entries;
-
+class CDMapFacesAndHairTable : public CDTable<CDMapFacesAndHairTable, std::vector<CDMapFacesAndHair>> {
   public:
 	void LoadValuesFromDatabase();
 
@@ -26,5 +23,4 @@ class CDMapFacesAndHairTable : public CDTable<CDMapFacesAndHairTable> {
 
     std::vector<CDMapFacesAndHair> Query(std::function<bool(CDMapFacesAndHair)> predicate);
 
-    std::vector<CDMapFacesAndHair> GetEntries(void) const;
 };

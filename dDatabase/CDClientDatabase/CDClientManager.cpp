@@ -40,6 +40,7 @@
 #include "CDRailActivatorComponent.h"
 #include "CDMapFacesAndHairTable.h"
 #include "CDRewardCodesTable.h"
+#include "CDPetComponentTable.h"
 
 #include <exception>
 
@@ -61,6 +62,56 @@ public:
 		return "CDClientDatabase is not connected!";
 	}
 };
+
+// Using a macro to reduce repetitive code and issues from copy and paste.
+// As a note, ## in a macro is used to concatenate two tokens together.
+
+#define SPECIALIZE_TABLE_STORAGE(table) \
+	template<> typename table::StorageType& CDClientManager::GetEntriesMutable<table>() { return table##Entries; };
+
+#define DEFINE_TABLE_STORAGE(table) namespace { table::StorageType table##Entries; }; SPECIALIZE_TABLE_STORAGE(table)
+
+DEFINE_TABLE_STORAGE(CDActivityRewardsTable);
+DEFINE_TABLE_STORAGE(CDActivitiesTable);
+DEFINE_TABLE_STORAGE(CDAnimationsTable);
+DEFINE_TABLE_STORAGE(CDBehaviorParameterTable);
+DEFINE_TABLE_STORAGE(CDBehaviorTemplateTable);
+DEFINE_TABLE_STORAGE(CDBrickIDTableTable);
+DEFINE_TABLE_STORAGE(CDComponentsRegistryTable);
+DEFINE_TABLE_STORAGE(CDCurrencyTableTable);
+DEFINE_TABLE_STORAGE(CDDestructibleComponentTable);
+DEFINE_TABLE_STORAGE(CDEmoteTableTable);
+DEFINE_TABLE_STORAGE(CDFeatureGatingTable);
+DEFINE_TABLE_STORAGE(CDInventoryComponentTable);
+DEFINE_TABLE_STORAGE(CDItemComponentTable);
+DEFINE_TABLE_STORAGE(CDItemSetSkillsTable);
+DEFINE_TABLE_STORAGE(CDItemSetsTable);
+DEFINE_TABLE_STORAGE(CDLevelProgressionLookupTable);
+DEFINE_TABLE_STORAGE(CDLootMatrixTable);
+DEFINE_TABLE_STORAGE(CDLootTableTable);
+DEFINE_TABLE_STORAGE(CDMissionEmailTable);
+DEFINE_TABLE_STORAGE(CDMissionNPCComponentTable);
+DEFINE_TABLE_STORAGE(CDMissionTasksTable);
+DEFINE_TABLE_STORAGE(CDMissionsTable);
+DEFINE_TABLE_STORAGE(CDMovementAIComponentTable);
+DEFINE_TABLE_STORAGE(CDObjectSkillsTable);
+DEFINE_TABLE_STORAGE(CDObjectsTable);
+DEFINE_TABLE_STORAGE(CDPhysicsComponentTable);
+DEFINE_TABLE_STORAGE(CDPackageComponentTable);
+DEFINE_TABLE_STORAGE(CDPetComponentTable);
+DEFINE_TABLE_STORAGE(CDProximityMonitorComponentTable);
+DEFINE_TABLE_STORAGE(CDPropertyEntranceComponentTable);
+DEFINE_TABLE_STORAGE(CDPropertyTemplateTable);
+DEFINE_TABLE_STORAGE(CDRailActivatorComponentTable);
+DEFINE_TABLE_STORAGE(CDRarityTableTable);
+DEFINE_TABLE_STORAGE(CDRebuildComponentTable);
+DEFINE_TABLE_STORAGE(CDRewardCodesTable);
+DEFINE_TABLE_STORAGE(CDRewardsTable);
+DEFINE_TABLE_STORAGE(CDScriptComponentTable);
+DEFINE_TABLE_STORAGE(CDSkillBehaviorTable);
+DEFINE_TABLE_STORAGE(CDVendorComponentTable);
+DEFINE_TABLE_STORAGE(CDZoneTableTable);
+DEFINE_TABLE_STORAGE(CDMapFacesAndHairTable);
 
 void CDClientManager::LoadValuesFromDatabase() {
 	if (!CDClientDatabase::isConnected) throw CDClientConnectionException();
