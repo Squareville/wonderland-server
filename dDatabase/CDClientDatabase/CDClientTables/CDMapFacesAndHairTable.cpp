@@ -10,7 +10,9 @@ void CDMapFacesAndHairTable::LoadValuesFromDatabase() {
     }
 
     tableSize.finalize();
-    this->entries.reserve(size);
+    auto& entries = GetEntriesMutable();
+	entries.reserve(size);
+
     auto tableData = CDClientDatabase::ExecuteQuery("SELECT * FROM mapFacesAndHair");
     while (!tableData.eof()) {
         CDMapFacesAndHair entry;
@@ -21,7 +23,7 @@ void CDMapFacesAndHairTable::LoadValuesFromDatabase() {
 		entry.haircolor = tableData.getIntField("haircolor", 0);
 		entry.hairstyle = tableData.getIntField("hairstyle", 0);
 
-        this->entries.push_back(entry);
+        entries.push_back(entry);
         tableData.nextRow();
     }
 
@@ -30,17 +32,13 @@ void CDMapFacesAndHairTable::LoadValuesFromDatabase() {
 
 std::vector<CDMapFacesAndHair> CDMapFacesAndHairTable::Query(std::function<bool(CDMapFacesAndHair)> predicate) {
 
-    std::vector<CDMapFacesAndHair> data = cpplinq::from(this->entries) >> cpplinq::where(predicate) >> cpplinq::to_vector();
+    std::vector<CDMapFacesAndHair> data = cpplinq::from(GetEntries()) >> cpplinq::where(predicate) >> cpplinq::to_vector();
 
     return data;
 }
 
-std::vector<CDMapFacesAndHair> CDMapFacesAndHairTable::GetEntries(void) const {
-    return this->entries;
-}
-
 CDMapFacesAndHair CDMapFacesAndHairTable::GetByLot(LOT lot) {
-    for (const auto& item : entries) {
+    for (const auto& item : GetEntries()) {
         if (item.id == lot) {
             return item;
         }
@@ -50,7 +48,7 @@ CDMapFacesAndHair CDMapFacesAndHairTable::GetByLot(LOT lot) {
 }
 
 CDMapFacesAndHair CDMapFacesAndHairTable::GetByEyes(uint32_t id) {
-    for (const auto& item : entries) {
+    for (const auto& item : GetEntries()) {
         if (item.eyes == id) {
             return item;
         }
@@ -60,7 +58,7 @@ CDMapFacesAndHair CDMapFacesAndHairTable::GetByEyes(uint32_t id) {
 }
 
 CDMapFacesAndHair CDMapFacesAndHairTable::GetByEyebrows(uint32_t id) {
-    for (const auto& item : entries) {
+    for (const auto& item : GetEntries()) {
         if (item.eyebrows == id) {
             return item;
         }
@@ -70,7 +68,7 @@ CDMapFacesAndHair CDMapFacesAndHairTable::GetByEyebrows(uint32_t id) {
 }
 
 CDMapFacesAndHair CDMapFacesAndHairTable::GetByMouth(uint32_t id) {
-    for (const auto& item : entries) {
+    for (const auto& item : GetEntries()) {
         if (item.mouth == id) {
             return item;
         }

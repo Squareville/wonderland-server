@@ -48,7 +48,6 @@
 #include "EntityInfo.h"
 #include "LUTriggers.h"
 #include "PhantomPhysicsComponent.h"
-#include "Player.h"
 #include "PossessableComponent.h"
 #include "PossessorComponent.h"
 #include "ProximityMonitorComponent.h"
@@ -748,7 +747,7 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 	if (chatCommand == "printallobjects" && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER) {
 		auto allEntities = Game::entityManager->GetAllEntities();
 		std::ofstream output((BinaryPathFinder::GetBinaryDir() / std::to_string(Game::zoneManager->GetZoneID().GetMapID())).string() + "_Objects.txt");
-		auto* cdobjectsTable = CDClientManager::Instance().GetTable<CDObjectsTable>();
+		auto* cdobjectsTable = CDClientManager::GetTable<CDObjectsTable>();
 		std::map<std::string, std::pair<CDObjects, uint32_t>> objects;
 		for (const auto& [id, entity] : allEntities) {
 			const auto lotInfo = cdobjectsTable->GetByID(entity->GetLOT());
@@ -1467,15 +1466,15 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 	}
 
 	if (chatCommand == "killinstance" && args.size() >= 2 && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER) {
-		uint32_t zoneID;
-		uint32_t instanceID;
+		const auto zoneID = GeneralUtils::TryParse<uint32_t>(args[0]);
+		const auto instanceID = GeneralUtils::TryParse<uint32_t>(args[1]);
 
-		if (!GeneralUtils::TryParse(args[0], zoneID)) {
+		if (!zoneID) {
 			ChatPackets::SendSystemMessage(sysAddr, u"Invalid zoneID.");
 			return;
 		}
 
-		if (!GeneralUtils::TryParse(args[1], instanceID)) {
+		if (!instanceID) {
 			ChatPackets::SendSystemMessage(sysAddr, u"Invalid cloneID.");
 			return;
 		}
@@ -1484,8 +1483,8 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 
 			BitStreamUtils::WriteHeader(bitStream, eConnectionType::MASTER, eMasterMessageType::SHUTDOWN_INSTANCE);
 
-		bitStream.Write(zoneID);
-		bitStream.Write<uint16_t>(instanceID);
+		bitStream.Write(zoneID.value());
+		bitStream.Write<uint16_t>(instanceID.value());
 
 		Game::server->SendToMaster(&bitStream);
 
@@ -1500,14 +1499,14 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 		bitStream.Write(entity->GetObjectID());
 
 		if (args.size() >= 1) {
-			uint32_t zoneID;
-			if (!GeneralUtils::TryParse(args[0], zoneID)) {
+			const auto zoneID = GeneralUtils::TryParse<uint32_t>(args[0]);
+			if (!zoneID) {
 				ChatPackets::SendSystemMessage(sysAddr, u"Invalid zoneID");
 				return;
 			}
-			bitStream.Write(zoneID >= 0);
+			bitStream.Write(zoneID.value() >= 0);
 			if (zoneID >= 0) {
-				bitStream.Write<uint16_t>(zoneID);
+				bitStream.Write<uint16_t>(zoneID.value());
 			}
 		} else {
 			bitStream.Write0();
