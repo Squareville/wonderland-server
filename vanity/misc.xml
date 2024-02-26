@@ -1,0 +1,54 @@
+<objects>
+	<!--Pet Cove Brick Vendor-->
+	<object lot="20088">
+		<config>
+			<key>dummy=7:1</key>
+		</config>
+		<locations>
+			<location zone="1201" x="67.200" y="176.419" z="37.150" rw="0.437076" rx="0.00" ry="0.899425" rz="0.00" />
+		</locations>
+	</object>
+	
+	<!--Pet Cove Mailbox-->
+	<object lot="3964">
+		<config>
+			<key>dummy=7:1</key>
+		</config>
+		<locations>
+			<location zone="1201" x="122.000656" y="173.867813" z="60.823181" rw="0.981356" rx="0.00" ry="0.192200" rz="0.00" />
+		</locations>
+	</object>
+	
+	<!--NS Frostburgh Launchpad-->
+	<object lot="12442">
+		<config>
+			<key>CheckPrecondition=0:47</key>
+			<key>rocketLaunchPreCondition=0:47</key>
+			<key>rocketUseLaunchPrecondition=7:0</key>
+		</config>
+		<locations>
+			<location zone="1200" x="245.60" y="290.00" z="249.60" rw="0.00" rx="0.00" ry="0.00" rz="0.00" />
+		</locations>
+	</object>
+	
+	<!--NS Frostburgh Launchpad Audio-->
+	<object lot="6368">
+		<config>
+			<key>NDAEG=13:</key>
+			<key>NDAudioEventGUID=13:{3d37c6fb-0ac6-4a86-92f2-970347a0759d}</key>
+		</config>
+		<locations>
+			<location zone="1200" x="245.60" y="290.00" z="249.60" rw="0.00" rx="0.00" ry="0.00" rz="0.00" />
+		</locations>
+	</object>
+	
+	<!--Crux Prime loot drop physics hack-->
+	<object lot="30025">
+		<config>
+			<key>noGhosting=7:1</key>
+		</config>
+		<locations>
+			<location zone="1800" x="0.00" y="0.00" z="0.00" rw="1.00" rx="0.00" ry="0.00" rz="0.00" />
+		</locations>
+	</object>
+</objects>
