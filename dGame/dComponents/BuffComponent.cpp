@@ -164,7 +164,7 @@ void BuffComponent::ApplyBuff(const int32_t id, const float duration, const LWOO
 	const auto& parameters = GetBuffParameters(id);
 	for (const auto& parameter : parameters) {
 		if (parameter.name == "overtime") {
-			auto* behaviorTemplateTable = CDClientManager::Instance().GetTable<CDSkillBehaviorTable>();
+			auto* behaviorTemplateTable = CDClientManager::GetTable<CDSkillBehaviorTable>();
 
 			behaviorID = behaviorTemplateTable->GetSkillByID(parameter.values[0]).behaviorID;
 			stacks = static_cast<int32_t>(parameter.values[1]);
@@ -208,9 +208,8 @@ void BuffComponent::ApplyBuff(const int32_t id, const float duration, const LWOO
 void BuffComponent::RemoveBuff(int32_t id, bool fromUnEquip, bool removeImmunity, bool ignoreRefCount) {
 	const auto& iter = m_Buffs.find(id);
 
-	if (iter == m_Buffs.end()) {
-		return;
-	}
+	// If the buff is already scheduled to be removed, don't do it again
+	if (iter == m_Buffs.end() || m_BuffsToRemove.contains(id)) return;
 
 	if (!ignoreRefCount && !iter->second.cancelOnRemoveBuff) {
 		iter->second.refCount--;
@@ -222,7 +221,7 @@ void BuffComponent::RemoveBuff(int32_t id, bool fromUnEquip, bool removeImmunity
 
 	GameMessages::SendRemoveBuff(m_Parent, fromUnEquip, removeImmunity, id);
 
-	m_BuffsToRemove.push_back(id);
+	m_BuffsToRemove.insert(id);
 
 	RemoveBuffEffect(id);
 }

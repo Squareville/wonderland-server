@@ -217,7 +217,7 @@
 #include "VisToggleNotifierServer.h"
 
 // DLU Scripts
-#include "DLUVanityNPC.h"
+#include "DLUVanityTeleportingObject.h"
 
 // AM Scripts
 #include "AmConsoleTeleportServer.h"
@@ -843,8 +843,8 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new NjNyaMissionitems();
 
 	//DLU:
-	if (scriptName == "scripts\\02_server\\DLU\\DLUVanityNPC.lua")
-		script = new DLUVanityNPC();
+	else if (scriptName == "scripts\\02_server\\DLU\\DLUVanityTeleportingObject.lua")
+		script = new DLUVanityTeleportingObject();
 
 	// Survival minigame
 	if (scriptName == "scripts\\02_server\\Enemy\\Survival\\L_AG_SURVIVAL_STROMBIE.lua")

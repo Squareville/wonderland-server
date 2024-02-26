@@ -179,7 +179,7 @@ file(ARCHIVE_EXTRACT INPUT ${PROJECT_BINARY_DIR}/navmeshes.zip DESTINATION ${PRO
 file(REMOVE ${PROJECT_BINARY_DIR}/navmeshes.zip)
 
 # Copy vanity files on first build
-set(VANITY_FILES "CREDITS.md" "INFO.md" "TESTAMENT.md" "NPC.xml")
+set(VANITY_FILES "CREDITS.md" "INFO.md" "TESTAMENT.md" "root.xml" "dev-tribute.xml" "atm.xml")
 
 foreach(file ${VANITY_FILES})
 	configure_file("${CMAKE_SOURCE_DIR}/vanity/${file}" "${CMAKE_BINARY_DIR}/vanity/${file}" COPYONLY)
@@ -257,6 +257,7 @@ set(INCLUDED_DIRECTORIES
 	"thirdparty/SQLite"
 	"thirdparty/cpplinq"
 	"thirdparty/cpp-httplib"
+	"thirdparty/MD5"
 
 	"tests"
 	"tests/dCommonTests"
@@ -332,7 +333,7 @@ add_subdirectory(dPhysics)
 add_subdirectory(dServer)
 
 # Create a list of common libraries shared between all binaries
-set(COMMON_LIBRARIES "dCommon" "dDatabase" "dNet" "raknet" "mariadbConnCpp" "magic_enum")
+set(COMMON_LIBRARIES "dCommon" "dDatabase" "dNet" "raknet" "mariadbConnCpp" "magic_enum" "MD5")
 
 # Add platform specific common libraries
 if(UNIX)
