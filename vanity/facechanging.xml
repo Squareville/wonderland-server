@@ -4,14 +4,12 @@
 		<config>
 			<key>miss_prereq_text=0:MISSION_PREREQ_NIMBUS</key>
 		</config>
-		<zone id="1200">
-			<locations>
-				<!--NS Red Blocks-->
-				<location zone="1200" x="199.716" y="259.137" z="-613.309" rw="0.757318" rx="0.00" ry="0.653046" rz="0.00" />
-				<!--NT Sentinel War Room-->
-				<location 1900="1200" x="-581.036" y="1128.775" z="-93.233" rw="0.603595" rx="0.00" ry="0.797291" rz="0.00" />
-			</locations>
-		</zone>
+		<locations>
+			<!--NS Red Blocks-->
+			<location zone="1200" x="199.716" y="259.137" z="-613.309" rw="0.757318" rx="0.00" ry="0.653046" rz="0.00" />
+			<!--NT Sentinel War Room-->
+			<location zone="1900" x="-581.036" y="1128.775" z="-93.233" rw="0.603595" rx="0.00" ry="0.797291" rz="0.00" />
+		</locations>
 	</object>
 	
 	<!--Crystal Balls for during and after Riplea's intro mission-->
