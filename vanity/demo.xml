@@ -1,14 +1,14 @@
 <objects>
-	<object lot="5018">
+	<object lot="2444">
 		<locations>
-			<location zone="1200" x="-15.0" y="288.896" z="-167.0" rw="0.984321" rx="0.00" ry="0.176388" rz="0.00" scale="0.50" />
-      <location zone="1200" x="15.0" y="288.896" z="-158.0" rw="0.914803" rx="0.00" ry="-0.403900" rz="0.00" scale="1.50" />
+			<location zone="1200" x="-15.0" y="288.8" z="-167.0" rw="0.984321" rx="0.00" ry="0.176388" rz="0.00" scale="0.50" />
+			<location zone="1200" x="15.0" y="288.8" z="-158.0" rw="0.724628" rx="0.00" ry="-0.689141" rz="0.00" scale="1.50" />
 		</locations>
 	</object>
-  
+	
 	<object lot="7430">
 		<config>
-			<key>vendorInvOverride=0:1727,7292,16553,2243</key>
+			<key>vendorInvOverride=0:1727,7292,16553,2243,4925,7089</key>
 		</config>
 		<locations>
 			<location zone="1200" x="35.935" y="288.896" z="-128.213" rw="0.882977" rx="0.00" ry="-0.469416" rz="0.00" />
