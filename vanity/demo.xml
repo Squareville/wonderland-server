@@ -21,7 +21,7 @@
 	<!--Friendly Felix will choose one of the 3 locations, then have a 50% chance to spawn at one of them on world server startup-->
 	<object lot="10141">
 		<config>
-			<key>useLocationsAsRandomSpawnPoint=7:1/key>
+			<key>useLocationsAsRandomSpawnPoint=7:1</key>
 		</config>
 		<locations>
 			<location zone="1200" x="31.819" y="288.896" z="-117.0953" rw="0.630659" rx="0.00" ry="-0.776060" rz="0.00" chance="0.50"/>
