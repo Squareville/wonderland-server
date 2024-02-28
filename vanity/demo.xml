@@ -8,8 +8,9 @@
 		</locations>
 	</object>
 
-	<!--Kore Swordcube, an unused vendor, who we will give GM-only items-->
-	<object lot="7430">
+	<!--A vendor who we will give GM-only items-->
+	<object name="Demo Fella - GM Items Vendor" lot="3918">
+		<equipment>7630, 1727, 7451, 7520</equipment>
 		<config>
 			<key>vendorInvOverride=0:1727,7292,16553,2243,14535,14538,14531,6730</key>
 		</config>
