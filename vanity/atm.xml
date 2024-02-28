@@ -5,7 +5,7 @@
 		</config>
 		<locations>
 			<!--AG Sentinel Base Camp-->
-			<location zone="1100" x="248.792" y="381.869" z="-181.114" rw="0.782761" rx="0.00" ry="-0.622322" rz="0.00" />
+			<location zone="1100" x="248.792" y="381.781" z="-181.114" rw="0.782761" rx="0.00" ry="-0.622322" rz="0.00" />
 			<!--AG Picnic Area-->
 			<location zone="1100" x="471.545" y="413.979" z="27.176" rw="0.874378" rx="0.00" ry="-0.485246" rz="0.00" />
 			<!--NS Nimbus Plaza-->
