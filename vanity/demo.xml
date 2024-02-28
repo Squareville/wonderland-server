@@ -9,7 +9,7 @@
 	</object>
 
 	<!--A vendor who we will give GM-only items-->
-	<object name="Demo Fella - GM Items Vendor" lot="13300">
+	<object name="Demo Fella - GM Items Vendor" lot="16499">
 		<equipment>7630, 1727, 7451, 7521</equipment>
 		<config>
 			<key>vendorInvOverride=0:1727,7292,16553,2243,14535,14538,14531,6730</key>
