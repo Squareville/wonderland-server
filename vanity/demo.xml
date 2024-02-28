@@ -25,7 +25,7 @@
 			<key>useLocationsAsRandomSpawnPoint=7:1</key>
 		</config>
 		<locations>
-			<location zone="1200" x="31.819" y="288.896" z="-117.0953" rw="0.630659" rx="0.00" ry="-0.776060" rz="0.00" chance="0.50"/>
+			<location zone="1200" x="31.819" y="288.896" z="-117.095" rw="0.630659" rx="0.00" ry="-0.776060" rz="0.00" chance="0.50"/>
 			<location zone="1200" x="42.755" y="291.897" z="-144.385" rw="0.855306" rx="0.00" ry="-0.518124" rz="0.00" chance="0.50"/>
 			<location zone="1200" x="3.984" y="288.896" z="-165.947" rw="0.978508" rx="0.00" ry="-0.206210" rz="0.00" chance="0.50"/>
 		</locations>
