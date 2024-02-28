@@ -114,7 +114,7 @@
 			<key>template=1:-1"</key>
 		</config>
 		<locations>
-			<location zone="1200" x="4" y="288.895" z="-85.846" rw="-0.205988" rx="0.00" ry="0.978555" rz="0.00" />
+			<location zone="1200" x="4.0" y="288.895" z="-85.846" rw="-0.205988" rx="0.00" ry="0.978555" rz="0.00" />
 		</locations>
 	</object>
 </objects>
