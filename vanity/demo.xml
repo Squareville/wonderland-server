@@ -1,10 +1,10 @@
 <objects>
 	<!--A tree spawned at two locations with different positions, rotations, and scales-->
 	<!--Positions and rotations are easily gotten by typing /loc or /pos, and /rot into the in-game chat-->
-	<object lot="4866">
+	<object lot="6450">
 		<locations>
-			<location zone="1200" x="-15.0" y="288.8" z="-167.0" rw="0.984321" rx="0.00" ry="0.176388" rz="0.00" scale="0.50" />
-			<location zone="1200" x="15.0" y="288.8" z="-158.0" rw="0.724628" rx="0.00" ry="-0.689141" rz="0.00" scale="1.50" />
+			<location zone="1200" x="-15.0" y="288.8" z="-167.0" rw="0.984321" rx="0.00" ry="0.176388" rz="0.00" scale="1.10" />
+			<location zone="1200" x="15.0" y="288.8" z="-158.0" rw="0.724628" rx="0.00" ry="-0.689141" rz="0.00" scale="0.30" />
 		</locations>
 	</object>
 
