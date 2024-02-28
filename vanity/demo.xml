@@ -17,7 +17,7 @@
 		</locations>
 	</object>
 
-	<!--Spawner for an enemy-->
+	<!--Spawner(s) for enemies-->
 	<object lot="176">
 		<config>
 			<key>CheckPrecondition=0:</key>
@@ -68,6 +68,7 @@
 		</config>
 		<locations>
 			<location zone="1200" x="-16.749" y="291.841" z="-122.349" rw="1.00" rx="0.00" ry="0.00" rz="0.00" />
+			<location zone="1200" x="-15.696" y="291.608" z="-136.902" rw="1.00" rx="0.00" ry="0.00" rz="0.00" />
 		</locations>
 	</object>
 </objects>
