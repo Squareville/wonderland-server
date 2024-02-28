@@ -23,7 +23,7 @@
 			<key>CheckPrecondition=0:</key>
 			<key>SmashableDoesNotCutNavmesh=7:0</key>
 			<key>add_to_navmesh=7:1</key>
-			<key>aggroRadius=3:5</key>
+			<key>aggroRadius=3:15</key>
 			<key>camGradSnap=7:0</key>
 			<key>camPrefersToFadeObject=7:1</key>
 			<key>carver_only=7:0</key>
@@ -56,15 +56,15 @@
 			<key>set_faction=13:4</key>
 			<key>smashable_loot_matrix=1:486</key>
 			<key>smashable_loot_matrix_set=7:0</key>
-			<key>softtetherRadius=3:5</key>
+			<key>softtetherRadius=3:15</key>
 			<key>spawner_active_on_load=7:1</key>
 			<key>spawntemplate=1:12379</key>
 			<key>startsQBActivator=7:0</key>
 			<key>template=1:-1</key>
-			<key>tetherRadius=3:5</key>
+			<key>tetherRadius=3:15</key>
 			<key>usetetherdb=7:0</key>
 			<key>usewanderdb=7:0</key>
-			<key>wanderRadius=3:5</key>
+			<key>wanderRadius=3:15</key>
 		</config>
 		<locations>
 			<location zone="1200" x="-16.749" y="291.841" z="-122.349" rw="1.00" rx="0.00" ry="0.00" rz="0.00" />
