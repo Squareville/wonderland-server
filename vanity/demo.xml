@@ -18,6 +18,15 @@
 		</locations>
 	</object>
 
+	<!--Friendly Felix will choose one of the 3 locations, then have a 50% chance to spawn at one of them on world server startup-->
+	<object lot="10141">
+		<locations>
+			<location zone="1200" x="31.819" y="288.896" z="-1170953" rw="0.630659" rx="0.00" ry="-0.776060" rz="0.00" chance="0.50"/>
+			<location zone="1200" x="42.755" y="291.897" z="-144.385" rw="0.855306" rx="0.00" ry="-0.518124" rz="0.00" chance="0.50"/>
+			<location zone="1200" x="3.984" y="288.896" z="-165.947" rw="0.978508" rx="0.00" ry="-0.206210" rz="0.00" chance="0.50"/>
+		</locations>
+	</object>
+
 	<!--Spawner(s) for enemies, largely copy-pasted from Portabello in this case-->
 	<object lot="176">
 		<config>
@@ -41,7 +50,6 @@
 			<key>loadOnClientOnly=7:0</key>
 			<key>loadSrvrOnly=7:0</key>
 			<key>max_to_spawn=1:-1</key>
-			<key>name=0:</key>
 			<key>navmesh_carver=7:0</key>
 			<key>no_auto_spawn=7:1</key>
 			<key>no_timed_spawn=7:1</key>
@@ -114,7 +122,7 @@
 			<key>template=1:-1</key>
 		</config>
 		<locations>
-			<location zone="1200" x="4.0" y="288.895" z="-85.846" rw="-0.205988" rx="0.00" ry="0.978555" rz="0.00" />
+			<location zone="1200" x="4.232" y="288.895" z="-85.846" rw="-0.205988" rx="0.00" ry="0.978555" rz="0.00" />
 		</locations>
 	</object>
 </objects>
