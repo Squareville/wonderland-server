@@ -1,6 +1,7 @@
 <objects>
 	<object lot="13538">
 		<config>
+			<!--Precondition 168 means the player must complete mission 1203 before being able to use an ATM-->
 			<key>CheckPrecondition=0:168</key>
 		</config>
 		<locations>
@@ -31,7 +32,7 @@
 			<!--FV Paradox Refinery-->
 			<location zone="1400" x="-696.957" y="-3.206" z="-452.441" rw="0.884105" rx="0.00" ry="0.467288" rz="0.00" />
 			<!--CP Sentinel Point Zeta-->
-			<location zone="1800" x="-222.634" y="92.693" z="568.392" rw="-0.435024" rx="0.00" ry="0.900419" rz="0.00" />
+			<location zone="1800" x="-222.634" y="92.373" z="568.392" rw="-0.435024" rx="0.00" ry="0.900419" rz="0.00" />
 			<!--NJ Monastery Courtyard-->
 			<location zone="2000" x="-63.487" y="208.359" z="379.195" rw="0.00" rx="0.00" ry="1" rz="0.00" />
 		</locations>
