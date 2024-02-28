@@ -3,5 +3,5 @@
 	<file name="atm.xml" enabled="1"/>
 	<file name="facechanging.xml" enabled="1"/>
 	<file name="misc.xml" enabled="1"/>
-	<file name="demo.xml" enabled="1"/>
+	<file name="demo.xml" enabled="0"/>
 </files>
