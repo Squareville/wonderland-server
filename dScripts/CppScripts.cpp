@@ -241,6 +241,7 @@
 #include "AmDarklingDragon.h"
 #include "AmBlueX.h"
 #include "AmTeapotServer.h"
+#include "WanderingVendor.h"
 
 // NJ Scripts
 #include "NjGarmadonCelebration.h"
@@ -318,14 +319,16 @@
 #include "WildNinjaStudent.h"
 #include "WildNinjaSensei.h"
 #include "WildNinjaBricks.h"
-#include "RubyScepterDrop.h"
+#include "VisToggleNotifierServer.h"
+#include "LupGenericInteract.h"
+#include "WblRobotCitizen.h"
 
 // Wonderland
 #include "SpawnSkeletonOnDeath.h"
 #include "DieAfterXSeconds.h"
 #include "DamageReduction.h"
 #include "SpawnSnowmanOnDeath.h"
-
+#include "RubyScepterDrop.h"
 
 namespace {
 	InvalidScript* invalidToReturn = new InvalidScript();
@@ -556,7 +559,7 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 	//PR:
 	if (scriptName == "scripts\\client\\ai\\PR\\L_PR_WHISTLE.lua")
 		script = new PrWhistle();
-	else if (scriptName == "scripts\\02_server\\Map\\PR\\L_PR_SEAGULL_FLY.lua")
+	if (scriptName == "scripts\\02_server\\Map\\PR\\L_PR_SEAGULL_FLY.lua")
 		script = new PrSeagullFly();
 	else if (scriptName == "scripts\\ai\\PETS\\L_HYDRANT_SMASHABLE.lua")
 		script = new HydrantSmashable();
@@ -651,6 +654,8 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new MailBoxServer();
 	else if (scriptName == "scripts\\ai\\ACT\\L_ACT_MINE.lua")
 		script = new ActMine();
+	else if (scriptName == "scripts\\02_server\\Map\\AM\\L_WANDERING_VENDOR.lua")
+		script = new WanderingVendor();
 
 	//Racing:
 	if (scriptName == "scripts\\ai\\RACING\\OBJECTS\\RACE_IMAGINE_CRATE_SERVER.lua")
@@ -815,7 +820,7 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new Lieutenant();
 	else if (scriptName == "scripts\\02_server\\Map\\njhub\\L_RAIN_OF_ARROWS.lua")
 		script = new RainOfArrows();
-	else if (scriptName == "scripts\\02_server\\Map\\njhub\\L_CAVE_PRISON_CAGE.lua")
+	if (scriptName == "scripts\\02_server\\Map\\njhub\\L_CAVE_PRISON_CAGE.lua")
 		script = new CavePrisonCage();
 	else if (scriptName == "scripts\\02_server\\Map\\njhub\\boss_instance\\L_MONASTERY_BOSS_INSTANCE_SERVER.lua")
 		script = new NjMonastryBossInstance();
@@ -951,6 +956,10 @@ CppScripts::Script* CppScripts::GetScript(Entity* parent, const std::string& scr
 		script = new WildNinjaStudent();
 	else if (scriptName == "scripts\\ai\\WILD\\L_WILD_NINJA_SENSEI.lua")
 		script = new WildNinjaSensei();
+	else if (scriptName == "scripts\\ai\\WILD\\L_LUP_generic_interact.lua")
+		script = new LupGenericInteract();
+	else if (scriptName.rfind("scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizen", 0) == 0)
+		script = new WblRobotCitizen();
 
 	// newcontent
 	if (scriptName == "scripts\\newcontent\\server\\spawnskeletonondeath.lua")
