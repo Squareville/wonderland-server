@@ -821,7 +821,7 @@ void HandlePacket(Packet* packet) {
 				bitStream.Write(instances[i]->GetZoneID().GetInstanceID());
 			}
 
-			Game::server->Send(&bitStream, respondingSysAddr, false);
+			Game::server->Send(bitStream, respondingSysAddr, false);
 
 			break;
 		}

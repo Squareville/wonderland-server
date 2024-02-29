@@ -1486,7 +1486,7 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 		bitStream.Write(zoneID.value());
 		bitStream.Write<uint16_t>(instanceID.value());
 
-		Game::server->SendToMaster(&bitStream);
+		Game::server->SendToMaster(bitStream);
 
 		Game::logger->Log("Instance", "Triggered world shutdown\n");
 	}
@@ -1517,7 +1517,7 @@ void SlashCommandHandler::HandleChatCommand(const std::u16string& command, Entit
 		bitStream.Write(zoneId.GetMapID());
 		bitStream.Write(zoneId.GetInstanceID());
 
-		Game::server->SendToMaster(&bitStream);
+		Game::server->SendToMaster(bitStream);
 	}
 
 	if ((chatCommand == "setcurrency") && args.size() == 1 && entity->GetGMLevel() >= eGameMasterLevel::DEVELOPER) {
