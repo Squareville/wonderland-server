@@ -9,6 +9,6 @@ set(DSCRIPTS_SOURCES_EQUIPMENTSCRIPTS
 	"XMarksTheSpotChest.cpp"
 	"StunImmunity.cpp")
 
-add_library(dScriptsEquipmentScripts STATIC ${DSCRIPTS_SOURCES_EQUIPMENTSCRIPTS})
+add_library(dScriptsEquipmentScripts OBJECT ${DSCRIPTS_SOURCES_EQUIPMENTSCRIPTS})
 target_include_directories(dScriptsEquipmentScripts PUBLIC ".")
 target_precompile_headers(dScriptsEquipmentScripts REUSE_FROM dScriptsBase)
