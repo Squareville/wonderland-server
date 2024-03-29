@@ -180,7 +180,7 @@
 			<location zone="1200" x="-429.296" y="291.058" z="212.918" rw="0.339487" rx="0" ry="0.940611" rz="0" />
 		</locations>
 	</object>
-	<object name="Hollis - Master Builder" lot="9893">
+	<object name="Hollis - Master Builder" lot="30038">
 		<equipment>4465, 2517, 6855, 8532, 9615</equipment>
 		<phrases>
 			<phrase>Visit Starbase 3001 and blast off to the awesome worlds built by the World Builder League!</phrase>
@@ -190,9 +190,6 @@
 			<phrase>There are many amazing properties to explore across the universe. You can visit some of them from the launchpads right here in Brick Annex.</phrase>
 			<phrase>Don't stop believing! Uhh, I mean building. Don't stop building!</phrase>
 		</phrases>
-		<config>
-			<key>custom_script_client=0:scripts\ai\SPEC\MISSION_MINIGAME_CLIENT.lua</key>
-		</config>
 		<locations>
 			<location zone="1200" x="-317.509" y="287.652" z="191.86" rw="0.57124" rx="0" ry="-0.820783" rz="0" />
 		</locations>
@@ -344,7 +341,7 @@
 			<location zone="2000" x="-119.269" y="230.372" z="226.63" rw="0.381416" rx="0" ry="0.924404" rz="0" />
 		</locations>
 	</object>
-	<object name="lcdr - Dab Specialist" lot="8657">
+	<object name="lcdr - Dab Specialist" lot="30036">
 		<equipment>15931, 4298, 2526</equipment>
 		<phrases>
 			<phrase>Hello there.</phrase>
@@ -361,9 +358,6 @@
 			<phrase>Gonk.</phrase>
 			<phrase>There is a theory which states that if ever anyone discovers exactly what the Universe is for and why it is here, it will instantly disappear and be replaced by something even more bizarre and inexplicable. There is another theory, which states that this has already happened.</phrase>
 		</phrases>
-		<config>
-			<key>custom_script_client=0:scripts\ai\SPEC\MISSION_MINIGAME_CLIENT.lua</key>
-		</config>
 		<locations>
 			<location zone="1200" x="197.549" y="259.137" z="-587.759" rw="0.873694" rx="0" ry="0.486475" rz="0" />
 		</locations>
