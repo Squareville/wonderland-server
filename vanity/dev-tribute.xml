@@ -175,7 +175,6 @@
 		</locations>
 	</object>
 	<object name="Hollis - Master Builder" lot="30038">
-		<equipment>4465, 2517, 6855, 8532, 9615</equipment>
 		<phrases>
 			<phrase>Visit Starbase 3001 and blast off to the awesome worlds built by the World Builder League!</phrase>
 			<phrase>I single-handedly built everything you see around you. Well, maybe half of it. Ok, none of it. But I once built a pretty cool house on Nimbus Rock!</phrase>
@@ -327,7 +326,6 @@
 		</locations>
 	</object>
 	<object name="lcdr - Dab Specialist" lot="30036">
-		<equipment>15931, 4298, 2526</equipment>
 		<phrases>
 			<phrase>Hello there.</phrase>
 			<phrase>May the Bodge be with you.</phrase>
