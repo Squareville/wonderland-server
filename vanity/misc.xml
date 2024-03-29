@@ -1,9 +1,6 @@
 <objects>
 	<!--Pet Cove Brick Vendor-->
 	<object lot="20088">
-		<config>
-			<key>dummy=7:1</key>
-		</config>
 		<locations>
 			<location zone="1201" x="67.200" y="176.419" z="37.150" rw="0.437076" rx="0.00" ry="0.899425" rz="0.00" />
 		</locations>
@@ -11,9 +8,6 @@
 	
 	<!--Pet Cove Mailbox-->
 	<object lot="3964">
-		<config>
-			<key>dummy=7:1</key>
-		</config>
 		<locations>
 			<location zone="1201" x="122.000656" y="173.867813" z="60.823181" rw="0.981356" rx="0.00" ry="0.192200" rz="0.00" />
 		</locations>
