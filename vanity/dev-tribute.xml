@@ -416,10 +416,9 @@
 
 	<!--benboy755-->
 	<object lot="30041">
-		<!--UNCOMMENT CONFIG WHEN TESTING IS DONE-->
-		<!--<config>
+		<config>
 			<key>useLocationsAsRandomSpawnPoint=7:1</key>
-		</config>-->
+		</config>
 		<locations>
 			<location zone="2000" x="705.989" y="301.206" z="359.821" rw="0.721942" rx="0" ry="-0.691954" rz="0" />
 			<location zone="2000" x="-855.658" y="304.337" z="240.762" rw="0.705202" rx="0" ry="0.709007" rz="0" />
