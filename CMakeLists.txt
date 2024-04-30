@@ -73,7 +73,8 @@ if(UNIX)
 	set(CMAKE_C_FLAGS "${CMAKE_C_FLAGS} -std=c99 -O2 -fPIC")
 elseif(MSVC)
 	# Skip warning for invalid conversion from size_t to uint32_t for all targets below for now
-	add_compile_options("/wd4267" "/utf-8")
+	# Also disable non-portable MSVC volatile behavior
+	add_compile_options("/wd4267" "/utf-8" "/volatile:iso")
 elseif(WIN32)
 	add_compile_definitions(_CRT_SECURE_NO_WARNINGS)
 endif()
@@ -95,6 +96,7 @@ set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR})
 
 find_package(MariaDB)
+find_package(JSON)
 
 # Create a /resServer directory
 make_directory(${CMAKE_BINARY_DIR}/resServer)
@@ -103,7 +105,7 @@ make_directory(${CMAKE_BINARY_DIR}/resServer)
 make_directory(${CMAKE_BINARY_DIR}/logs)
 
 # Copy resource files on first build
-set(RESOURCE_FILES "sharedconfig.ini" "authconfig.ini" "chatconfig.ini" "worldconfig.ini" "masterconfig.ini" "blacklist.dcf")
+set(RESOURCE_FILES "sharedconfig.ini" "authconfig.ini" "chatconfig.ini" "worldconfig.ini" "masterconfig.ini" "blocklist.dcf")
 message(STATUS "Checking resource file integrity")
 
 include(Utils)
@@ -295,7 +297,7 @@ add_subdirectory(dPhysics)
 add_subdirectory(dServer)
 
 # Create a list of common libraries shared between all binaries
-set(COMMON_LIBRARIES "dCommon" "dDatabase" "dNet" "raknet" "MariaDB::ConnCpp" "magic_enum")
+set(COMMON_LIBRARIES "dCommon" "dDatabase" "dNet" "raknet" "MariaDB::ConnCpp" "magic_enum" "nlohmann_json::nlohmann_json")
 
 # Add platform specific common libraries
 if(UNIX)
