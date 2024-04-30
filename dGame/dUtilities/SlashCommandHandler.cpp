@@ -1023,6 +1023,6 @@ void SlashCommandHandler::Startup() {
 		.aliases = { "togglexp", "txp" },
 		.handle = WonderlandCommands::ToggleXP,
 		.requiredLevel = eGameMasterLevel::CIVILIAN
-	}
-
+	};
+	RegisterCommand(ToggleXPCommand);
 }
