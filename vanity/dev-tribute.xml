@@ -237,21 +237,14 @@
 			<location zone="1300" x="-47.6296" y="322.527" z="533.5" rw="0.145135" rx="0" ry="0.989412" rz="0" />
 		</locations>
 	</object>
-	<object name="Jamie - Shenanigans Enthusiast" lot="9893">
-		<equipment>12915, 9683, 10476, 13342, 14166</equipment>
-		<phrases>
-			<phrase>sup lol</phrase>
-			<phrase>How long have I been standing here?</phrase>
-			<phrase>Wait, did the game close yet?</phrase>
-			<phrase>... What year is it?</phrase>
-		</phrases>
-		<config>
-			<key>custom_script_client=0:scripts\ai\SPEC\MISSION_MINIGAME_CLIENT.lua</key>
-		</config>
+	
+	<!--Jamie-->
+	<object lot="30040">
 		<locations>
-			<location zone="1400" x="-490.608" y="51.9449" z="-347.747" rw="0.594978" rx="0" ry="-0.803742" rz="0" />
+			<location zone="1260" x="-272.999" y="535.502" z="260.295" rw="0.869069" rx="0" ry="-0.494691" rz="0" />
 		</locations>
 	</object>
+	
 	<object name="Wicked" lot="7412">
 		<equipment>8287, 2957, 7523, 16613</equipment>
 		<locations>
