@@ -429,6 +429,7 @@
 	</object>
 
 	<!--Neol-->
+	<!--
 	<object lot="176">
 		<config>
 			<key>max_to_spawn=1:-1</key>
@@ -442,4 +443,5 @@
 			<location zone="1200" x="236.210" y="246.106" z="-696.680" rw="1.00" rx="0.00" ry="0.00" rz="0.00" />
 		</locations>
 	</object>
+	-->
 </objects>
