@@ -8,7 +8,7 @@
 			<!--NS Red Blocks-->
 			<location zone="1200" x="199.716" y="259.137" z="-613.309" rw="0.757318" rx="0.00" ry="0.653046" rz="0.00" />
 			<!--NT Sentinel War Room-->
-			<location zone="1900" x="-581.036" y="1128.775" z="-93.233" rw="0.603595" rx="0.00" ry="0.797291" rz="0.00" />
+			<!--<location zone="1900" x="-581.036" y="1128.775" z="-93.233" rw="0.603595" rx="0.00" ry="0.797291" rz="0.00" />-->
 		</locations>
 	</object>
 	
@@ -21,8 +21,8 @@
 		<locations>
 			<!--NS Red Blocks-->
 			<location zone="1200" x="203.127" y="259.137" z="-627.265" rw="0.797109" rx="0.00" ry="0.603835" rz="0.00" />
-			<!--NT Sentinel War Room-->
-			<location zone="1900" x="-575.163" y="1128.775" z="-80.926" rw="0.532370" rx="0.00" ry="0.846512" rz="0.00" />
+			<!--NT Sentinel War Room, this is now a "normal" crystal ball defined in the following section-->
+			<!--<location zone="1900" x="-575.163" y="1128.775" z="-80.926" rw="0.532370" rx="0.00" ry="0.846512" rz="0.00" />-->
 		</locations>
 	</object>
 	
@@ -49,6 +49,8 @@
 			<location zone="1700" x="-354.091" y="1035.128" z="-31.049" rw="0.887253" rx="0.00" ry="0.461283" rz="0.00" />
 			<!--CP Sentinel Point Zeta-->
 			<location zone="1800" x="-249.776" y="76.147" z="507.306" rw="0.391932" rx="0.00" ry="0.919994" rz="0.00" />
+			<!--NT Sentinel War Room-->
+			<location zone="1900" x="-575.163" y="1128.775" z="-80.926" rw="0.532370" rx="0.00" ry="0.846512" rz="0.00" />
 			<!--NJ Monastery Courtyard-->
 			<location zone="2000" x="-70.218" y="205.089" z="307.106" rw="0.733160" rx="0.00" ry="0.680057" rz="0.00" />
 		</locations>
