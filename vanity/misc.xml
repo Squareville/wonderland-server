@@ -21,7 +21,7 @@
 			<key>rocketUseLaunchPrecondition=7:0</key>
 		</config>
 		<locations>
-			<location zone="1200" x="244.32" y="289.50" z="250.38" rw="0.00" rx="0.00" ry="0.00" rz="0.00" />
+			<location zone="1200" x="246.72" y="289.35" z="248.96" rw="0.9994786381721497" rx="0.00" ry="0.03228670358657837" rz="0.00" />
 		</locations>
 	</object>
 	
@@ -32,7 +32,7 @@
 			<key>NDAudioEventGUID=13:{3d37c6fb-0ac6-4a86-92f2-970347a0759d}</key>
 		</config>
 		<locations>
-			<location zone="1200" x="244.32" y="289.50" z="250.38" rw="0.00" rx="0.00" ry="0.00" rz="0.00" />
+			<location zone="1200" x="246.72" y="289.35" z="248.96" rw="0.00" rx="0.00" ry="0.00" rz="0.00" />
 		</locations>
 	</object>
 	
