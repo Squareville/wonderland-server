@@ -74,8 +74,6 @@
 			<key>respawn=5:20000</key>
 			<key>respawnVol=7:0</key>
 			<key>respawnVolName=0:</key>
-			<key>rspPos=0:0.00000.00000.0000</key>
-			<key>rspRot=0:1.0000  0.0000  0.0000  0.0000</key>
 			<key>sceneIDOverride=1:255</key>
 			<key>sceneIDOverrideEnabled=7:0</key>
 			<key>sceneLayerIDOverride=5:0</key>
