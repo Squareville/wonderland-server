@@ -68,7 +68,7 @@
 	</object>
 
 	<!--Wig Stands for during and after Hairy's intro mission-->
-	<object lot="30003">
+	<object lot="30015">
 		<config>
 			<key>CheckPrecondition=0:1012|1013</key>
 			<key>noGhosting=7:1</key>
@@ -80,7 +80,7 @@
 	</object>
 
 	<!--Wig Stands unlocked only after completing Hairy's intro mission-->
-	<object lot="30003">
+	<object lot="30015">
 		<config>
 			<key>CheckPrecondition=0:1014</key>
 			<key>noGhosting=7:1</key>
