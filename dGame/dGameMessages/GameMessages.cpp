@@ -413,7 +413,8 @@ void GameMessages::SendPlatformResync(Entity* entity, const SystemAddress& sysAd
 		bitStream.Write(qUnexpectedRotation.w);
 	}
 
-	SEND_PACKET_BROADCAST;
+	if (sysAddr == UNASSIGNED_SYSTEM_ADDRESS) SEND_PACKET_BROADCAST;
+	SEND_PACKET;
 }
 
 void GameMessages::SendRestoreToPostLoadStats(Entity* entity, const SystemAddress& sysAddr) {
@@ -5438,14 +5439,14 @@ void GameMessages::HandleRemoveItemFromInventory(RakNet::BitStream& inStream, En
 		if (eInvType == eInventoryType::MODELS) {
 			item->DisassembleModel(iStackCount);
 		}
-
+		auto lot = item->GetLot();
 		item->SetCount(item->GetCount() - iStackCount, true);
 		Game::entityManager->SerializeEntity(entity);
 
 		auto* missionComponent = entity->GetComponent<MissionComponent>();
 
 		if (missionComponent != nullptr) {
-			missionComponent->Progress(eMissionTaskType::GATHER, item->GetLot(), LWOOBJID_EMPTY, "", -iStackCount);
+			missionComponent->Progress(eMissionTaskType::GATHER, lot, LWOOBJID_EMPTY, "", -iStackCount);
 		}
 	}
 }
