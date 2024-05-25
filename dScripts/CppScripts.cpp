@@ -692,7 +692,9 @@ namespace {
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenRed.lua", []() {return new WblRobotCitizen();}},
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenYellow.lua", []() {return new WblRobotCitizen();}},
 		
-		// newcontent 
+		// newcontent
+		{"scripts\\EquipmentScripts\\XMarksTheSpot1.lua", [](){return new XMarksTheSpotChest();}},
+		{"scripts\\DLU\\L_RUBY_SCEPTER_DROP.lua", [](){return new RubyScepterDrop();}}, 
 		{"scripts\\newcontent\\server\\spawnskeletonondeath.lua", []() {return new SpawnSkeletonOnDeath();}},
 		{"scripts\\newcontent\\server\\dieafter10seconds.lua", []() {return new DieAfterXSeconds(10);}},
 		{"scripts\\newcontent\\server\\dieafter20seconds.lua", []() {return new DieAfterXSeconds(20);}},
