@@ -18,6 +18,7 @@
 #include "AgShipPlayerDeathTrigger.h"
 #include "AgShipPlayerShockServer.h"
 #include "AgSpaceStuff.h"
+#include "AgShipShake.h"
 #include "AgImagSmashable.h"
 #include "NpcNpSpacemanBob.h"
 #include "StoryBoxInteractServer.h"
@@ -350,6 +351,7 @@ namespace {
 		{ "scripts\\ai\\AG\\L_AG_SHIP_PLAYER_DEATH_TRIGGER.lua", []() { return new AgShipPlayerDeathTrigger(); } },
 		{"scripts\\ai\\NP\\L_NPC_NP_SPACEMAN_BOB.lua", []() { return new NpcNpSpacemanBob(); } },
 		{"scripts\\ai\\AG\\L_AG_SPACE_STUFF.lua", []() { return new AgSpaceStuff();} },
+		{"scripts\\ai\\AG\\L_AG_SHIP_SHAKE.lua", []() { return new AgShipShake();}},
 		{"scripts\\ai\\AG\\L_AG_SHIP_PLAYER_SHOCK_SERVER.lua", []() { return new AgShipPlayerShockServer();} },
 		{"scripts\\ai\\AG\\L_AG_IMAG_SMASHABLE.lua", []() { return new AgImagSmashable();} },
 		{"scripts\\02_server\\Map\\General\\L_STORY_BOX_INTERACT_SERVER.lua", []() { return new StoryBoxInteractServer();} },
@@ -589,6 +591,7 @@ namespace {
 		{"scripts\\02_server\\Map\\AM\\L_SKULLKIN_DRILL_STAND.lua", []() {return new AmSkullkinDrillStand();}},
 		{"scripts\\02_server\\Map\\AM\\L_SKULLKIN_TOWER.lua", []() {return new AmSkullkinTower();}},
 		{"scripts\\02_server\\Enemy\\AM\\L_AM_NAMED_DARKLING_DRAGON.lua", []() {return new AmDarklingDragon();}},
+		{"scripts\\02_server\\Enemy\\AM\\L_AM_DARKLING_DRAGON.lua", []() {return new AmDarklingDragon();}},
 		{"scripts\\02_server\\Enemy\\AM\\L_AM_DARKLING_APE.lua", []() {return new BaseEnemyApe();}},
 		{"scripts\\02_server\\Map\\AM\\L_BLUE_X.lua", []() {return new AmBlueX();}},
 		{"scripts\\02_server\\Map\\AM\\L_TEAPOT_SERVER.lua", []() {return new AmTeapotServer();}},
@@ -663,6 +666,7 @@ namespace {
 
 		//Pickups
 		{"scripts\\ai\\SPEC\\L_SPECIAL_1_BRONZE-COIN-SPAWNER.lua", []() {return new SpecialCoinSpawner(1);}},
+		{"scripts\\ai\\SPEC\\L_SPECIAL_1_GOLD-COIN-SPAWNER.lua", []() {return new SpecialCoinSpawner(10000);}},
 		{"scripts\\ai\\SPEC\\L_SPECIAL_1_SILVER-COIN-SPAWNER.lua", []() {return new SpecialCoinSpawner(100);}},
 		{"scripts\\ai\\SPEC\\L_SPECIAL_10_BRONZE-COIN-SPAWNER.lua", []() {return new SpecialCoinSpawner(10);}},
 		{"scripts\\ai\\SPEC\\L_SPECIAL_10_GOLD-COIN-SPAWNER.lua", []() {return new SpecialCoinSpawner(100000);}},
