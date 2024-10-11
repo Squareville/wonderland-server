@@ -337,9 +337,10 @@
 // Wonderland
 #include "SpawnSkeletonOnDeath.h"
 #include "DieAfterXSeconds.h"
-#include "DamageReduction.h"
+#include "SkillCastAndOptionalDeath.h"
 #include "SpawnSnowmanOnDeath.h"
 #include "RubyScepterDrop.h"
+#include "SpawnEntityOnDeath.h"
 
 namespace {
 	// This is in the translation unit instead of the header to prevent weird linker errors
@@ -706,9 +707,13 @@ namespace {
 		{"scripts\\newcontent\\server\\dieafter40seconds.lua", []() {return new DieAfterXSeconds(40);}},
 		{"scripts\\newcontent\\server\\dieafter50seconds.lua", []() {return new DieAfterXSeconds(50);}},
 		{"scripts\\newcontent\\server\\dieafter60seconds.lua", []() {return new DieAfterXSeconds(60);}},
-		{R"(scripts\newcontent\server\damagereduction999.lua)", []() {return new DamageReduction(1996);}},
-		{R"(scripts\newcontent\server\halloweenskeleton.lua)", []() {return new DamageReduction(1996, true);}},
+		{R"(scripts\newcontent\server\damagereduction999.lua)", []() {return new SkillCastAndOptionalDeath(1996);}},
+		{R"(scripts\newcontent\server\halloweenskeleton.lua)", []() {return new SkillCastAndOptionalDeath(1996, true, 20.0f);}},
 		{R"(scripts\newcontent\server\spawnsnowmanondeath.lua)", []() {return new SpawnSnowmanOnDeath();}},
+		{R"(scripts\newcontent\server\spawnvampireondeath.lua)", []() {return new SpawnEntityOnDeath(30055);}},
+		{R"(scripts\newcontent\server\spawnmummyondeath.lua)", []() {return new SpawnEntityOnDeath(30056);}},
+		{R"(scripts\newcontent\server\spawnhalloweenhorsemanondeath.lua)", []() {return new SpawnEntityOnDeath(41013);}},
+		{R"(scripts\newcontent\server\halloweenminiboss.lua)", []() {return new SkillCastAndOptionalDeath(1996, true, 120.0f);}},
 		};
 };
 
