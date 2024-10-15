@@ -4,4 +4,5 @@ set(DSCRIPTS_SOURCES_NEWCONTENT_SERVER
 	"SpawnSnowmanOnDeath.cpp"
 	"SkillCastAndOptionalDeath.cpp"
 	"SpawnEntityOnDeath.cpp"
+	"HalloweenManager.cpp"
 	PARENT_SCOPE)
