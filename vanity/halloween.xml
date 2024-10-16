@@ -780,7 +780,7 @@
 			<key>override_faction=7:0</key>
 			<key>radius=3:0</key>
 			<key>renderCullingGroup=5:0</key>
-			<key>respawn=5:120000</key>
+			<key>respawn=5:60000</key>
 			<key>sceneIDOverride=1:255</key>
 			<key>sceneIDOverrideEnabled=7:0</key>
 			<key>sceneLayerIDOverride=5:0</key>
@@ -829,7 +829,7 @@
 			<key>override_faction=7:0</key>
 			<key>radius=3:0</key>
 			<key>renderCullingGroup=5:0</key>
-			<key>respawn=5:120000</key>
+			<key>respawn=5:60000</key>
 			<key>sceneIDOverride=1:255</key>
 			<key>sceneIDOverrideEnabled=7:0</key>
 			<key>sceneLayerIDOverride=5:0</key>
