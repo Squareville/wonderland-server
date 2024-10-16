@@ -791,6 +791,7 @@
 			<key>spawntemplate=1:21526</key>
 			<key>startsQBActivator=7:0</key>
 			<key>template=1:-1</key>
+			<key>groupID=0:plazaHeadstones;</key>
 		</config>
 		<locations>
 			<location zone="1200" x="-25.05521583557129" y="290.9187927246094" z="-117.7003402709961" rw="0.5250872373580933" rx="0.0034352962393313646" ry="0.846075177192688" rz="-0.09180731326341629" />
@@ -839,6 +840,7 @@
 			<key>spawntemplate=1:21527</key>
 			<key>startsQBActivator=7:0</key>
 			<key>template=1:-1</key>
+			<key>groupID=0:plazaHeadstones;</key>
 		</config>
 		<locations>
 			<location zone="1200" x="-4.737878799438477" y="291.2919006347656" z="-112.40343475341797" rw="0.9665228724479675" rx="0.03549148514866829" ry="0.2536998987197876" rz="0.014499399811029434" />
