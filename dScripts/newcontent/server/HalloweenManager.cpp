@@ -46,6 +46,10 @@ void HalloweenManager::SpawnTheBossSmashable(Entity* self) {
 }
 
 void HalloweenManager::HandleTheBossSmashableDeath(Entity* self) {
+	auto headstones = Game::entityManager->GetEntitiesInGroup("plazaHeadstones");
+	for (const auto &headstone : headstones){
+		if (headstone) headstone->Smash();
+	}
 	self->AddCallbackTimer(120, [this, self]() {
 			SpawnTheBossSmashable(self);
 		}
