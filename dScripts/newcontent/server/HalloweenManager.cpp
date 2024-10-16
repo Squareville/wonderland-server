@@ -13,6 +13,7 @@ void HalloweenManager::SpawnTheBossSmashable(Entity* self) {
 
 	auto choice = GeneralUtils::GenerateRandomNumber<uint32_t>(1,3);
 	EntityInfo info{};
+	info.spawnerID = self->GetObjectID();
 
 	switch (choice) {
 		case 1: {
@@ -35,7 +36,7 @@ void HalloweenManager::SpawnTheBossSmashable(Entity* self) {
 			break;
 		}
 	}
-	
+
 	auto spawnedEntity = Game::entityManager->CreateEntity(info, nullptr, self);
 	Game::entityManager->ConstructEntity(spawnedEntity);
 	spawnedEntity->AddDieCallback([this, self]() {
