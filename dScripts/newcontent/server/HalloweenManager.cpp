@@ -50,7 +50,7 @@ void HalloweenManager::HandleTheBossSmashableDeath(Entity* self) {
 	for (const auto &headstone : headstones){
 		if (headstone) headstone->Smash();
 	}
-	self->AddCallbackTimer(120, [this, self]() {
+	self->AddCallbackTimer(60, [this, self]() {
 			SpawnTheBossSmashable(self);
 		}
 	);
