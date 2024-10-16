@@ -46,7 +46,7 @@ void HalloweenManager::SpawnTheBossSmashable(Entity* self) {
 }
 
 void HalloweenManager::HandleTheBossSmashableDeath(Entity* self) {
-	self->AddCallbackTimer(10, [this, self]() {
+	self->AddCallbackTimer(120, [this, self]() {
 			SpawnTheBossSmashable(self);
 		}
 	);
