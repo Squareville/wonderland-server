@@ -4,6 +4,7 @@ set(DSCRIPTS_SOURCES_AI_WILD
 	"WildAmbients.cpp"
 	"WildAmbientCrab.cpp"
 	"WildAndScared.cpp"
+	"WildEuHazmat.cpp"
 	"WildGfGlowbug.cpp"
 	"WildNinjaBricks.cpp"
 	"WildNinjaStudent.cpp"

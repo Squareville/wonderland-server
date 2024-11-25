@@ -2,6 +2,7 @@ set(DSCRIPTS_SOURCES_AI_YRK
 	"BabySkunks.cpp"
 	"BalloonTrigger.cpp"
 	"HazmatMissionGiver.cpp"
+	"Spout.cpp"
 	"YrkActor.cpp"
 	"YrkNpcOntimer.cpp")
 

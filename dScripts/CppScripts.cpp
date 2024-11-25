@@ -332,6 +332,7 @@
 #include "BabySkunks.h"
 #include "YrkActor.h"
 #include "YrkNpcOntimer.h"
+#include "WildEuHazmat.h"
 
 #include <map>
 #include <string>
@@ -696,6 +697,7 @@ namespace {
 		{"scripts\\ai\\YRK\\L_BABY_SKUNKS.lua", []() {return new BabySkunks();}},
 		{"scripts\\ai\\YRK\\L_YRK_ACTOR.lua", []() {return new YrkActor();}},
 		{"scripts\\ai\\YRK\\L_YRK_NPC_ON_TIMER.lua", []() {return new YrkNpcOnTimer();}},
+		{"scripts\\ai\\WILD\\L_WILD_EU_HAZMAT.lua", []() {return new WildEuHazmat();}},
 
 	};
 };
