@@ -327,6 +327,10 @@
 #include "VisToggleNotifierServer.h"
 #include "LupGenericInteract.h"
 #include "WblRobotCitizen.h"
+#include "BalloonTrigger.h"
+#include "HazmatMissionGiver.h"
+#include "BabySkunks.h"
+#include "YrkActor.h"
 
 #include <map>
 #include <string>
@@ -686,6 +690,10 @@ namespace {
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenOrange.lua", []() {return new WblRobotCitizen();}},
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenRed.lua", []() {return new WblRobotCitizen();}},
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenYellow.lua", []() {return new WblRobotCitizen();}},
+		{"scripts\\ai\\YRK\\L_BALLOONTRIGGER.lua", []() {return new BalloonTrigger();}},
+		{"scripts\\ai\\YRK\\L_HAZMAT_MISSION_GIVER.lua", []() {return new HazmatMissionGiver();}},
+		{"scripts\\ai\\YRK\\L_BABY_SKUNKS.lua", []() {return new BabySkunks();}},
+		{"scripts\\ai\\YRK\\L_YRK_ACTOR.lua", []() {return new YrkActor();}},
 
 	};
 };

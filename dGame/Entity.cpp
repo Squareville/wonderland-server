@@ -1476,6 +1476,10 @@ void Entity::OnZonePropertyModelRotated(Entity* player) {
 	GetScript()->OnZonePropertyModelRotated(this, player);
 }
 
+void Entity::OnObjectLoaded(LWOOBJID object, LOT templateId) {
+	GetScript()->OnObjectLoaded(this, object, templateId);
+}
+
 void Entity::OnMessageBoxResponse(Entity* sender, int32_t button, const std::u16string& identifier, const std::u16string& userData) {
 	GetScript()->OnMessageBoxResponse(this, sender, button, identifier, userData);
 }

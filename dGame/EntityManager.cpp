@@ -24,6 +24,7 @@
 #include "eReplicaPacketType.h"
 #include "PlayerManager.h"
 #include "GhostComponent.h"
+#include "DluAssert.h"
 #include <ranges>
 
 // Configure which zones have ghosting disabled, mostly small worlds.
@@ -305,6 +306,7 @@ std::vector<Entity*> EntityManager::GetEntitiesByProximity(NiPoint3 reference, f
 
 
 Entity* EntityManager::GetZoneControlEntity() const {
+	DluAssert(m_ZoneControlEntity);
 	return m_ZoneControlEntity;
 }
 

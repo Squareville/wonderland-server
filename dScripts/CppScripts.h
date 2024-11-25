@@ -355,6 +355,24 @@ namespace CppScripts {
 		 * @param canceled if it was done via the cancel button
 		 */
 		virtual void OnRequestActivityExit(Entity* sender, LWOOBJID player, bool canceled){};
+	
+		/**
+		 * @brief Handles when an object has arrived at a target spot.
+		 * 
+		 * @param self 
+		 * @param pathType the type of path the object was following
+		 * @param waypoint index of the waypoint in the path
+		 */
+		virtual void OnArrived(Entity* self, const std::string& pathType, const uint32_t waypoint){};
+
+		/**
+		 * @brief Handles when an object has loaded on the server
+		 * 
+		 * @param self 
+		 * @param object the object that was loaded
+		 * @param templateId the template id of the object
+		 */
+		virtual void OnObjectLoaded(Entity* self, LWOOBJID object, LOT templateId) {};
 	};
 
 	Script* const GetScript(Entity* parent, const std::string& scriptName);
