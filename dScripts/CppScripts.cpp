@@ -331,6 +331,7 @@
 #include "HazmatMissionGiver.h"
 #include "BabySkunks.h"
 #include "YrkActor.h"
+#include "YrkNpcOntimer.h"
 
 #include <map>
 #include <string>
@@ -694,6 +695,7 @@ namespace {
 		{"scripts\\ai\\YRK\\L_HAZMAT_MISSION_GIVER.lua", []() {return new HazmatMissionGiver();}},
 		{"scripts\\ai\\YRK\\L_BABY_SKUNKS.lua", []() {return new BabySkunks();}},
 		{"scripts\\ai\\YRK\\L_YRK_ACTOR.lua", []() {return new YrkActor();}},
+		{"scripts\\ai\\YRK\\L_YRK_NPC_ON_TIMER.lua", []() {return new YrkNpcOnTimer();}},
 
 	};
 };
@@ -713,7 +715,11 @@ CppScripts::Script* const CppScripts::GetScript(Entity* parent, const std::strin
 			(scriptName == "scripts\\ai\\FV\\L_ACT_NINJA_STUDENT.lua") ||
 			(scriptName == "scripts\\ai\\WILD\\L_WILD_GF_FROG.lua") ||
 			(scriptName == "scripts\\empty.lua") ||
-			(scriptName == "scripts\\ai\\AG\\L_AG_SENTINEL_GUARD.lua")
+			(scriptName == "scripts\\ai\\AG\\L_AG_SENTINEL_GUARD.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_MAZE_TROLL.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_HYDRANT_QB.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_MECH_EU_BROOMBOT.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_WINDOW_WASHER.lua")
 			)) LOG_DEBUG("LOT %i attempted to load CppScript for '%s', but returned InvalidScript.", parent->GetLOT(), scriptName.c_str());
 	}
 
