@@ -32,6 +32,9 @@ std::vector<LWOMAPID> EntityManager::m_GhostingExcludedZones = {
 	// Small zones
 	1000,
 
+	// zp
+	3200,
+
 	// Racing zones
 	1203,
 	1261,
