@@ -329,11 +329,12 @@
 #include "WblRobotCitizen.h"
 #include "BalloonTrigger.h"
 #include "HazmatMissionGiver.h"
-#include "BabySkunks.h"
 #include "YrkActor.h"
 #include "YrkNpcOntimer.h"
 #include "WildEuHazmat.h"
 #include "Spout.h"
+#include "BubbleStatue.h"
+#include "ActPetInstance.h"
 
 #include <map>
 #include <string>
@@ -695,11 +696,12 @@ namespace {
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenYellow.lua", []() {return new WblRobotCitizen();}},
 		{"scripts\\ai\\YRK\\L_BALLOONTRIGGER.lua", []() {return new BalloonTrigger();}},
 		{"scripts\\ai\\YRK\\L_HAZMAT_MISSION_GIVER.lua", []() {return new HazmatMissionGiver();}},
-		{"scripts\\ai\\YRK\\L_BABY_SKUNKS.lua", []() {return new BabySkunks();}},
 		{"scripts\\ai\\YRK\\L_YRK_ACTOR.lua", []() {return new YrkActor();}},
 		{"scripts\\ai\\YRK\\L_SPOUT.lua", []() {return new Spout();}},
+		{"scripts\\ai\\YRK\\L_BUBBLE_STATUE.lua", []() {return new BubbleStatue();}},
 		{"scripts\\ai\\YRK\\L_YRK_NPC_ON_TIMER.lua", []() {return new YrkNpcOnTimer();}},
 		{"scripts\\ai\\WILD\\L_WILD_EU_HAZMAT.lua", []() {return new WildEuHazmat();}},
+		{"scripts\\ai\\ACT\\L_ACT_PET_INSTANCE.lua", []() {return new ActPetInstance();}},
 
 	};
 };
@@ -723,6 +725,8 @@ CppScripts::Script* const CppScripts::GetScript(Entity* parent, const std::strin
 			(scriptName == "scripts\\ai\\YRK\\L_MAZE_TROLL.lua") ||
 			(scriptName == "scripts\\ai\\YRK\\L_HYDRANT_QB.lua") ||
 			(scriptName == "scripts\\ai\\YRK\\L_MECH_EU_BROOMBOT.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_SKUNK_BOUNCER.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_BABY_SKUNKS.lua") ||
 			(scriptName == "scripts\\ai\\YRK\\L_WINDOW_WASHER.lua")
 			)) LOG_DEBUG("LOT %i attempted to load CppScript for '%s', but returned InvalidScript.", parent->GetLOT(), scriptName.c_str());
 	}

@@ -13,6 +13,7 @@ void Spout::OnStartup(Entity* self) {
 }
 
 void Spout::OnProximityUpdate(Entity* self, Entity* entering, std::string name, std::string status) {
+	if (name != "Spout") return;
 	if (status == "ENTER" && entering->IsPlayer() && !self->GetVar<bool>(u"PlayerOnMe")) {
 		if (self->GetVar<bool>(u"SpoutEnabled")) {
 			auto* const skillComponent = self->GetComponent<SkillComponent>();
