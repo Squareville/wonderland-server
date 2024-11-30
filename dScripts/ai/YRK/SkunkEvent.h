@@ -45,7 +45,6 @@ public:
 	static constexpr auto SPAWNED_HAZMAT_NPC = 3553;
 	static constexpr auto POLE_SLIDE_NPC = 3954;
 	static constexpr auto BALLOON_LOT = 3433;
-	static constexpr auto FLOWER_LOT = 3646;
 	static constexpr auto INVASION_SKUNK_LOT = { 3279, 3930, 3931 };
 	static constexpr auto INVASION_PANIC_ACTORS = { 3268, 3269, 3270, 3271, 3272 };
 	static constexpr auto ZONE_STATE_NO_INFO = -1;
@@ -105,6 +104,9 @@ public:
 	void OnStartup(Entity* self) override;
 	void OnNotifyObject(Entity* self, Entity* sender, const std::string& name, int32_t param1 = 0, int32_t param2 = 0) override;
 	void OnPlayerLoaded(Entity* self, Entity* player) override;
+	void OnFireEventServerSide(Entity* self, Entity* sender, std::string args, int32_t param1, int32_t param2, int32_t param3) override;
+	void OnTimerDone(Entity* self, std::string name) override;
+	void OnObjectLoaded(Entity* self, LWOOBJID objId, LOT lot);
 private:
 	bool InvasionActive(const Entity* const self) const;
 	SkunkEventZoneState GetZoneState(const Entity* const self) const;
@@ -116,6 +118,12 @@ private:
 	bool IsValidWaypoint(const Entity* const self, const int32_t waypoint) const;
 	void AddPlayerPoints(const Entity* const self, const LWOOBJID player, const int32_t points) const;
 	void ResetTotalStinkPoints(Entity* const self) const;
+	void InitZoneVars(Entity* const self) const;
+	void SpawnGarageVan(Entity* const self) const;
+	void PanicNpcs(const Entity* const self) const;
+	bool IsValidNpc(const Entity* const self, const LOT lot) const;
+	void StoreParent(const Entity* const self, const LWOOBJID other) const;
+	void StoreObjectByName(Entity* const self, const std::u16string& varName, const LWOOBJID other) const;
 };
 
 #endif  //!SKUNKEVENT_H
