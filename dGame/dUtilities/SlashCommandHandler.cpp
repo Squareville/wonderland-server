@@ -18,6 +18,7 @@
 #include "Database.h"
 #include "MessageType/Chat.h"
 #include "dServer.h"
+#include "dZoneManager.h"
 
 namespace {
 	std::map<std::string, Command> CommandInfos;
@@ -1435,4 +1436,22 @@ void SlashCommandHandler::Startup() {
 		.requiredLevel = eGameMasterLevel::CIVILIAN
 	};
 	RegisterCommand(removeIgnoreCommand);
+
+	Command notifyzonecontrolCommand{
+		.help = "",
+		.info = "",
+		.aliases = {"notifyzonecontrol", "nzc"},
+		.handle = [](Entity* entity, const SystemAddress& sysAddr, const std::string args) {
+			auto vec = GeneralUtils::SplitString(args, ' ');
+			if (vec.size() < 3) {
+				return;
+			}
+			auto val = GeneralUtils::TryParse<int32_t>(vec[1]).value_or(0);
+			auto val2 = GeneralUtils::TryParse<int32_t>(vec[2]).value_or(0);
+
+			Game::zoneManager->GetZoneControlObject()->NotifyObject(entity, vec[0], val, val2);
+		},
+		.requiredLevel = eGameMasterLevel::CIVILIAN
+	};
+	RegisterCommand(notifyzonecontrolCommand);
 }

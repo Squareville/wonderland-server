@@ -19,7 +19,7 @@ void BubbleStatue::OnProximityUpdate(Entity* self, Entity* entering, std::string
 
 	auto* const controllablePhysicsComponent = entering->GetComponent<ControllablePhysicsComponent>();
 	if (!controllablePhysicsComponent) return;
-	controllablePhysicsComponent->ActivateBubbleBuff(eBubbleType::SKUNK);
+	controllablePhysicsComponent->ActivateBubbleBuff(eBubbleType::DEFAULT);
 }
 
 void BubbleStatue::OnNotifyObject(Entity* self, Entity* sender, const std::string& name, int32_t param1, int32_t param2) {

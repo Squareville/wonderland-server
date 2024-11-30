@@ -3,6 +3,8 @@
 
 #include "CppScripts.h"
 
+#include "magic_enum.hpp"
+
 enum class SkunkEventZoneState : int32_t {
 	NO_INVASION,
 	TRANSITION,
@@ -11,6 +13,12 @@ enum class SkunkEventZoneState : int32_t {
 	LOW_ALERT,
 	DONE_TRANSITION,
 	NO_INFO = -1,
+};
+
+template <>
+struct magic_enum::customize::enum_range<SkunkEventZoneState> {
+	static constexpr int min = -1;
+	static constexpr int max = 5;
 };
 
 class SkunkEvent : public CppScripts::Script {
@@ -94,16 +102,20 @@ public:
 	static constexpr auto BUBBLE_STATUE_RADIUS = 10.0f;
 	static constexpr auto LAST_BALLOON_WAYPOINT = 11;
 	static constexpr auto radius = 3.0f;
+	void OnStartup(Entity* self) override;
 	void OnNotifyObject(Entity* self, Entity* sender, const std::string& name, int32_t param1 = 0, int32_t param2 = 0) override;
+	void OnPlayerLoaded(Entity* self, Entity* player) override;
 private:
 	bool InvasionActive(const Entity* const self) const;
 	SkunkEventZoneState GetZoneState(const Entity* const self) const;
+	void SetZoneState(Entity* const self, const SkunkEventZoneState state) const;
 
 	// Return true if we are transitioning to the done state.
 	bool IncrementTotalCleanPoints(Entity* const self, const int32_t points) const;
 	void SpawnSingleStinkCloud(Entity* const self, const int32_t number) const;
 	bool IsValidWaypoint(const Entity* const self, const int32_t waypoint) const;
 	void AddPlayerPoints(const Entity* const self, const LWOOBJID player, const int32_t points) const;
+	void ResetTotalStinkPoints(Entity* const self) const;
 };
 
 #endif  //!SKUNKEVENT_H
