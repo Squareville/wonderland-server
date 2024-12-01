@@ -301,6 +301,18 @@ void SkunkEvent::NotifyNpcs(Entity* const self, const std::string& name) const {
 	}
 }
 
+void SkunkEvent::SpawnRebuildVan(Entity* const self) const {
+	const auto* path = Game::zoneManager->GetZone()->GetPath(HAZMAT_REBUILD_VAN_SPAWN_PATH);
+	if (!path || path->pathWaypoints.size() < 2) return;
+
+	EntityInfo info{};
+	info.pos = path->pathWaypoints[1].position;
+	info.rot = path->pathWaypoints[1].rotation;
+	info.lot = HAZMAT_REBUILD_VAN_LOT;
+	info.spawnerID = self->GetObjectID();
+	Game::entityManager->ConstructEntity(Game::entityManager->CreateEntity(info, nullptr, self));
+}
+
 void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 	if (name == "startEventTimer") {
 		SetZoneState(self, SkunkEventZoneState::TRANSITION);
@@ -327,7 +339,7 @@ void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 			RenderComponent::PlayAnimation(poleSlide, "slide");
 		}
 	} else if (name == "HazmatVanStartDone") {
-
+		SpawnRebuildVan(self);
 	} else if (name == "HazmatVanEndDone") {
 
 	} else if (name == "SpawnHazmatNPCTimer") {
