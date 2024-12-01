@@ -1,7 +1,6 @@
 #include "YrkNpcStink.h"
 
 #include "ControllablePhysicsComponent.h"
-#include "DestroyableComponent.h"
 #include "MissionComponent.h"
 #include "eMissionTaskType.h"
 
@@ -9,11 +8,6 @@
 
 void YrkNpcStink::OnStartup(Entity* self) {
 	self->SetProximityRadius(2.0f, "bubbleradius");
-	auto* dest = self->GetComponent<DestroyableComponent>();
-	if (dest) {
-		dest->SetFaction(5);
-		Game::entityManager->SerializeEntity(self);
-	}
 }
 
 void YrkNpcStink::OnProximityUpdate(Entity* self, Entity* entering, std::string name, std::string status) {
