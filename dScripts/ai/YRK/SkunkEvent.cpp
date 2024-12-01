@@ -319,6 +319,36 @@ void SkunkEvent::SpawnStinkClouds(Entity* const self) const {
 	}
 }
 
+void SkunkEvent::SpawnHazmatNpcs(Entity* const self) const {
+	for (int32_t i = 0; i < NUM_HAZMAT_NPCS; i++) {
+		self->AddTimer(HAZMAT_NPC_PATH_PREFIX + std::to_string(i), TIME_BETWEEN_HAZMAT_SPAWNS * i);
+	}
+}
+
+void SkunkEvent::SpawnSingleHazmatNpc(Entity* const self, const std::string& pathStr) const {
+	const auto* const path = Game::zoneManager->GetZone()->GetPath(pathStr);
+	if (!path || path->pathWaypoints.empty()) return;
+
+	EntityInfo info{};
+	info.pos = path->pathWaypoints[0].position;
+	info.rot = NiQuaternionConstant::IDENTITY;
+	auto* const van = GetEntityByName(self, u"HazmatVanID");
+	if (van) {
+		const auto& vanRotation = van->GetRotation();
+		info.rot.x = vanRotation.x;
+		info.rot.y = vanRotation.y;
+		info.rot.z = 0.0 - vanRotation.z;
+		info.rot.w = 0.0 - vanRotation.w;
+	}
+	info.settings = {
+		new LDFData<std::string>(u"attached_path", pathStr),
+		new LDFData<int32_t>(u"attached_path_start", 0),
+	};
+	info.lot = SPAWNED_HAZMAT_NPC;
+	info.spawnerID = self->GetObjectID();
+	Game::entityManager->ConstructEntity(Game::entityManager->CreateEntity(info, nullptr, self));
+}
+
 void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 	if (name == "startEventTimer") {
 		SetZoneState(self, SkunkEventZoneState::TRANSITION);
@@ -349,9 +379,9 @@ void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 	} else if (name == "HazmatVanEndDone") {
 		SpawnGarageVan(self);
 	} else if (name == "SpawnHazmatNPCTimer") {
-
-	} else if (name == "SpawnSingleHazmatNPCTimer") {
-
+		SpawnHazmatNpcs(self);
+	} else if (name.starts_with(HAZMAT_NPC_PATH_PREFIX)) {
+		SpawnSingleHazmatNpc(self, name);
 	} else if (name == "RespawnSkunk") {
 
 	}

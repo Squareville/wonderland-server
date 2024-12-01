@@ -130,6 +130,8 @@ private:
 	void RewardPlayers(Entity* const self) const;
 	void SpawnRebuildVan(Entity* const self) const;
 	void SpawnStinkClouds(Entity* const self) const;
+	void SpawnHazmatNpcs(Entity* const self) const;
+	void SpawnSingleHazmatNpc(Entity* const self, const std::string& pathStr) const;
 };
 
 #endif  //!SKUNKEVENT_H
