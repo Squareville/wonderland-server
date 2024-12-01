@@ -10,6 +10,7 @@ void YrkNpcOnTimer::OnStartup(Entity* self) {
 	auto* const movementAiComponent = self->GetComponent<MovementAIComponent>();
 	if (!movementAiComponent) return;
 	movementAiComponent->SetMaxSpeed(0.5f);
+	movementAiComponent->SetCurrentSpeed(0.5f);
 }
 
 void YrkNpcOnTimer::OnProximityUpdate(Entity* self, Entity* entering, std::string name, std::string status) {
@@ -23,7 +24,9 @@ void YrkNpcOnTimer::OnNotifyObject(Entity* self, Entity* sender, const std::stri
 	if (!movementAiComponent) return;
 	if (name == "npc_panic") {
 		movementAiComponent->SetMaxSpeed(1.0f);
+		movementAiComponent->SetCurrentSpeed(1.0f);
 	} else if (name == "npc_idle") {
 		movementAiComponent->SetMaxSpeed(0.5f);
+		movementAiComponent->SetCurrentSpeed(0.5f);
 	}
 }

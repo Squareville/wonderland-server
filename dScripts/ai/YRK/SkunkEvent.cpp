@@ -101,7 +101,7 @@ void SkunkEvent::DoDoneTransitionActions(Entity* const self) const {
 	RewardPlayers(self);
 	ResetTotalCleanPoints(self);
 	float animTime = AnimateVan(self, "end");
-	if (animTime >= 0.0f) {
+	if (animTime > 0.0f) {
 		self->AddTimer("HazmatVanEndDone", animTime);
 	}
 	NotifyNpcs(self, "npc_idle");
@@ -303,23 +303,29 @@ void SkunkEvent::NotifyNpcs(Entity* const self, const std::string& name) const {
 
 void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 	if (name == "startEventTimer") {
-		// SetZoneState(self, SkunkEventZoneState::TRANSITION);
+		SetZoneState(self, SkunkEventZoneState::TRANSITION);
 	} else if (name == "MaxInvasionTimer") {
-		// SetZoneState(self, SkunkEventZoneState::DONE_TRANSITION);
+		SetZoneState(self, SkunkEventZoneState::DONE_TRANSITION);
 	} else if (name == "DoPanicNPCs") {
-		// NotifyNpcs(self, "npc_panic");
+		NotifyNpcs(self, "npc_panic");
 	} else if (name == "SkunksSpawning") {
 
 	} else if (name == "StinkCloudsSpawning") {
 
 	} else if (name == "EndInvasionTransition") {
-		// SetZoneState(self, SkunkEventZoneState::HIGH_ALERT);
+		SetZoneState(self, SkunkEventZoneState::HIGH_ALERT);
 	} else if (name == "EndDoneTransition") {
-		// SetZoneState(self, SkunkEventZoneState::NO_INVASION);
+		SetZoneState(self, SkunkEventZoneState::NO_INVASION);
 	} else if (name == "HazmatVanTimer") {
-
+		const auto animTime = AnimateVan(self, "start");
+		if (animTime > 0.0f) {
+			self->AddTimer("HazmatVanStartDone", animTime);
+		}
 	} else if (name == "PoleSlideTimer") {
-
+		auto* const poleSlide = GetEntityByName(self, u"PoleSlideNPC");
+		if (poleSlide) {
+			RenderComponent::PlayAnimation(poleSlide, "slide");
+		}
 	} else if (name == "HazmatVanStartDone") {
 
 	} else if (name == "HazmatVanEndDone") {
