@@ -740,3 +740,22 @@ CppScripts::Script* const CppScripts::GetScript(Entity* parent, const std::strin
 CppScripts::Script* const CppScripts::GetInvalidScript() {
 	return &InvalidToReturn;
 }
+
+Entity* CppScripts::Script::GetEntityByName(const Entity* const self, const std::u16string& name) const {
+	if (name.empty()) return nullptr;
+	LOG("Getting object %s", GeneralUtils::UTF16ToWTF8(name).c_str());
+	return Game::entityManager->GetEntity(self->GetVar<LWOOBJID>(name));
+}
+
+void CppScripts::Script::StoreParent(const Entity* const self, const LWOOBJID other) const {
+	auto* const otherObj = Game::entityManager->GetEntity(other);
+	if (otherObj) {
+		otherObj->SetVar(u"My_Parent_ID", self->GetObjectID());
+		LOG("Stored parent %llu to %llu", self->GetObjectID(), other);
+	} else LOG("Failed to store parent %llu", self->GetObjectID());
+}
+
+void CppScripts::Script::StoreEntityByName(Entity* const self, const std::u16string& varName, const LWOOBJID other) const {
+	LOG("Storing object %llu to %llu", other, self->GetObjectID());
+	self->SetVar(varName, other);
+ }

@@ -107,6 +107,7 @@ public:
 	void OnFireEventServerSide(Entity* self, Entity* sender, std::string args, int32_t param1, int32_t param2, int32_t param3) override;
 	void OnTimerDone(Entity* self, std::string name) override;
 	void OnObjectLoaded(Entity* self, LWOOBJID objId, LOT lot);
+	void OnChildLoaded(Entity* self, const LWOOBJID objectId, const LOT lot) override;
 private:
 	bool InvasionActive(const Entity* const self) const;
 	SkunkEventZoneState GetZoneState(const Entity* const self) const;
@@ -117,13 +118,12 @@ private:
 	void SpawnSingleStinkCloud(Entity* const self, const int32_t number) const;
 	bool IsValidWaypoint(const Entity* const self, const int32_t waypoint) const;
 	void AddPlayerPoints(const Entity* const self, const LWOOBJID player, const int32_t points) const;
-	void ResetTotalStinkPoints(Entity* const self) const;
+	void ResetTotalCleanPoints(Entity* const self) const;
 	void InitZoneVars(Entity* const self) const;
 	void SpawnGarageVan(Entity* const self) const;
-	void PanicNpcs(const Entity* const self) const;
 	bool IsValidNpc(const Entity* const self, const LOT lot) const;
-	void StoreParent(const Entity* const self, const LWOOBJID other) const;
-	void StoreObjectByName(Entity* const self, const std::u16string& varName, const LWOOBJID other) const;
+	bool IsValidSkunk(const Entity* const self, const LOT lot) const;
+	void NotifyNpcs(Entity* const self, const std::string& name) const;
 };
 
 #endif  //!SKUNKEVENT_H

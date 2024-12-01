@@ -768,6 +768,7 @@ void Entity::Initialize() {
 	// Hacky way to trigger these when the object has had a chance to get constructed
 	AddCallbackTimer(0, [this]() {
 		this->GetScript()->OnStartup(this);
+		if (this->m_ParentEntity) this->m_ParentEntity->GetScript()->OnChildLoaded(this->m_ParentEntity, this->GetObjectID(), this->GetLOT());
 		});
 
 	if (!m_Character && Game::entityManager->GetGhostingEnabled()) {

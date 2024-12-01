@@ -1,15 +1,21 @@
 #include "SkunkEvent.h"
 #include "StringifiedEnum.h"
 #include "dZoneManager.h"
+#include "RenderComponent.h"
+#include "QuickBuildComponent.h"
+#include "Loot.h"
 
 #include <ranges>
 
 namespace {
 	std::map<int32_t, int32_t> g_InvasionStinkCloudWaypoints{};
 	std::map<LWOOBJID, int32_t> g_PlayerPoints{};
-	std::map<int32_t, LWOOBJID> g_SpawnedNpcs{};
-	std::map<int32_t, LWOOBJID> g_Spouts{};
-	std::map<int32_t, LWOOBJID> g_BubbleBlowers{};
+	std::vector<LWOOBJID> g_SpawnedNpcs{};
+	std::vector<LWOOBJID> g_Spouts{};
+	std::vector<LWOOBJID> g_BubbleBlowers{};
+	std::vector<LWOOBJID> g_InvasionSkunks{};
+	std::vector<LWOOBJID> g_HazmatNpcs{};
+	std::vector<LWOOBJID> g_InvasionStinkClouds{};
 };
 
 SkunkEventZoneState SkunkEvent::GetZoneState(const Entity* const self) const {
@@ -118,12 +124,12 @@ void SkunkEvent::OnNotifyObject(Entity* self, Entity* sender, const std::string&
 	if (name == "skunk_cleaned") {
 		// nothing triggers this logic so im not implementing it
 	} else if (name == "stink_cloud_cleaned_by_broombot") {
-		if (IncrementTotalCleanPoints(self, POINT_VALUE_STINK_CLOUD)) {
+		if (!IncrementTotalCleanPoints(self, POINT_VALUE_STINK_CLOUD)) {
 			SpawnSingleStinkCloud(self, param1);
 		}
 	} else if (name == "stink_cloud_cleaned_by_player") {
 		AddPlayerPoints(self, sender->GetObjectID(), POINT_VALUE_STINK_CLOUD);
-		if (IncrementTotalCleanPoints(self, POINT_VALUE_STINK_CLOUD)) {
+		if (!IncrementTotalCleanPoints(self, POINT_VALUE_STINK_CLOUD)) {
 			SpawnSingleStinkCloud(self, param1);
 		}
 	} else if (name == "hazmat_cleaned") {
@@ -144,7 +150,7 @@ void SkunkEvent::InitZoneVars(Entity* const self) const {
 		self->SetVar<int32_t>(u"NumStinkCloudSpawnPoints", path->pathWaypoints.size());
 	}
 
-	ResetTotalStinkPoints(self);
+	ResetTotalCleanPoints(self);
 }
 
 void SkunkEvent::SpawnGarageVan(Entity* const self) const {
@@ -169,7 +175,7 @@ void SkunkEvent::OnPlayerLoaded(Entity* self, Entity* player) {
 	GameMessages::SendNotifyClientObject(self->GetObjectID(), u"", GeneralUtils::ToUnderlying(GetZoneState(self)), 0, LWOOBJID_EMPTY, "", player->GetSystemAddress());
 }
 
-void SkunkEvent::ResetTotalStinkPoints(Entity* const self) const {
+void SkunkEvent::ResetTotalCleanPoints(Entity* const self) const {
 	self->SetVar<int32_t>(u"TotalCleanPoints", 0);
 }
 
@@ -187,25 +193,30 @@ void SkunkEvent::OnFireEventServerSide(Entity* self, Entity* sender, std::string
 	}
 }
 
-void SkunkEvent::PanicNpcs(const Entity* const self) const {
+void SkunkEvent::NotifyNpcs(Entity* const self, const std::string& name) const {
+	for (const auto id : g_SpawnedNpcs) {
+		auto* const npc = Game::entityManager->GetEntity(id);
+		if (!npc) continue;
 
+		npc->NotifyObject(self, name);
+	}
 }
 
 void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 	if (name == "startEventTimer") {
-		//SetZoneState(self, SkunkEventZoneState::TRANSITION);
+		// SetZoneState(self, SkunkEventZoneState::TRANSITION);
 	} else if (name == "MaxInvasionTimer") {
-		//SetZoneState(self, SkunkEventZoneState::DONE_TRANSITION);
+		// SetZoneState(self, SkunkEventZoneState::DONE_TRANSITION);
 	} else if (name == "DoPanicNPCs") {
-		//PanicNpcs(self);
+		// NotifyNpcs(self, "npc_panic");
 	} else if (name == "SkunksSpawning") {
 
 	} else if (name == "StinkCloudsSpawning") {
 
 	} else if (name == "EndInvasionTransition") {
-
+		// SetZoneState(self, SkunkEventZoneState::HIGH_ALERT);
 	} else if (name == "EndDoneTransition") {
-
+		// SetZoneState(self, SkunkEventZoneState::NO_INVASION);
 	} else if (name == "HazmatVanTimer") {
 
 	} else if (name == "PoleSlideTimer") {
@@ -227,46 +238,89 @@ bool SkunkEvent::IsValidNpc(const Entity* const self, const LOT lot) const {
 	return std::ranges::find(INVASION_PANIC_ACTORS, lot) != INVASION_PANIC_ACTORS.end();
 }
 
-void SkunkEvent::StoreParent(const Entity* const self, const LWOOBJID other) const {
-	const auto selfIdStr = "|" + std::to_string(self->GetObjectID());
-	auto* const otherObj = Game::entityManager->GetEntity(other);
-	if (otherObj) {
-		otherObj->SetVar<std::string>(u"My_Parent_ID", selfIdStr);
-		LOG("Stored parent %s to %llu", selfIdStr.c_str(), other);
-	}
-	else LOG("Failed to store parent %s", selfIdStr.c_str());
-}
-
-void SkunkEvent::StoreObjectByName(Entity* const self, const std::u16string& varName, const LWOOBJID other) const {
-	const auto otherIdStr = "|" + std::to_string(other);
-	LOG("Storing object %s to %llu", otherIdStr.c_str(), self->GetObjectID());
-	self->SetVar<std::string>(varName, otherIdStr);
+bool SkunkEvent::IsValidSkunk(const Entity* const self, const LOT lot) const {
+	return std::ranges::find(INVASION_SKUNK_LOT, lot) != INVASION_SKUNK_LOT.end();
 }
 
 void SkunkEvent::OnObjectLoaded(Entity* self, LWOOBJID objId, LOT lot) {
 	LOG("Object loaded %llu:%i", objId, lot);
 	if (IsValidNpc(self, lot)) {
-		g_SpawnedNpcs[g_SpawnedNpcs.size()] = objId;
+		g_SpawnedNpcs.push_back(objId);
 	} else if (lot == SPOUT_LOT) {
-		g_Spouts[g_Spouts.size()] = objId;
+		g_Spouts.push_back(objId);
 	} else if (lot == BUBBLE_BLOWER_LOT) {
-		g_BubbleBlowers[g_BubbleBlowers.size()] = objId;
+		g_BubbleBlowers.push_back(objId);
 	} else if (lot == POLE_SLIDE_NPC) {
 		StoreParent(self, objId);
-		StoreObjectByName(self, u"PoleSlideNPC", objId);
+		StoreEntityByName(self, u"PoleSlideNPC", objId);
 	} else if (lot == BALLOON_LOT) {
 		StoreParent(self, objId);
-		StoreObjectByName(self, u"Balloon", objId);
+		StoreEntityByName(self, u"Balloon", objId);
 	}
 
 	// print out all the objects
-	for (const auto& [key, value] : g_SpawnedNpcs) {
-		LOG("Npc %i %llu", key, value);
+	LOG("Npcs:");
+	for (const auto value : g_SpawnedNpcs) {
+		LOG("	%llu", value);
 	}
-	for (const auto& [key, value] : g_Spouts) {
-		LOG("Spout %i %llu", key, value);
+	LOG("Spouts:");
+	for (const auto value : g_Spouts) {
+		LOG("	%llu", value);
 	}
-	for (const auto& [key, value] : g_BubbleBlowers) {
-		LOG("BubbleBlower %i %llu", key, value);
+	LOG("BubbleBlowers:");
+	for (const auto value : g_BubbleBlowers) {
+		LOG("	%llu", value);
+	}
+}
+
+void SkunkEvent::OnChildLoaded(Entity* self, const LWOOBJID objectId, const LOT lot) {
+	LOG("Child loaded %llu:%i", objectId, lot);
+	if (IsValidSkunk(self, lot)) {
+		StoreParent(self, objectId);
+		g_InvasionSkunks.push_back(objectId);
+	} else if (lot == SPAWNED_HAZMAT_NPC) {
+		StoreParent(self, objectId);
+		g_HazmatNpcs.push_back(objectId);
+	} else if (lot == INVASION_STINK_CLOUD_LOT) {
+		StoreParent(self, objectId);
+		g_InvasionStinkClouds.push_back(objectId);
+	} else if (lot == HAZMAT_REBUILD_VAN_LOT) {
+		StoreParent(self, objectId);
+		auto* const van = GetEntityByName(self, u"HazmatVanID");
+		if (van) {
+			van->Smash(LWOOBJID_EMPTY, eKillType::SILENT);
+		}
+		StoreEntityByName(self, u"HazmatVanID", objectId);
+		auto* const quickbuildComponent = self->GetComponent<QuickBuildComponent>();
+		if (quickbuildComponent) {
+			quickbuildComponent->ResetQuickBuild(false);
+		}
+		self->AddTimer("SpawnHazmatNPCTimer", HAZMAT_NPC_SPAWN_TIMER);
+	} else if (lot == HAZMAT_VAN_LOT) {
+		StoreParent(self, objectId);
+		auto* const van = GetEntityByName(self, u"HazmatVanID");
+		if (van) {
+			van->Smash(LWOOBJID_EMPTY, eKillType::SILENT);
+		}
+		StoreEntityByName(self, u"HazmatVanID", objectId);
+	}
+
+	// print out all the objects
+	LOG("Invasion Skunks:");
+	for (const auto value : g_InvasionSkunks) {
+		LOG("	%llu", value);
+	}
+	LOG("Hazmat Npcs:");
+	for (const auto value : g_HazmatNpcs) {
+		LOG("	%llu", value);
+	}
+	LOG("Invasion Stink Clouds:");
+	for (const auto value : g_InvasionStinkClouds) {
+		LOG("	%llu", value);
+	}
+	auto* const van = GetEntityByName(self, u"HazmatVanID");
+	if (van) {
+		LOG("Hazmat Van:");
+		LOG("	%llu", van->GetObjectID());
 	}
 }

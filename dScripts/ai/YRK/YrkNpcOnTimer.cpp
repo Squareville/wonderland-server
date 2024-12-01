@@ -7,6 +7,9 @@
 void YrkNpcOnTimer::OnStartup(Entity* self) {
 	Game::entityManager->GetZoneControlEntity()->OnObjectLoaded(self->GetObjectID(), self->GetLOT());
 	self->SetProximityRadius(20.0f, "WaveRadius");
+	auto* const movementAiComponent = self->GetComponent<MovementAIComponent>();
+	if (!movementAiComponent) return;
+	movementAiComponent->SetMaxSpeed(1.0f);
 }
 
 void YrkNpcOnTimer::OnProximityUpdate(Entity* self, Entity* entering, std::string name, std::string status) {
@@ -19,7 +22,7 @@ void YrkNpcOnTimer::OnNotifyObject(Entity* self, Entity* sender, const std::stri
 	auto* const movementAiComponent = self->GetComponent<MovementAIComponent>();
 	if (!movementAiComponent) return;
 	if (name == "npc_panic") {
-		movementAiComponent->SetMaxSpeed(5);
+		movementAiComponent->SetMaxSpeed(1.0f);
 	} else if (name == "npc_idle") {
 		movementAiComponent->SetMaxSpeed(0.5f);
 	}
