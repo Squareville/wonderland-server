@@ -4,6 +4,7 @@
 #include "EntityManager.h"
 #include "SkillComponent.h"
 #include "ProximityMonitorComponent.h"
+#include "SkunkEvent.h"
 
 void Spout::OnStartup(Entity* self) {
 	Game::entityManager->GetZoneControlEntity()->OnObjectLoaded(self->GetObjectID(), self->GetLOT());
@@ -42,6 +43,6 @@ void Spout::OnProximityUpdate(Entity* self, Entity* entering, std::string name, 
 
 void Spout::OnNotifyObject(Entity* self, Entity* sender, const std::string& name, int32_t param1, int32_t param2) {
 	if (name == "zone_state_change") {
-		self->SetVar<bool>(u"SpoutEnabled", param1 == 0); // ZONE_STATE_NO_INVASION
+		self->SetVar<bool>(u"SpoutEnabled", param1 == GeneralUtils::ToUnderlying(SkunkEventZoneState::NO_INVASION));
 	}
 }

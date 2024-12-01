@@ -3,6 +3,7 @@
 #include "EntityManager.h"
 #include "ControllablePhysicsComponent.h"
 #include "SkillComponent.h"
+#include "SkunkEvent.h"
 
 void BubbleStatue::OnStartup(Entity* self) {
 	Game::entityManager->GetZoneControlEntity()->OnObjectLoaded(self->GetObjectID(), self->GetLOT());
@@ -23,5 +24,5 @@ void BubbleStatue::OnProximityUpdate(Entity* self, Entity* entering, std::string
 }
 
 void BubbleStatue::OnNotifyObject(Entity* self, Entity* sender, const std::string& name, int32_t param1, int32_t param2) {
-	if (name == "zone_state_change") self->SetVar(u"StatueEnabled", param1 == 0); // ZONE_STATE_NO_INVASION
+	if (name == "zone_state_change") self->SetVar(u"StatueEnabled", param1 == GeneralUtils::ToUnderlying(SkunkEventZoneState::NO_INVASION));
 }

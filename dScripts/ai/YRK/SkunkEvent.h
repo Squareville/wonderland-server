@@ -47,13 +47,6 @@ public:
 	static constexpr auto BALLOON_LOT = 3433;
 	static constexpr auto INVASION_SKUNK_LOT = { 3279, 3930, 3931 };
 	static constexpr auto INVASION_PANIC_ACTORS = { 3268, 3269, 3270, 3271, 3272 };
-	static constexpr auto ZONE_STATE_NO_INFO = -1;
-	static constexpr auto ZONE_STATE_NO_INVASION = 0;
-	static constexpr auto ZONE_STATE_TRANSITION = 1;
-	static constexpr auto ZONE_STATE_HIGH_ALERT = 2;
-	static constexpr auto ZONE_STATE_MEDIUM_ALERT = 3;
-	static constexpr auto ZONE_STATE_LOW_ALERT = 4;
-	static constexpr auto ZONE_STATE_DONE_TRANSITION = 5;
 	static constexpr auto CLEANING_POINTS_TOTAL = 50;
 	static constexpr auto CLEANING_POINTS_MEDIUM = 20;
 	static constexpr auto CLEANING_POINTS_LOW = 40;
@@ -124,6 +117,17 @@ private:
 	bool IsValidNpc(const Entity* const self, const LOT lot) const;
 	bool IsValidSkunk(const Entity* const self, const LOT lot) const;
 	void NotifyNpcs(Entity* const self, const std::string& name) const;
+	void DoNoInvasionStateActions(Entity* const self) const;
+	void DoTransitionStateActions(Entity* const self) const;
+	void DoHighAlertStateActions(Entity* const self) const;
+	void DoDoneTransitionActions(Entity* const self) const;
+	void SendStateToEntities(Entity* const self, const std::vector<LWOOBJID>& entities) const;
+	void KillSkunks(Entity* const self) const;
+	void KillStinkClouds(Entity* const self) const;
+	void KillHazmatNpcs(Entity* const self) const;
+	float AnimateVan(Entity* const self, const std::string& animName) const;
+	void KillEntities(Entity* const self, const std::vector<LWOOBJID>& entities) const;
+	void RewardPlayers(Entity* const self) const;
 };
 
 #endif  //!SKUNKEVENT_H

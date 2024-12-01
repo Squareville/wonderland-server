@@ -9,7 +9,7 @@ void YrkNpcOnTimer::OnStartup(Entity* self) {
 	self->SetProximityRadius(20.0f, "WaveRadius");
 	auto* const movementAiComponent = self->GetComponent<MovementAIComponent>();
 	if (!movementAiComponent) return;
-	movementAiComponent->SetMaxSpeed(1.0f);
+	movementAiComponent->SetMaxSpeed(0.5f);
 }
 
 void YrkNpcOnTimer::OnProximityUpdate(Entity* self, Entity* entering, std::string name, std::string status) {

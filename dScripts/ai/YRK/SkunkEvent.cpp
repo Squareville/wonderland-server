@@ -22,11 +22,110 @@ SkunkEventZoneState SkunkEvent::GetZoneState(const Entity* const self) const {
 	return static_cast<SkunkEventZoneState>(self->GetVar<int32_t>(u"ZoneState"));
 }
 
+void SkunkEvent::SendStateToEntities(Entity* const self, const std::vector<LWOOBJID>& entities) const {
+	for (const auto id : entities) {
+		auto* const entity = Game::entityManager->GetEntity(id);
+		if (entity) entity->NotifyObject(self, "zone_state_change", GeneralUtils::ToUnderlying(GetZoneState(self)));
+	}
+}
+
+void SkunkEvent::DoNoInvasionStateActions(Entity* const self) const {
+	ResetTotalCleanPoints(self);
+	SendStateToEntities(self, g_Spouts);
+	SendStateToEntities(self, g_BubbleBlowers);
+	self->AddTimer("startEventTimer", PEACE_TIME_DURATION);
+}
+
+void SkunkEvent::DoTransitionStateActions(Entity* const self) const {
+	SendStateToEntities(self, g_Spouts);
+	SendStateToEntities(self, g_BubbleBlowers);
+	ResetTotalCleanPoints(self);
+	self->AddTimer("DoPanicNPCs", EARTHQUAKE_DURATION);
+	self->AddTimer("SkunksSpawning", SKUNK_SPAWN_TIMING);
+	self->AddTimer("StinkCloudsSpawning", SKUNK_SPAWN_TIMING);
+	self->AddTimer("HazmatVanTimer", HAZMAT_VAN_TIMING);
+	self->AddTimer("PoleSlideTimer", POLE_SLIDE_TIMING);
+	self->AddTimer("EndInvasionTransition", INVASION_TRANSITION_DURATION);
+}
+
+void SkunkEvent::DoHighAlertStateActions(Entity* const self) const {
+	self->AddTimer("MaxInvasionTimer", MAX_INVASION_DURATION);
+}
+
+void SkunkEvent::KillEntities(Entity* const self, const std::vector<LWOOBJID>& entities) const {
+	for (const auto id : entities) {
+		auto* const entity = Game::entityManager->GetEntity(id);
+		if (entity) entity->Smash(id, eKillType::SILENT);
+	}
+}
+
+void SkunkEvent::KillSkunks(Entity* const self) const {
+	KillEntities(self, g_InvasionSkunks);
+	g_InvasionSkunks.clear();
+}
+
+void SkunkEvent::KillStinkClouds(Entity* const self) const {
+	KillEntities(self, g_InvasionStinkClouds);
+	g_InvasionStinkClouds.clear();
+	g_InvasionStinkCloudWaypoints.clear();
+}
+
+void SkunkEvent::KillHazmatNpcs(Entity* const self) const {
+	KillEntities(self, g_HazmatNpcs);
+	g_HazmatNpcs.clear();
+}
+
+float SkunkEvent::AnimateVan(Entity* const self, const std::string& animName) const {
+	auto* const van = GetEntityByName(self, u"HazmatVanID");
+	float animTime = 0.0f;
+	if (van) {
+		van->CancelAllTimers();
+		animTime = RenderComponent::PlayAnimation(van, animName);
+	}
+
+	return animTime;
+}
+
+void SkunkEvent::RewardPlayers(Entity* const self) const {
+	for (const auto& [playerId, points] : g_PlayerPoints) {
+		auto* const player = Game::entityManager->GetEntity(playerId);
+		if (player) {
+			const auto coins = points * REWARD_MULTIPLIER;
+			Loot::DropLoot(player, self, -1, coins, coins);
+		}
+	}
+}
+
+void SkunkEvent::DoDoneTransitionActions(Entity* const self) const {
+	self->CancelTimer("MaxInvasionTimer");
+	RewardPlayers(self);
+	ResetTotalCleanPoints(self);
+	float animTime = AnimateVan(self, "end");
+	if (animTime >= 0.0f) {
+		self->AddTimer("HazmatVanEndDone", animTime);
+	}
+	NotifyNpcs(self, "npc_idle");
+	KillSkunks(self);
+	KillStinkClouds(self);
+	KillHazmatNpcs(self);
+	self->AddTimer("EndDoneTransition", DONE_TRANSITION_DURATION);
+}
+
 void SkunkEvent::SetZoneState(Entity* const self, const SkunkEventZoneState state) const {
 	LOG("New state is %s", StringifiedEnum::ToString(state).data());
 	const auto oldState = GetZoneState(self);
 	self->SetVar<int32_t>(u"ZoneState", GeneralUtils::ToUnderlying(state));
 	if (oldState != state) {
+		using enum SkunkEventZoneState;
+		if (state == NO_INVASION) {
+			DoNoInvasionStateActions(self);
+		} else if (state == TRANSITION) {
+			DoTransitionStateActions(self);
+		} else if (state == HIGH_ALERT) {
+			DoHighAlertStateActions(self);
+		} else if (state == DONE_TRANSITION) {
+			DoDoneTransitionActions(self);
+		}
 		LOG("Sending notify client zone object");
 		GameMessages::SendNotifyClientZoneObject(
 			self->GetObjectID(), u"zone_state_change", GeneralUtils::ToUnderlying(state), 0, LWOOBJID_EMPTY, "", UNASSIGNED_SYSTEM_ADDRESS
