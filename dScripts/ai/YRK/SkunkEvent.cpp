@@ -221,7 +221,7 @@ void SkunkEvent::OnNotifyObject(Entity* self, Entity* sender, const std::string&
 
 	LOG("SkunkEvent::OnNotifyObject: %s param1 %i", name.c_str(), param1);
 	if (name == "skunk_cleaned") {
-		// nothing triggers this logic so im not implementing it
+		// do last
 	} else if (name == "stink_cloud_cleaned_by_broombot") {
 		if (!IncrementTotalCleanPoints(self, POINT_VALUE_STINK_CLOUD)) {
 			SpawnSingleStinkCloud(self, param1);
@@ -313,6 +313,12 @@ void SkunkEvent::SpawnRebuildVan(Entity* const self) const {
 	Game::entityManager->ConstructEntity(Game::entityManager->CreateEntity(info, nullptr, self));
 }
 
+void SkunkEvent::SpawnStinkClouds(Entity* const self) const {
+	for (int32_t i = 0; i < NUM_STINK_CLOUDS; ++i) {
+		SpawnSingleStinkCloud(self, i);
+	}
+}
+
 void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 	if (name == "startEventTimer") {
 		SetZoneState(self, SkunkEventZoneState::TRANSITION);
@@ -321,9 +327,9 @@ void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 	} else if (name == "DoPanicNPCs") {
 		NotifyNpcs(self, "npc_panic");
 	} else if (name == "SkunksSpawning") {
-
+		// do last
 	} else if (name == "StinkCloudsSpawning") {
-
+		SpawnStinkClouds(self);
 	} else if (name == "EndInvasionTransition") {
 		SetZoneState(self, SkunkEventZoneState::HIGH_ALERT);
 	} else if (name == "EndDoneTransition") {
@@ -341,7 +347,7 @@ void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 	} else if (name == "HazmatVanStartDone") {
 		SpawnRebuildVan(self);
 	} else if (name == "HazmatVanEndDone") {
-
+		SpawnGarageVan(self);
 	} else if (name == "SpawnHazmatNPCTimer") {
 
 	} else if (name == "SpawnSingleHazmatNPCTimer") {

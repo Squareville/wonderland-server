@@ -5,7 +5,8 @@ set(DSCRIPTS_SOURCES_AI_YRK
 	"SkunkEvent.cpp"
 	"Spout.cpp"
 	"YrkActor.cpp"
-	"YrkNpcOntimer.cpp")
+	"YrkNpcOntimer.cpp"
+	"YrkNpcStink.cpp")
 
 add_library(dScriptsAiYrk OBJECT ${DSCRIPTS_SOURCES_AI_YRK})
 target_include_directories(dScriptsAiYrk PUBLIC ".")

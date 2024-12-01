@@ -336,6 +336,7 @@
 #include "BubbleStatue.h"
 #include "ActPetInstance.h"
 #include "SkunkEvent.h"
+#include "YrkNpcStink.h"
 
 #include <map>
 #include <string>
@@ -702,6 +703,7 @@ namespace {
 		{"scripts\\ai\\YRK\\L_BUBBLE_STATUE.lua", []() {return new BubbleStatue();}},
 		{"scripts\\ai\\YRK\\L_YRK_NPC_ON_TIMER.lua", []() {return new YrkNpcOnTimer();}},
 		{"scripts\\ai\\YRK\\L_SKUNK_EVENT.lua", []() {return new SkunkEvent();}},
+		{"scripts\\ai\\YRK\\L_YRK_NPC_STINK.lua", []() {return new YrkNpcStink();}},
 		{"scripts\\ai\\WILD\\L_WILD_EU_HAZMAT.lua", []() {return new WildEuHazmat();}},
 		{"scripts\\ai\\ACT\\L_ACT_PET_INSTANCE.lua", []() {return new ActPetInstance();}},
 

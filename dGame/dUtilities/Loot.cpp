@@ -313,3 +313,17 @@ void Loot::DropActivityLoot(Entity* player, Entity* source, uint32_t activityID,
 
 	DropLoot(player, source, selectedReward->LootMatrixIndex, minCoins, maxCoins);
 }
+
+void Loot::DropCoins(Entity* player, Entity* source, int32_t currencyIndex, int32_t npcMinLevel) {
+	CDCurrencyTableTable* currencyTableTable = CDClientManager::GetTable<CDCurrencyTableTable>();
+	std::vector<CDCurrencyTable> currencyTable = currencyTableTable->Query([currencyIndex, npcMinLevel](CDCurrencyTable entry) { return (entry.currencyIndex == currencyIndex && entry.npcminlevel == npcMinLevel); });
+
+	uint32_t minCoins = 0;
+	uint32_t maxCoins = 0;
+	if (!currencyTable.empty()) {
+		minCoins = currencyTable[0].minvalue;
+		maxCoins = currencyTable[0].maxvalue;
+	}
+
+	DropLoot(player, source, -1, minCoins, maxCoins);
+}

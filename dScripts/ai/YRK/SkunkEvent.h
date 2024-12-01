@@ -129,6 +129,7 @@ private:
 	void KillEntities(Entity* const self, const std::vector<LWOOBJID>& entities) const;
 	void RewardPlayers(Entity* const self) const;
 	void SpawnRebuildVan(Entity* const self) const;
+	void SpawnStinkClouds(Entity* const self) const;
 };
 
 #endif  //!SKUNKEVENT_H
