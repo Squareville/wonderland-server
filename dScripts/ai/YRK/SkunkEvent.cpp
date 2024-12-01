@@ -222,6 +222,10 @@ void SkunkEvent::OnNotifyObject(Entity* self, Entity* sender, const std::string&
 	LOG("SkunkEvent::OnNotifyObject: %s param1 %i", name.c_str(), param1);
 	if (name == "skunk_cleaned") {
 		// do last
+		AddPlayerPoints(self, sender->GetObjectID(), POINT_VALUE_SKUNK);
+		if (!IncrementTotalCleanPoints(self, POINT_VALUE_SKUNK) && param1 > 0) {
+			self->AddTimer(SKUNK_PATH_PREFIX + std::to_string(param1), GeneralUtils::GenerateRandomNumber<float>(SKUNK_RESPAWN_TIMER_MIN, SKUNK_RESPAWN_TIMER_MAX));
+		}
 	} else if (name == "stink_cloud_cleaned_by_broombot") {
 		if (!IncrementTotalCleanPoints(self, POINT_VALUE_STINK_CLOUD)) {
 			SpawnSingleStinkCloud(self, param1);
@@ -349,6 +353,37 @@ void SkunkEvent::SpawnSingleHazmatNpc(Entity* const self, const std::string& pat
 	Game::entityManager->ConstructEntity(Game::entityManager->CreateEntity(info, nullptr, self));
 }
 
+void SkunkEvent::SpawnSkunks(Entity* const self) const {
+	for (int32_t i = 0; i < NUM_SKUNKS; i++) {
+		SpawnSingleSkunk(self, i, false);
+	}
+}
+
+void SkunkEvent::SpawnSingleSkunk(Entity* const self, const int32_t num, const bool respawn) const {
+	auto pathStr = SKUNK_PATH_PREFIX + std::to_string(num);
+	auto pathStart = 1;
+	auto* path = Game::zoneManager->GetZone()->GetPath(pathStr);
+	if (!path || path->pathWaypoints.empty()) return;
+
+	if (respawn) {
+		pathStr += SKUNK_ROAM_PATH_SUFFIX;
+		path = Game::zoneManager->GetZone()->GetPath(pathStr);
+		pathStart = GeneralUtils::GenerateRandomNumber<int32_t>(1, path->pathWaypoints.size());
+	}
+
+	EntityInfo info{};
+	info.pos = path->pathWaypoints[pathStart - 1].position;
+	info.spawnerID = self->GetObjectID();
+	info.settings = {
+		new LDFData<std::string>(u"attached_path", pathStr),
+		new LDFData<int32_t>(u"attached_path_start", pathStart),
+		new LDFData<bool>(u"isImmune", !respawn),
+	};
+	info.lot = *(INVASION_SKUNK_LOT.begin() + GeneralUtils::GenerateRandomNumber<int32_t>(0, INVASION_SKUNK_LOT.size() - 1));
+
+	Game::entityManager->ConstructEntity(Game::entityManager->CreateEntity(info, nullptr, self));
+}
+
 void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 	if (name == "startEventTimer") {
 		SetZoneState(self, SkunkEventZoneState::TRANSITION);
@@ -357,7 +392,7 @@ void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 	} else if (name == "DoPanicNPCs") {
 		NotifyNpcs(self, "npc_panic");
 	} else if (name == "SkunksSpawning") {
-		// do last
+		SpawnSkunks(self);
 	} else if (name == "StinkCloudsSpawning") {
 		SpawnStinkClouds(self);
 	} else if (name == "EndInvasionTransition") {
@@ -382,8 +417,8 @@ void SkunkEvent::OnTimerDone(Entity* self, std::string name) {
 		SpawnHazmatNpcs(self);
 	} else if (name.starts_with(HAZMAT_NPC_PATH_PREFIX)) {
 		SpawnSingleHazmatNpc(self, name);
-	} else if (name == "RespawnSkunk") {
-
+	} else if (name.starts_with(SKUNK_PATH_PREFIX)) {
+		if (InvasionActive(self)) SpawnSingleSkunk(self, -1, true);
 	}
 }
 

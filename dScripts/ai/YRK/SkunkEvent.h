@@ -131,7 +131,9 @@ private:
 	void SpawnRebuildVan(Entity* const self) const;
 	void SpawnStinkClouds(Entity* const self) const;
 	void SpawnHazmatNpcs(Entity* const self) const;
+	void SpawnSkunks(Entity* const self) const;
 	void SpawnSingleHazmatNpc(Entity* const self, const std::string& pathStr) const;
+	void SpawnSingleSkunk(Entity* const self, const int32_t num, const bool respawn) const;
 };
 
 #endif  //!SKUNKEVENT_H
