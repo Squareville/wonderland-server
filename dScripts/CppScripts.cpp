@@ -336,7 +336,7 @@
 #include "BalloonTrigger.h"
 #include "HazmatMissionGiver.h"
 #include "YrkActor.h"
-#include "YrkNpcOntimer.h"
+#include "YrkNpcOnTimer.h"
 #include "WildEuHazmat.h"
 #include "Spout.h"
 #include "BubbleStatue.h"
