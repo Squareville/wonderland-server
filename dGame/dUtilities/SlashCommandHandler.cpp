@@ -17,7 +17,7 @@
 
 #include "Amf3.h"
 #include "Database.h"
-#include "eChatMessageType.h"
+#include "MessageType/Chat.h"
 #include "dServer.h"
 
 namespace {
@@ -154,7 +154,7 @@ void SlashCommandHandler::SendAnnouncement(const std::string& title, const std::
 
 	//Notify chat about it
 	CBITSTREAM;
-	BitStreamUtils::WriteHeader(bitStream, eConnectionType::CHAT, eChatMessageType::GM_ANNOUNCE);
+	BitStreamUtils::WriteHeader(bitStream, eConnectionType::CHAT, MessageType::Chat::GM_ANNOUNCE);
 
 	bitStream.Write<uint32_t>(title.size());
 	for (auto character : title) {
