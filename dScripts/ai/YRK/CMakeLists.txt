@@ -7,7 +7,7 @@ set(DSCRIPTS_SOURCES_AI_YRK
 	"SkunkEvent.cpp"
 	"Spout.cpp"
 	"YrkActor.cpp"
-	"YrkNpcOntimer.cpp"
+	"YrkNpcOnTimer.cpp"
 	"YrkNpcStink.cpp")
 
 add_library(dScriptsAiYrk OBJECT ${DSCRIPTS_SOURCES_AI_YRK})
