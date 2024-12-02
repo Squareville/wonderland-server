@@ -805,7 +805,7 @@ void HandlePacket(Packet* packet) {
 			break;
 		}
 
-		case eMasterMessageType::SHUTDOWN_INSTANCE: {
+		case MessageType::Master::SHUTDOWN_INSTANCE: {
 			RakNet::BitStream inStream(packet->data, packet->length, false);
 			uint64_t header = inStream.Read(header);
 
@@ -828,7 +828,7 @@ void HandlePacket(Packet* packet) {
 			break;
 		}
 
-		case eMasterMessageType::GET_INSTANCES: {
+		case MessageType::Master::GET_INSTANCES: {
 			RakNet::BitStream inStream(packet->data, packet->length, false);
 			uint64_t header = inStream.Read(header);
 
@@ -844,7 +844,7 @@ void HandlePacket(Packet* packet) {
 
 			CBITSTREAM
 
-			BitStreamUtils::WriteHeader(bitStream, eConnectionType::MASTER, eMasterMessageType::RESPOND_INSTANCES);
+			BitStreamUtils::WriteHeader(bitStream, eConnectionType::MASTER, MessageType::Master::RESPOND_INSTANCES);
 
 			bitStream.Write(objectID);
 
