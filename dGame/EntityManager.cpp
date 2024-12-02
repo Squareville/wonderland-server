@@ -83,7 +83,6 @@ Entity* EntityManager::CreateEntity(EntityInfo info, User* user, Entity* parentE
 
 	// Determine the objectID for the new entity
 	LWOOBJID id;
-	if (info.lot == 3927) info.lot = 4;
 
 	// If an explicit ID was provided, use it
 	if (explicitId != LWOOBJID_EMPTY) {
