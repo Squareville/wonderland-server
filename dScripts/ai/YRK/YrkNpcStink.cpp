@@ -11,7 +11,6 @@ void YrkNpcStink::OnStartup(Entity* self) {
 }
 
 void YrkNpcStink::OnProximityUpdate(Entity* self, Entity* entering, std::string name, std::string status) {
-	LOG("Proximity update %s %s", name.c_str(), status.c_str());
 	if (status == "ENTER" && entering->IsPlayer()) {
 		const auto* const controllablePhysicsComponent = entering->GetComponent<ControllablePhysicsComponent>();
 		if (!controllablePhysicsComponent) return;
@@ -24,7 +23,6 @@ void YrkNpcStink::OnProximityUpdate(Entity* self, Entity* entering, std::string 
 }
 
 void YrkNpcStink::OnSkillEventFired(Entity* self, Entity* caster, const std::string& message) {
-	LOG("Skill event fired %s", message.c_str());
 	if (message != "waterspray") return;
 
 	if (caster->GetLOT() == broomBotLot) {

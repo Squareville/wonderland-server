@@ -338,6 +338,7 @@
 #include "SkunkEvent.h"
 #include "YrkNpcStink.h"
 #include "HazmatTruck.h"
+#include "EnemySkunk.h"
 
 #include <map>
 #include <string>
@@ -704,6 +705,7 @@ namespace {
 		{"scripts\\ai\\YRK\\L_BUBBLE_STATUE.lua", []() {return new BubbleStatue();}},
 		{"scripts\\ai\\YRK\\L_YRK_NPC_ON_TIMER.lua", []() {return new YrkNpcOnTimer();}},
 		{"scripts\\ai\\YRK\\L_SKUNK_EVENT.lua", []() {return new SkunkEvent();}},
+		{"scripts\\ai\\YRK\\L_ENEMY_SKUNK.lua", []() {return new EnemySkunk();}},
 		{"scripts\\ai\\YRK\\L_YRK_NPC_STINK.lua", []() {return new YrkNpcStink();}},
 		{"scripts\\ai\\YRK\\L_HAZMAT_TRUCK.lua", []() {return new HazmatTruck();}},
 		{"scripts\\ai\\WILD\\L_WILD_EU_HAZMAT.lua", []() {return new WildEuHazmat();}},

@@ -1,6 +1,7 @@
 set(DSCRIPTS_SOURCES_AI_YRK
 	"BalloonTrigger.cpp"
 	"BubbleStatue.cpp"
+	"EnemySkunk.cpp"
 	"HazmatMissionGiver.cpp"
 	"HazmatTruck.cpp"
 	"SkunkEvent.cpp"

@@ -209,6 +209,8 @@ public:
 	 */
 	static float GetBaseSpeed(LOT lot);
 
+	bool IsPaused() const { return m_Paused; }
+
 private:
 
 	/**

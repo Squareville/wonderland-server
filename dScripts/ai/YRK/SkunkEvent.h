@@ -133,7 +133,7 @@ private:
 	void SpawnHazmatNpcs(Entity* const self) const;
 	void SpawnSkunks(Entity* const self) const;
 	void SpawnSingleHazmatNpc(Entity* const self, const std::string& pathStr) const;
-	void SpawnSingleSkunk(Entity* const self, const int32_t num, const bool respawn) const;
+	void SpawnSingleSkunk(Entity* const self, const int32_t num, const bool respawn, const std::string& respawnPath = "") const;
 };
 
 #endif  //!SKUNKEVENT_H
