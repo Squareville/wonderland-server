@@ -254,7 +254,7 @@ public:
 	/**
 	 * Gets if the Entity is in a bubble
 	 */
-	bool GetIsInBubble(){ return m_IsInBubble; };
+	bool GetIsInBubble() const { return m_IsInBubble; };
 
   /**
 	 * Push or Pop a layer of stun immunity to this entity

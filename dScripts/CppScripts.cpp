@@ -333,6 +333,18 @@
 #include "VisToggleNotifierServer.h"
 #include "LupGenericInteract.h"
 #include "WblRobotCitizen.h"
+#include "BalloonTrigger.h"
+#include "HazmatMissionGiver.h"
+#include "YrkActor.h"
+#include "YrkNpcOnTimer.h"
+#include "WildEuHazmat.h"
+#include "Spout.h"
+#include "BubbleStatue.h"
+#include "ActPetInstance.h"
+#include "SkunkEvent.h"
+#include "YrkNpcStink.h"
+#include "HazmatTruck.h"
+#include "EnemySkunk.h"
 
 // Wonderland
 #include "SpawnSkeletonOnDeath.h"
@@ -697,7 +709,18 @@ namespace {
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenOrange.lua", []() {return new WblRobotCitizen();}},
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenRed.lua", []() {return new WblRobotCitizen();}},
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenYellow.lua", []() {return new WblRobotCitizen();}},
-		
+		{"scripts\\ai\\YRK\\L_BALLOONTRIGGER.lua", []() {return new BalloonTrigger();}},
+		{"scripts\\ai\\YRK\\L_HAZMAT_MISSION_GIVER.lua", []() {return new HazmatMissionGiver();}},
+		{"scripts\\ai\\YRK\\L_YRK_ACTOR.lua", []() {return new YrkActor();}},
+		{"scripts\\ai\\YRK\\L_SPOUT.lua", []() {return new Spout();}},
+		{"scripts\\ai\\YRK\\L_BUBBLE_STATUE.lua", []() {return new BubbleStatue();}},
+		{"scripts\\ai\\YRK\\L_YRK_NPC_ON_TIMER.lua", []() {return new YrkNpcOnTimer();}},
+		{"scripts\\ai\\YRK\\L_SKUNK_EVENT.lua", []() {return new SkunkEvent();}},
+		{"scripts\\ai\\YRK\\L_ENEMY_SKUNK.lua", []() {return new EnemySkunk();}},
+		{"scripts\\ai\\YRK\\L_YRK_NPC_STINK.lua", []() {return new YrkNpcStink();}},
+		{"scripts\\ai\\YRK\\L_HAZMAT_TRUCK.lua", []() {return new HazmatTruck();}},
+		{"scripts\\ai\\WILD\\L_WILD_EU_HAZMAT.lua", []() {return new WildEuHazmat();}},
+		{"scripts\\ai\\ACT\\L_ACT_PET_INSTANCE.lua", []() {return new ActPetInstance();}},
 		// newcontent
 		{"scripts\\EquipmentScripts\\XMarksTheSpot1.lua", [](){return new XMarksTheSpotChest();}},
 		{"scripts\\DLU\\L_RUBY_SCEPTER_DROP.lua", [](){return new RubyScepterDrop();}}, 
@@ -734,7 +757,14 @@ CppScripts::Script* const CppScripts::GetScript(Entity* parent, const std::strin
 			(scriptName == "scripts\\ai\\FV\\L_ACT_NINJA_STUDENT.lua") ||
 			(scriptName == "scripts\\ai\\WILD\\L_WILD_GF_FROG.lua") ||
 			(scriptName == "scripts\\empty.lua") ||
-			(scriptName == "scripts\\ai\\AG\\L_AG_SENTINEL_GUARD.lua")
+			(scriptName == "scripts\\ai\\AG\\L_AG_SENTINEL_GUARD.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_MAZE_TROLL.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_HYDRANT_QB.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_MECH_EU_BROOMBOT.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_SKUNK_BOUNCER.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_BABY_SKUNKS.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_HAZMAT_TRUCK_NPC.lua") ||
+			(scriptName == "scripts\\ai\\YRK\\L_WINDOW_WASHER.lua")
 			)) LOG_DEBUG("LOT %i attempted to load CppScript for '%s', but returned InvalidScript.", parent->GetLOT(), scriptName.c_str());
 	}
 
@@ -745,3 +775,22 @@ CppScripts::Script* const CppScripts::GetScript(Entity* parent, const std::strin
 CppScripts::Script* const CppScripts::GetInvalidScript() {
 	return &InvalidToReturn;
 }
+
+Entity* CppScripts::Script::GetEntityByName(const Entity* const self, const std::u16string& name) const {
+	if (name.empty()) return nullptr;
+	LOG("Getting object %s", GeneralUtils::UTF16ToWTF8(name).c_str());
+	return Game::entityManager->GetEntity(self->GetVar<LWOOBJID>(name));
+}
+
+void CppScripts::Script::StoreParent(const Entity* const self, const LWOOBJID other) const {
+	auto* const otherObj = Game::entityManager->GetEntity(other);
+	if (otherObj) {
+		otherObj->SetVar(u"My_Parent_ID", self->GetObjectID());
+		LOG("Stored parent %llu to %llu", self->GetObjectID(), other);
+	} else LOG("Failed to store parent %llu", self->GetObjectID());
+}
+
+void CppScripts::Script::StoreEntityByName(Entity* const self, const std::u16string& varName, const LWOOBJID other) const {
+	LOG("Storing object %llu to %llu", other, self->GetObjectID());
+	self->SetVar(varName, other);
+ }

@@ -768,6 +768,7 @@ void Entity::Initialize() {
 	// Hacky way to trigger these when the object has had a chance to get constructed
 	AddCallbackTimer(0, [this]() {
 		this->GetScript()->OnStartup(this);
+		if (this->m_ParentEntity) this->m_ParentEntity->GetScript()->OnChildLoaded(this->m_ParentEntity, this->GetObjectID(), this->GetLOT());
 		});
 
 	if (!m_Character && Game::entityManager->GetGhostingEnabled()) {
@@ -1469,6 +1470,10 @@ void Entity::OnZonePropertyModelRemovedWhileEquipped(Entity* player) {
 
 void Entity::OnZonePropertyModelRotated(Entity* player) {
 	GetScript()->OnZonePropertyModelRotated(this, player);
+}
+
+void Entity::OnObjectLoaded(LWOOBJID object, LOT templateId) {
+	GetScript()->OnObjectLoaded(this, object, templateId);
 }
 
 void Entity::OnMessageBoxResponse(Entity* sender, int32_t button, const std::u16string& identifier, const std::u16string& userData) {
