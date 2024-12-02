@@ -2,6 +2,10 @@
 // skate fast eat trash
 // do you think god stays in heaven because he too lives in fear of what he's created?
 
+#include <map>
+#include <string>
+#include <functional>
+
 #include "CppScripts.h"
 #include "GameMessages.h"
 #include "Entity.h"
@@ -221,6 +225,7 @@
 #include "NTNaomiDirtServer.h"
 #include "MinigameBlueMark.h"
 #include "NtNaomiBreadcrumbServer.h"
+#include "VisToggleNotifierServer.h"
 
 // DLU Scripts
 #include "DLUVanityTeleportingObject.h"
@@ -290,6 +295,7 @@
 #include "ImaginationBackpackHealServer.h"
 #include "LegoDieRoll.h"
 #include "BuccaneerValiantShip.h"
+#include "XMarksTheSpotChest.h"
 #include "GemPack.h"
 #include "ShardArmor.h"
 #include "TeslaPack.h"
@@ -340,9 +346,14 @@
 #include "HazmatTruck.h"
 #include "EnemySkunk.h"
 
-#include <map>
-#include <string>
-#include <functional>
+// Wonderland
+#include "SpawnSkeletonOnDeath.h"
+#include "DieAfterXSeconds.h"
+#include "SkillCastAndOptionalDeath.h"
+#include "SpawnSnowmanOnDeath.h"
+#include "RubyScepterDrop.h"
+#include "SpawnEntityOnDeath.h"
+#include "HalloweenManager.h"
 
 namespace {
 	// This is in the translation unit instead of the header to prevent weird linker errors
@@ -710,8 +721,25 @@ namespace {
 		{"scripts\\ai\\YRK\\L_HAZMAT_TRUCK.lua", []() {return new HazmatTruck();}},
 		{"scripts\\ai\\WILD\\L_WILD_EU_HAZMAT.lua", []() {return new WildEuHazmat();}},
 		{"scripts\\ai\\ACT\\L_ACT_PET_INSTANCE.lua", []() {return new ActPetInstance();}},
-
-	};
+		// newcontent
+		{"scripts\\EquipmentScripts\\XMarksTheSpot1.lua", [](){return new XMarksTheSpotChest();}},
+		{"scripts\\DLU\\L_RUBY_SCEPTER_DROP.lua", [](){return new RubyScepterDrop();}}, 
+		{"scripts\\newcontent\\server\\spawnskeletonondeath.lua", []() {return new SpawnSkeletonOnDeath();}},
+		{"scripts\\newcontent\\server\\dieafter10seconds.lua", []() {return new DieAfterXSeconds(10);}},
+		{"scripts\\newcontent\\server\\dieafter20seconds.lua", []() {return new DieAfterXSeconds(20);}},
+		{"scripts\\newcontent\\server\\dieafter30seconds.lua", []() {return new DieAfterXSeconds(30);}},
+		{"scripts\\newcontent\\server\\dieafter40seconds.lua", []() {return new DieAfterXSeconds(40);}},
+		{"scripts\\newcontent\\server\\dieafter50seconds.lua", []() {return new DieAfterXSeconds(50);}},
+		{"scripts\\newcontent\\server\\dieafter60seconds.lua", []() {return new DieAfterXSeconds(60);}},
+		{R"(scripts\newcontent\server\damagereduction999.lua)", []() {return new SkillCastAndOptionalDeath(1996);}},
+		{R"(scripts\newcontent\server\halloweenskeleton.lua)", []() {return new SkillCastAndOptionalDeath(1996, true, 20.0f);}},
+		{R"(scripts\newcontent\server\spawnsnowmanondeath.lua)", []() {return new SpawnSnowmanOnDeath();}},
+		{R"(scripts\newcontent\server\spawnvampireondeath.lua)", []() {return new SpawnEntityOnDeath(30055);}},
+		{R"(scripts\newcontent\server\spawnmummyondeath.lua)", []() {return new SpawnEntityOnDeath(30056);}},
+		{R"(scripts\newcontent\server\spawnhalloweenhorsemanondeath.lua)", []() {return new SpawnEntityOnDeath(41013);}},
+		{R"(scripts\newcontent\server\halloweenminiboss.lua)", []() {return new SkillCastAndOptionalDeath(1996, true, 120.0f);}},
+		{R"(scripts\newcontent\server\halloweenmanager.lua)", []() {return new HalloweenManager();}},
+		};
 };
 
 CppScripts::Script* const CppScripts::GetScript(Entity* parent, const std::string& scriptName) {

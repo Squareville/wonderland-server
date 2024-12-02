@@ -206,10 +206,22 @@ file(ARCHIVE_EXTRACT INPUT ${PROJECT_BINARY_DIR}/navmeshes.zip DESTINATION ${PRO
 file(REMOVE ${PROJECT_BINARY_DIR}/navmeshes.zip)
 
 # Copy vanity files on first build
-set(VANITY_FILES "CREDITS.md" "INFO.md" "TESTAMENT.md" "root.xml" "dev-tribute.xml" "atm.xml" "demo.xml")
+set(VANITY_FILES "CREDITS.md" "INFO.md" "TESTAMENT.md" "root.xml" "dev-tribute.xml" "atm.xml" "demo.xml" "facechanging.xml" "halloween.xml" "misc.xml")
 
 foreach(file ${VANITY_FILES})
 	configure_file("${CMAKE_SOURCE_DIR}/vanity/${file}" "${CMAKE_BINARY_DIR}/vanity/${file}" COPYONLY)
+endforeach()
+
+file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/qbs/)
+file(GLOB QB_FILES ${CMAKE_SOURCE_DIR}/qbs/*.xml)
+foreach (file ${QB_FILES})
+    get_filename_component(file ${file} NAME)
+    if (NOT EXISTS ${PROJECT_BINARY_DIR}/qbs/${file})
+        configure_file(
+            ${CMAKE_SOURCE_DIR}/qbs/${file} ${PROJECT_BINARY_DIR}/qbs/${file}
+            COPYONLY
+        )
+    endif()
 endforeach()
 
 # Move our migrations for MasterServer to run

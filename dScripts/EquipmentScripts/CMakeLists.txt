@@ -6,6 +6,7 @@ set(DSCRIPTS_SOURCES_EQUIPMENTSCRIPTS
 	"PersonalFortress.cpp"
 	"BuccaneerValiantShip.cpp"
 	"FireFirstSkillonStartup.cpp"
+	"XMarksTheSpotChest.cpp"
 	"StunImmunity.cpp")
 
 add_library(dScriptsEquipmentScripts OBJECT ${DSCRIPTS_SOURCES_EQUIPMENTSCRIPTS})

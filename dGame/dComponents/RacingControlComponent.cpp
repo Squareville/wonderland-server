@@ -386,10 +386,6 @@ void RacingControlComponent::HandleMessageBoxResponse(Entity* player, int32_t bu
 
 		// Calculate the score, different loot depending on player count
 		auto playersRating = m_LoadedPlayers;
-		if (m_LoadedPlayers == 1 && m_SoloRacing) {
-			playersRating *= 2;
-		}
-
 		const auto score = playersRating * 10 + data->finished;
 		Loot::GiveActivityLoot(player, m_Parent, m_ActivityID, score);
 

@@ -405,6 +405,8 @@ public:
 	void RemoveGroup(const std::string& groupId);
 
 	~InventoryComponent() override;
+	
+	bool RemoveItemFromAllInventories(const LOT lot, const uint32_t count, const bool ignoreBound = false, const bool silent = false);
 
 private:
 	/**

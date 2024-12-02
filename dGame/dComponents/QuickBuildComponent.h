@@ -158,6 +158,18 @@ public:
 	void SetPostImaginationCost(const int32_t value) noexcept;
 
 	/**
+	 * Gets the m_DoReset flag
+	 * @param value the activity ID to set
+	 */
+	bool GetDoReset() { return m_DoReset; };
+
+	/**
+	 * Sets the m_DoReset flag
+	 * @param value the reset flag to set
+	 */
+	void SetDoReset(bool doReset) {	m_DoReset = doReset; };
+
+	/**
 	 * Returns the time it takes for an incomplete quickbuild to be smashed automatically
 	 * @return the time it takes for an incomplete quickbuild to be smashed automatically
 	 */
@@ -338,6 +350,11 @@ private:
 	 * Currently unused
 	 */
 	int32_t m_SoftTimer = 0;
+
+	/**
+	 * Whether build should explode
+	 */
+	bool m_DoReset = true;
 
 	/**
 	 * The ID of the entity that's currently building the quickbuild

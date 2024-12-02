@@ -38,6 +38,7 @@ add_subdirectory(ai)
 add_subdirectory(client)
 add_subdirectory(EquipmentScripts)
 add_subdirectory(EquipmentTriggers)
+add_subdirectory(newcontent)
 add_subdirectory(zone)
 
 add_library(dScripts STATIC
@@ -45,6 +46,7 @@ add_library(dScripts STATIC
 	$<TARGET_OBJECTS:dScriptsClient>
 	$<TARGET_OBJECTS:dScriptsEquipmentScripts>
 	$<TARGET_OBJECTS:dScriptsEquipmentTriggers>
+	$<TARGET_OBJECTS:dScriptsNewContent>
 	$<TARGET_OBJECTS:dScriptsZone>
 	"CppScripts.cpp"
 )
@@ -56,6 +58,7 @@ target_include_directories(dScripts PRIVATE
 	$<TARGET_PROPERTY:dScriptsClient,INTERFACE_INCLUDE_DIRECTORIES>
 	$<TARGET_PROPERTY:dScriptsEquipmentScripts,INTERFACE_INCLUDE_DIRECTORIES>
 	$<TARGET_PROPERTY:dScriptsEquipmentTriggers,INTERFACE_INCLUDE_DIRECTORIES>
+	$<TARGET_PROPERTY:dScriptsNewContent,INTERFACE_INCLUDE_DIRECTORIES>
 	$<TARGET_PROPERTY:dScriptsZone,INTERFACE_INCLUDE_DIRECTORIES>
 )
 target_precompile_headers(dScripts REUSE_FROM dScriptsBase)
