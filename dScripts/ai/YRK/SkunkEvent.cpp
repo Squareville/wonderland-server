@@ -94,6 +94,7 @@ void SkunkEvent::RewardPlayers(Entity* const self) const {
 			Loot::DropLoot(player, player, -1, coins, coins);
 		}
 	}
+	g_PlayerPoints.clear();
 }
 
 void SkunkEvent::DoDoneTransitionActions(Entity* const self) const {
