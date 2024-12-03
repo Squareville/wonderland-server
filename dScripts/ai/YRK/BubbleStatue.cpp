@@ -8,7 +8,7 @@
 void BubbleStatue::OnStartup(Entity* self) {
 	Game::entityManager->GetZoneControlEntity()->OnObjectLoaded(self->GetObjectID(), self->GetLOT());
 	self->SetProximityRadius(10.0f, "BubbleStatue"); // BUBBLE_STATUE_RADIUS
-	self->SetVar(u"StatueEnabled", true);
+	self->SetVar(u"StatueEnabled", false);
 }
 
 void BubbleStatue::OnProximityUpdate(Entity* self, Entity* entering, std::string name, std::string status) {
