@@ -83,6 +83,7 @@
 #include "ItemComponent.h"
 #include "GhostComponent.h"
 #include "AchievementVendorComponent.h"
+#include "VanityUtilities.h"
 
 // Table includes
 #include "CDComponentsRegistryTable.h"
@@ -1272,6 +1273,7 @@ void Entity::Update(const float deltaTime) {
 			auto timerName = timer.GetName();
 			m_Timers.erase(m_Timers.begin() + timerPosition);
 			GetScript()->OnTimerDone(this, timerName);
+			VanityUtilities::OnTimerDone(this, timerName);
 
 			TriggerEvent(eTriggerEventType::TIMER_DONE, this);
 		} else {
@@ -1335,6 +1337,7 @@ void Entity::OnCollisionProximity(LWOOBJID otherEntity, const std::string& proxN
 	if (!other) return;
 
 	GetScript()->OnProximityUpdate(this, other, proxName, status);
+	VanityUtilities::OnProximityUpdate(this, other, proxName, status);
 
 	RocketLaunchpadControlComponent* rocketComp = GetComponent<RocketLaunchpadControlComponent>();
 	if (!rocketComp) return;
@@ -1350,6 +1353,11 @@ void Entity::OnCollisionPhantom(const LWOOBJID otherEntity) {
 
 	for (const auto& callback : m_PhantomCollisionCallbacks) {
 		callback(other);
+	}
+
+	SwitchComponent* switchComp = GetComponent<SwitchComponent>();
+	if (switchComp) {
+		switchComp->OnUse(other);
 	}
 
 	TriggerEvent(eTriggerEventType::ENTER, other);
