@@ -68,6 +68,7 @@
 #include "AgSurvivalBuffStation.h"
 #include "QbSpawner.h"
 #include "AgQbWall.h"
+#include "EnemyClearThreat.h"
 
 // NS Scripts
 #include "NsModularBuild.h"
@@ -333,6 +334,8 @@
 #include "VisToggleNotifierServer.h"
 #include "LupGenericInteract.h"
 #include "WblRobotCitizen.h"
+
+// ZP
 #include "BalloonTrigger.h"
 #include "HazmatMissionGiver.h"
 #include "YrkActor.h"
@@ -421,6 +424,8 @@ namespace {
 		{"scripts\\02_server\\Enemy\\VE\\L_VE_MECH.lua", []() {return new VeMech();}},
 		{"scripts\\02_server\\Map\\VE\\L_MISSION_CONSOLE_SERVER.lua", []() {return new VeMissionConsole();}},
 		{"scripts\\02_server\\Map\\VE\\L_EPSILON_SERVER.lua", []() {return new VeEpsilonServer();}},
+		{"scripts\\02_server\\Map\\General\\L_ENEMY_CLEAR_THREAT.lua", []() {return new EnemyClearThreat();}},
+
 
 		//NS
 		{"scripts\\ai\\NS\\L_NS_MODULAR_BUILD.lua", []() {return new NsModularBuild();}},
@@ -709,6 +714,8 @@ namespace {
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenOrange.lua", []() {return new WblRobotCitizen();}},
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenRed.lua", []() {return new WblRobotCitizen();}},
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenYellow.lua", []() {return new WblRobotCitizen();}},
+
+		// ZP
 		{"scripts\\ai\\YRK\\L_BALLOONTRIGGER.lua", []() {return new BalloonTrigger();}},
 		{"scripts\\ai\\YRK\\L_HAZMAT_MISSION_GIVER.lua", []() {return new HazmatMissionGiver();}},
 		{"scripts\\ai\\YRK\\L_YRK_ACTOR.lua", []() {return new YrkActor();}},
@@ -721,6 +728,7 @@ namespace {
 		{"scripts\\ai\\YRK\\L_HAZMAT_TRUCK.lua", []() {return new HazmatTruck();}},
 		{"scripts\\ai\\WILD\\L_WILD_EU_HAZMAT.lua", []() {return new WildEuHazmat();}},
 		{"scripts\\ai\\ACT\\L_ACT_PET_INSTANCE.lua", []() {return new ActPetInstance();}},
+		
 		// newcontent
 		{"scripts\\EquipmentScripts\\XMarksTheSpot1.lua", [](){return new XMarksTheSpotChest();}},
 		{"scripts\\DLU\\L_RUBY_SCEPTER_DROP.lua", [](){return new RubyScepterDrop();}}, 
@@ -739,7 +747,26 @@ namespace {
 		{R"(scripts\newcontent\server\spawnhalloweenhorsemanondeath.lua)", []() {return new SpawnEntityOnDeath(41013);}},
 		{R"(scripts\newcontent\server\halloweenminiboss.lua)", []() {return new SkillCastAndOptionalDeath(1996, true, 120.0f);}},
 		{R"(scripts\newcontent\server\halloweenmanager.lua)", []() {return new HalloweenManager();}},
-		};
+	};
+
+	std::set<std::string> g_ExcludedScripts = {
+		"scripts\\02_server\\Enemy\\General\\L_SUSPEND_LUA_AI.lua",
+		"scripts\\02_server\\Enemy\\General\\L_BASE_ENEMY_SPIDERLING.lua",
+		"scripts\\ai\\AG\\L_AG_SENTINEL_GUARD.lua",
+		"scripts\\ai\\FV\\L_ACT_NINJA_STUDENT.lua",
+		"scripts\\ai\\WILD\\L_WILD_GF_FROG.lua",
+		"scripts\\empty.lua",
+		"scripts\\zone\\AG\\L_ZONE_AG.lua",
+		"scripts\\zone\\NS\\L_ZONE_NS.lua",
+		"scripts\\zone\\GF\\L_ZONE_GF.lua",
+		"scripts\\ai\\YRK\\L_MAZE_TROLL.lua"
+		"scripts\\ai\\YRK\\L_HYDRANT_QB.lua",
+		"scripts\\ai\\YRK\\L_MECH_EU_BROOMBOT.lua",
+		"scripts\\ai\\YRK\\L_SKUNK_BOUNCER.lua",
+		"scripts\\ai\\YRK\\L_BABY_SKUNKS.lua",
+		"scripts\\ai\\YRK\\L_HAZMAT_TRUCK_NPC.lua",
+		"scripts\\ai\\YRK\\L_WINDOW_WASHER.lua",
+	};
 };
 
 CppScripts::Script* const CppScripts::GetScript(Entity* parent, const std::string& scriptName) {
@@ -751,21 +778,8 @@ CppScripts::Script* const CppScripts::GetScript(Entity* parent, const std::strin
 	const auto itrTernary = scriptLoader.find(scriptName);
 	Script* script = itrTernary != scriptLoader.cend() ? itrTernary->second() : &InvalidToReturn;
 
-	if (script == &InvalidToReturn) {
-		if ((scriptName.length() > 0) && !((scriptName == "scripts\\02_server\\Enemy\\General\\L_SUSPEND_LUA_AI.lua") ||
-			(scriptName == "scripts\\02_server\\Enemy\\General\\L_BASE_ENEMY_SPIDERLING.lua") ||
-			(scriptName == "scripts\\ai\\FV\\L_ACT_NINJA_STUDENT.lua") ||
-			(scriptName == "scripts\\ai\\WILD\\L_WILD_GF_FROG.lua") ||
-			(scriptName == "scripts\\empty.lua") ||
-			(scriptName == "scripts\\ai\\AG\\L_AG_SENTINEL_GUARD.lua") ||
-			(scriptName == "scripts\\ai\\YRK\\L_MAZE_TROLL.lua") ||
-			(scriptName == "scripts\\ai\\YRK\\L_HYDRANT_QB.lua") ||
-			(scriptName == "scripts\\ai\\YRK\\L_MECH_EU_BROOMBOT.lua") ||
-			(scriptName == "scripts\\ai\\YRK\\L_SKUNK_BOUNCER.lua") ||
-			(scriptName == "scripts\\ai\\YRK\\L_BABY_SKUNKS.lua") ||
-			(scriptName == "scripts\\ai\\YRK\\L_HAZMAT_TRUCK_NPC.lua") ||
-			(scriptName == "scripts\\ai\\YRK\\L_WINDOW_WASHER.lua")
-			)) LOG_DEBUG("LOT %i attempted to load CppScript for '%s', but returned InvalidScript.", parent->GetLOT(), scriptName.c_str());
+	if (script == &InvalidToReturn && !scriptName.empty() && !g_ExcludedScripts.contains(scriptName)) {
+		LOG_DEBUG("LOT %i attempted to load CppScript for '%s', but returned InvalidScript.", parent->GetLOT(), scriptName.c_str());
 	}
 
 	g_Scripts[scriptName] = script;
