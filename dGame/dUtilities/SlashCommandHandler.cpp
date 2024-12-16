@@ -13,7 +13,6 @@
 #include "DEVGMCommands.h"
 #include "GMGreaterThanZeroCommands.h"
 #include "GMZeroCommands.h"
-#include "WonderlandCommands.h"
 
 #include "Amf3.h"
 #include "Database.h"
@@ -1057,16 +1056,6 @@ void SlashCommandHandler::Startup() {
 		.requiredLevel = eGameMasterLevel::CIVILIAN
 	};
 	RegisterCommand(InstanceInfoCommand);
-
-	// Wonderland Commands
-	Command ToggleXPCommand{
-		.help = "Toggles U-Score reward option if character is max level",
-		.info = "Toggles U-Score reward option if character is max level. By defalt when reaching max level, the player gets coins instead of uscore. Using this toggle, the player can opt to still receive u-score instead of coins.",
-		.aliases = { "togglexp", "txp" },
-		.handle = WonderlandCommands::ToggleXP,
-		.requiredLevel = eGameMasterLevel::CIVILIAN
-	};
-	RegisterCommand(ToggleXPCommand);
 
 	//Commands that are handled by the client
 
