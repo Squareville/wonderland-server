@@ -356,6 +356,8 @@ namespace CppScripts {
 		 */
 		virtual void OnRequestActivityExit(Entity* sender, LWOOBJID player, bool canceled) {};
 
+		virtual void OnZoneLoadedInfo(Entity* self, const GameMessages::ZoneLoadedInfo& info) {};
+
 		/**
 		 * @brief Handles when an object has arrived at a target spot.
 		 *
