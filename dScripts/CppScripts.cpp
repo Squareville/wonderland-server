@@ -334,6 +334,10 @@
 #include "VisToggleNotifierServer.h"
 #include "LupGenericInteract.h"
 #include "WblRobotCitizen.h"
+#include "EnemyClearThreat.h"
+#include "AgSpiderBossMessage.h"
+#include "GfRaceInstancer.h"
+#include "NsRaceServer.h"
 
 // ZP
 #include "BalloonTrigger.h"
@@ -714,6 +718,10 @@ namespace {
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenOrange.lua", []() {return new WblRobotCitizen();}},
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenRed.lua", []() {return new WblRobotCitizen();}},
 		{"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_RobotCitizenYellow.lua", []() {return new WblRobotCitizen();}},
+		{"scripts\\02_server\\Map\\General\\L_ENEMY_CLEAR_THREAT.lua", []() {return new EnemyClearThreat();}},
+		{"scripts\\ai\\AG\\L_AG_SPIDER_BOSS_MESSAGE.lua", []() {return new AgSpiderBossMessage();}},
+		{"scripts\\ai\\GF\\L_GF_RACE_INSTANCER.lua", []() {return new GfRaceInstancer();}},
+		{"scripts\\ai\\RACING\\TRACK_NS\\NS_RACE_SERVER.lua", []() {return new NsRaceServer();}},
 
 		// ZP
 		{"scripts\\ai\\YRK\\L_BALLOONTRIGGER.lua", []() {return new BalloonTrigger();}},
@@ -760,6 +768,12 @@ namespace {
 		"scripts\\zone\\NS\\L_ZONE_NS.lua",
 		"scripts\\zone\\GF\\L_ZONE_GF.lua",
 		"scripts\\ai\\YRK\\L_MAZE_TROLL.lua"
+		"scripts\\ai\\AG\\CONCERT_STAGE.lua",
+		"scripts\\ai\\NS\\L_NS_CAR_MODULAR_BUILD.lua", // In our implementation, this is done in GameMessages.cpp
+		"scripts\\ai\\PETS\\PET_BLOCKER.lua",
+		"scripts\\ai\\PETS\\PET_FLEA_MISSION.lua",
+		"scripts\\ai\\ACT\\L_ACT_PET_INSTANCE_EXIT.lua",
+		"scripts\\ai\\YRK\\L_MAZE_TROLL.lua",
 		"scripts\\ai\\YRK\\L_HYDRANT_QB.lua",
 		"scripts\\ai\\YRK\\L_MECH_EU_BROOMBOT.lua",
 		"scripts\\ai\\YRK\\L_SKUNK_BOUNCER.lua",
