@@ -767,7 +767,6 @@ namespace {
 		"scripts\\zone\\AG\\L_ZONE_AG.lua",
 		"scripts\\zone\\NS\\L_ZONE_NS.lua",
 		"scripts\\zone\\GF\\L_ZONE_GF.lua",
-		"scripts\\ai\\YRK\\L_MAZE_TROLL.lua"
 		"scripts\\ai\\AG\\CONCERT_STAGE.lua",
 		"scripts\\ai\\NS\\L_NS_CAR_MODULAR_BUILD.lua", // In our implementation, this is done in GameMessages.cpp
 		"scripts\\ai\\PETS\\PET_BLOCKER.lua",
