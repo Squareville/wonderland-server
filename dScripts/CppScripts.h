@@ -384,15 +384,7 @@ namespace CppScripts {
 		 * @param templateId the template id of the object
 		 */
 		virtual void OnChildLoaded(Entity* self, const LWOOBJID objectId, const LOT lot) {};
-
-	protected:
-		Entity* GetEntityByName(const Entity* const self, const std::u16string& name) const;
-
-		void StoreParent(const Entity* const self, const LWOOBJID other) const;
-
-		void StoreEntityByName(Entity* const self, const std::u16string& varName, const LWOOBJID other) const;
-
-		/*
+				/*
 		 * @brief Handles notifying when activity data is done
 		 * 
 		 * @param self 
@@ -407,6 +399,13 @@ namespace CppScripts {
 		 * @param fire The firing data
 		 */
 		virtual void OnShootingGalleryFire(Entity& self, GameMessages::ShootingGalleryFire& fire) {};
+
+	protected:
+		Entity* GetEntityByName(const Entity* const self, const std::u16string& name) const;
+
+		void StoreParent(const Entity* const self, const LWOOBJID other) const;
+
+		void StoreEntityByName(Entity* const self, const std::u16string& varName, const LWOOBJID other) const;
 	};
 
 	Script* const GetScript(Entity* parent, const std::string& scriptName);
