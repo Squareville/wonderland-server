@@ -14,6 +14,7 @@
 #include "dZoneManager.h"
 
 #include "CDComponentsRegistryTable.h"
+#include "QuickBuildComponent.h"
 #include "CDPhysicsComponentTable.h"
 
 #include "dNavMesh.h"
@@ -87,6 +88,9 @@ void MovementAIComponent::Resume() {
 
 void MovementAIComponent::Update(const float deltaTime) {
 	if (m_Paused) return;
+
+	auto* const quickBuildComponent = m_Parent->GetComponent<QuickBuildComponent>();
+	if (quickBuildComponent && quickBuildComponent->GetState() != eQuickBuildState::COMPLETED) return;
 
 	if (m_PullingToPoint) {
 		const auto source = GetCurrentWaypoint();

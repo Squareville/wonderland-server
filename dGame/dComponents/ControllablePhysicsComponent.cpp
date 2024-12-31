@@ -15,6 +15,7 @@
 #include "LevelProgressionComponent.h"
 #include "eStateChangeType.h"
 #include "MovementAIComponent.h"
+#include "QuickBuildComponent.h"
 
 ControllablePhysicsComponent::ControllablePhysicsComponent(Entity* entity, int32_t componentId) : PhysicsComponent(entity, componentId) {
 	m_Velocity = {};
@@ -68,12 +69,13 @@ ControllablePhysicsComponent::~ControllablePhysicsComponent() {
 void ControllablePhysicsComponent::Update(float deltaTime) {
 	if (m_Parent->IsPlayer()) return;
 
-	auto& [x, y, z] = m_Position;
-	// LOG("Updating entity %d at %f %f %f", m_Parent->GetLOT(), x, y, z);
 	auto* movementAI = m_Parent->GetComponent<MovementAIComponent>();
 	if (movementAI && (!movementAI->AtFinalWaypoint() || movementAI->IsPaused())) return;
+
+	auto* const quickBuildComponent = m_Parent->GetComponent<QuickBuildComponent>();
+	if (quickBuildComponent && quickBuildComponent->GetState() != eQuickBuildState::COMPLETED) return;
+
 	SetPosition(m_Position + m_Velocity * deltaTime);
-	// LOG(" Updated entity %d at %f %f %f", m_Parent->GetLOT(), x, y, z);
 	Game::entityManager->SerializeEntity(m_Parent);
 }
 
