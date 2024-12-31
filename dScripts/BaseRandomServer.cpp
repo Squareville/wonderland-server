@@ -47,7 +47,7 @@ void BaseRandomServer::SpawnSection(Entity* self, const std::string& sectionName
 		const auto spawnNum = std::floor(spawnerData.num * iMultiplier);
 		const auto spawnerName = sectionName + "_" + spawnerData.name;
 
-		SetSpawnerNetwork(self, spawnerName, std::ceil(spawnNum * 1.5f), spawnerData.lot);
+		SetSpawnerNetwork(self, spawnerName, std::ceil(spawnNum * 1.5f), spawnerData.lot); // "Lets put a pin in that and come back to it some other night 2024/12/30 23:37 ジェーミーは楽しいなんだよ！"
 	}
 }
 
