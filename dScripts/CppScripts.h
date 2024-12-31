@@ -391,6 +391,22 @@ namespace CppScripts {
 		void StoreParent(const Entity* const self, const LWOOBJID other) const;
 
 		void StoreEntityByName(Entity* const self, const std::u16string& varName, const LWOOBJID other) const;
+
+		/*
+		 * @brief Handles notifying when activity data is done
+		 * 
+		 * @param self 
+		 * @param notify The parameters of the notification
+		 */
+		virtual void OnActivityNotify(Entity* self, GameMessages::ActivityNotify& notify) {};
+
+		/**
+		 * @brief handles shooting gallery fire
+		 * 
+		 * @param self 
+		 * @param fire The firing data
+		 */
+		virtual void OnShootingGalleryFire(Entity& self, GameMessages::ShootingGalleryFire& fire) {};
 	};
 
 	Script* const GetScript(Entity* parent, const std::string& scriptName);
