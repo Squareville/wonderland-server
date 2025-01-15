@@ -325,7 +325,7 @@ void SkunkEvent::SpawnStinkClouds(Entity* const self) const {
 }
 
 void SkunkEvent::SpawnHazmatNpcs(Entity* const self) const {
-	for (int32_t i = 0; i < NUM_HAZMAT_NPCS; i++) {
+	for (int32_t i = 1; i < NUM_HAZMAT_NPCS; i++) {
 		self->AddTimer(HAZMAT_NPC_PATH_PREFIX + std::to_string(i), TIME_BETWEEN_HAZMAT_SPAWNS * i);
 	}
 }
