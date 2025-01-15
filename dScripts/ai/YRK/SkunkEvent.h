@@ -64,7 +64,7 @@ public:
 	static constexpr auto SKUNK_RESPAWN_TIMER_MAX = 10;
 	static constexpr auto HAZMAT_REBUILD_VAN_SPAWN_PATH = "HazmatRebuildSpawnPath";
 	static constexpr auto HAZMAT_NPC_PATH_PREFIX = "hazmatWP_";
-	static constexpr auto NUM_HAZMAT_NPCS = 4;
+	static constexpr auto NUM_HAZMAT_NPCS = 5;
 	static constexpr auto TIME_BETWEEN_HAZMAT_SPAWNS = 4.0f;
 	static constexpr auto HAZMAT_REBUILD_RESET_TIME = 20.0f;
 	static constexpr auto PEACE_TIME_DURATION = 5 * 60;
