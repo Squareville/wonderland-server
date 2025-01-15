@@ -30,13 +30,14 @@ void SpawnBehavior::Handle(BehaviorContext* context, RakNet::BitStream& bitStrea
 
 	EntityInfo info;
 	info.lot = this->m_lot;
-	info.pos = origin->GetPosition() + m_Offset;
+	info.pos = origin->GetPosition();
 	info.rot = origin->GetRotation();
 	info.scale = 1;
 	info.spawner = nullptr;
 	info.spawnerID = context->originator;
 	info.spawnerNodeID = 0;
-	info.pos = info.pos + (info.rot.GetForwardVector() * m_Distance);
+	const auto forward = info.rot.GetForwardVector();
+	info.pos = info.pos + (forward * m_Distance) + (forward * m_Offset.z) + (info.rot.GetRightVector() * m_Offset.x) + (info.rot.GetUpVector() * m_Offset.y);
 
 	auto* entity = Game::entityManager->CreateEntity(
 		info,
