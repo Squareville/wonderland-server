@@ -30,7 +30,7 @@ void SpawnBehavior::Handle(BehaviorContext* context, RakNet::BitStream& bitStrea
 
 	EntityInfo info;
 	info.lot = this->m_lot;
-	info.pos = origin->GetPosition();
+	info.pos = origin->GetPosition() + m_Offset;
 	info.rot = origin->GetRotation();
 	info.scale = 1;
 	info.spawner = nullptr;
@@ -106,4 +106,7 @@ void SpawnBehavior::End(BehaviorContext* context, const BehaviorBranchContext br
 void SpawnBehavior::Load() {
 	this->m_lot = GetInt("LOT_ID");
 	this->m_Distance = GetFloat("distance");
+	this->m_Offset.x = GetFloat("offset_x");
+	this->m_Offset.y = GetFloat("offset_y");
+	this->m_Offset.z = GetFloat("offset_z");
 }
