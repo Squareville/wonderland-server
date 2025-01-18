@@ -186,6 +186,8 @@ namespace CppScripts {
 		 */
 		virtual void NotifyHitOrHealResult(Entity* self, Entity* attacker, int32_t damage) {};
 
+		virtual void NotifyPlayerResurrectionFinished(Entity& self, GameMessages::PlayerResurrectionFinished& msg) {};
+
 		/**
 		 * Invoked when a player has responsed to a mission.
 		 *
@@ -400,12 +402,20 @@ namespace CppScripts {
 		 */
 		virtual void OnShootingGalleryFire(Entity& self, GameMessages::ShootingGalleryFire& fire) {};
 
+		/**
+		 * @brief Handles when a child is loaded
+		 * 
+		 * @param self 
+		 * @param fire The child info
+		 */
+		virtual void OnChildLoaded(Entity& self, GameMessages::ChildLoaded& childLoaded) {};
 	protected:
 		Entity* GetEntityByName(const Entity* const self, const std::u16string& name) const;
 
 		void StoreParent(const Entity* const self, const LWOOBJID other) const;
 
 		void StoreEntityByName(Entity* const self, const std::u16string& varName, const LWOOBJID other) const;
+
 	};
 
 	Script* const GetScript(Entity* parent, const std::string& scriptName);

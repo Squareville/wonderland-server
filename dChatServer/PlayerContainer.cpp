@@ -32,7 +32,10 @@ void PlayerContainer::InsertPlayer(Packet* packet) {
 		return;
 	}
 
+	auto isLogin = !m_Players.contains(playerId);
 	auto& data = m_Players[playerId];
+	data = PlayerData();
+	data.isLogin = isLogin;
 	data.playerID = playerId;
 
 	uint32_t len;
@@ -57,13 +60,32 @@ void PlayerContainer::InsertPlayer(Packet* packet) {
 	LOG("Added user: %s (%llu), zone: %i", data.playerName.c_str(), data.playerID, data.zoneID.GetMapID());
 
 	Database::Get()->UpdateActivityLog(data.playerID, eActivityType::PlayerLoggedIn, data.zoneID.GetMapID());
+	m_PlayersToRemove.erase(playerId);
 }
 
-void PlayerContainer::RemovePlayer(Packet* packet) {
+void PlayerContainer::ScheduleRemovePlayer(Packet* packet) {
 	CINSTREAM_SKIP_HEADER;
-	LWOOBJID playerID;
+	LWOOBJID playerID{ LWOOBJID_EMPTY };
 	inStream.Read(playerID);
+	constexpr float updatePlayerOnLogoutTime = 20.0f;
+	if (playerID != LWOOBJID_EMPTY) m_PlayersToRemove.insert_or_assign(playerID, updatePlayerOnLogoutTime);
+}
 
+void PlayerContainer::Update(const float deltaTime) {
+	for (auto it = m_PlayersToRemove.begin(); it != m_PlayersToRemove.end();) {
+		auto& [id, time] = *it;
+		time -= deltaTime;
+
+		if (time <= 0.0f) {
+			RemovePlayer(id);
+			it = m_PlayersToRemove.erase(it);
+		} else {
+			++it;
+		}
+	}
+}
+
+void PlayerContainer::RemovePlayer(const LWOOBJID playerID) {
 	//Before they get kicked, we need to also send a message to their friends saying that they disconnected.
 	const auto& player = GetPlayerData(playerID);
 
@@ -197,7 +219,7 @@ TeamData* PlayerContainer::CreateTeam(LWOOBJID leader, bool local) {
 	team->leaderID = leader;
 	team->local = local;
 
-	mTeams.push_back(team);
+	GetTeamsMut().push_back(team);
 
 	AddMember(team, leader);
 
@@ -205,7 +227,7 @@ TeamData* PlayerContainer::CreateTeam(LWOOBJID leader, bool local) {
 }
 
 TeamData* PlayerContainer::GetTeam(LWOOBJID playerID) {
-	for (auto* team : mTeams) {
+	for (auto* team : GetTeams()) {
 		if (std::find(team->memberIDs.begin(), team->memberIDs.end(), playerID) == team->memberIDs.end()) continue;
 
 		return team;
@@ -313,9 +335,9 @@ void PlayerContainer::PromoteMember(TeamData* team, LWOOBJID newLeader) {
 }
 
 void PlayerContainer::DisbandTeam(TeamData* team) {
-	const auto index = std::find(mTeams.begin(), mTeams.end(), team);
+	const auto index = std::find(GetTeams().begin(), GetTeams().end(), team);
 
-	if (index == mTeams.end()) return;
+	if (index == GetTeams().end()) return;
 
 	for (const auto memberId : team->memberIDs) {
 		const auto& otherMember = GetPlayerData(memberId);
@@ -330,15 +352,15 @@ void PlayerContainer::DisbandTeam(TeamData* team) {
 
 	UpdateTeamsOnWorld(team, true);
 
-	mTeams.erase(index);
+	GetTeamsMut().erase(index);
 
 	delete team;
 }
 
 void PlayerContainer::TeamStatusUpdate(TeamData* team) {
-	const auto index = std::find(mTeams.begin(), mTeams.end(), team);
+	const auto index = std::find(GetTeams().begin(), GetTeams().end(), team);
 
-	if (index == mTeams.end()) return;
+	if (index == GetTeams().end()) return;
 
 	const auto& leader = GetPlayerData(team->leaderID);
 
@@ -416,4 +438,14 @@ const PlayerData& PlayerContainer::GetPlayerData(const LWOOBJID& playerID) {
 
 const PlayerData& PlayerContainer::GetPlayerData(const std::string& playerName) {
 	return GetPlayerDataMutable(playerName);
+}
+
+void PlayerContainer::Shutdown() {
+	m_Players.erase(LWOOBJID_EMPTY);
+	while (!m_Players.empty()) {
+		const auto& [id, playerData] = *m_Players.begin();
+		Database::Get()->UpdateActivityLog(id, eActivityType::PlayerLoggedOut, playerData.zoneID.GetMapID());
+		m_Players.erase(m_Players.begin());
+	}
+	for (auto* team : GetTeams()) if (team) delete team;
 }

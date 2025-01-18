@@ -758,6 +758,17 @@ namespace GameMessages {
 		NiPoint3 target{};
 		NiQuaternion rotation{};
 	};
+
+	struct ChildLoaded : public GameMsg {
+		ChildLoaded() : GameMsg(MessageType::Game::CHILD_LOADED) {}
+
+		LOT templateID{};
+		LWOOBJID childID{};
+	};
+
+	struct PlayerResurrectionFinished : public GameMsg {
+		PlayerResurrectionFinished() : GameMsg(MessageType::Game::PLAYER_RESURRECTION_FINISHED) {}
+	};
 };
 
 #endif // GAMEMESSAGES_H

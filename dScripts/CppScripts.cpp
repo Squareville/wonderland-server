@@ -301,6 +301,9 @@
 #include "ShardArmor.h"
 #include "TeslaPack.h"
 #include "StunImmunity.h"
+#include "GfRaceServer.h"
+#include "FvRaceServer.h"
+#include "VehicleDeathTriggerWaterServer.h"
 
 // Survival scripts
 #include "AgSurvivalStromling.h"
@@ -338,6 +341,8 @@
 #include "AgSpiderBossMessage.h"
 #include "GfRaceInstancer.h"
 #include "NsRaceServer.h"
+#include "TrialFactionArmorServer.h"
+#include "ImaginationBackPack.h"
 
 // ZP
 #include "BalloonTrigger.h"
@@ -722,6 +727,11 @@ namespace {
 		{"scripts\\ai\\AG\\L_AG_SPIDER_BOSS_MESSAGE.lua", []() {return new AgSpiderBossMessage();}},
 		{"scripts\\ai\\GF\\L_GF_RACE_INSTANCER.lua", []() {return new GfRaceInstancer();}},
 		{"scripts\\ai\\RACING\\TRACK_NS\\NS_RACE_SERVER.lua", []() {return new NsRaceServer();}},
+		{"scripts\\ai\\RACING\\TRACK_GF\\GF_RACE_SERVER.lua", []() {return new GfRaceServer();}},
+		{"scripts\\ai\\RACING\\TRACK_FV\\FV_RACE_SERVER.lua", []() {return new FvRaceServer();}},
+		{"scripts\\ai\\RACING\\OBJECTS\\VEHICLE_DEATH_TRIGGER_WATER_SERVER.lua", []() {return new VehicleDeathTriggerWaterServer();}},
+		{"scripts\\equipmenttriggers\\L_TRIAL_FACTION_ARMOR_SERVER.lua", []() {return new TrialFactionArmorServer();}},
+		{"scripts\\equipmenttriggers\\ImaginationBackPack.lua", []() {return new ImaginationBackPack();}},
 
 		// ZP
 		{"scripts\\ai\\YRK\\L_BALLOONTRIGGER.lua", []() {return new BalloonTrigger();}},
@@ -779,6 +789,12 @@ namespace {
 		"scripts\\ai\\YRK\\L_BABY_SKUNKS.lua",
 		"scripts\\ai\\YRK\\L_HAZMAT_TRUCK_NPC.lua",
 		"scripts\\ai\\YRK\\L_WINDOW_WASHER.lua",
+		"scripts\\ai\\WILD\\L_WILD_GF_FROG.lua",
+		"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_Robotanist.lua",
+		"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_Seperator.lua",
+		"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_InfectedCitizen.lua",
+		"scripts\\ai\\MINIGAME\\SIEGE\\OBJECTS\\ATTACKER_BOUNCER_SERVER.lua",
+		"scripts\\ai\\AG\\L_AG_ZONE_PLAYER.lua",
 	};
 };
 
