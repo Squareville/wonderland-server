@@ -100,7 +100,7 @@ public:
 	void OnFireEventServerSide(Entity* self, Entity* sender, std::string args, int32_t param1, int32_t param2, int32_t param3) override;
 	void OnTimerDone(Entity* self, std::string name) override;
 	void OnObjectLoaded(Entity* self, LWOOBJID objId, LOT lot);
-	void OnChildLoaded(Entity* self, const LWOOBJID objectId, const LOT lot) override;
+	void OnChildLoaded(Entity& self, GameMessages::ChildLoaded& childLoaded) override;
 private:
 	bool InvasionActive(const Entity* const self) const;
 	SkunkEventZoneState GetZoneState(const Entity* const self) const;

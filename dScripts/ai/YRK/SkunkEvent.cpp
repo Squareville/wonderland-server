@@ -467,36 +467,36 @@ void SkunkEvent::OnObjectLoaded(Entity* self, LWOOBJID objId, LOT lot) {
 	// }
 }
 
-void SkunkEvent::OnChildLoaded(Entity* self, const LWOOBJID objectId, const LOT lot) {
+void SkunkEvent::OnChildLoaded(Entity& self, GameMessages::ChildLoaded& childLoaded) {
 	// LOG("Child loaded %llu:%i", objectId, lot);
-	if (IsValidSkunk(self, lot)) {
-		StoreParent(self, objectId);
-		g_InvasionSkunks.push_back(objectId);
-	} else if (lot == SPAWNED_HAZMAT_NPC) {
-		StoreParent(self, objectId);
-		g_HazmatNpcs.push_back(objectId);
-	} else if (lot == INVASION_STINK_CLOUD_LOT) {
-		StoreParent(self, objectId);
-		g_InvasionStinkClouds.push_back(objectId);
-	} else if (lot == HAZMAT_REBUILD_VAN_LOT) {
-		StoreParent(self, objectId);
-		auto* const van = GetEntityByName(self, u"HazmatVanID");
+	if (IsValidSkunk(&self, childLoaded.templateID)) {
+		StoreParent(&self, childLoaded.childID);
+		g_InvasionSkunks.push_back(childLoaded.childID);
+	} else if (childLoaded.templateID == SPAWNED_HAZMAT_NPC) {
+		StoreParent(&self, childLoaded.childID);
+		g_HazmatNpcs.push_back(childLoaded.childID);
+	} else if (childLoaded.templateID == INVASION_STINK_CLOUD_LOT) {
+		StoreParent(&self, childLoaded.childID);
+		g_InvasionStinkClouds.push_back(childLoaded.childID);
+	} else if (childLoaded.templateID == HAZMAT_REBUILD_VAN_LOT) {
+		StoreParent(&self, childLoaded.childID);
+		auto* const van = GetEntityByName(&self, u"HazmatVanID");
 		if (van) {
 			van->Smash(LWOOBJID_EMPTY, eKillType::SILENT);
 		}
-		StoreEntityByName(self, u"HazmatVanID", objectId);
-		auto* const quickbuildComponent = self->GetComponent<QuickBuildComponent>();
+		StoreEntityByName(&self, u"HazmatVanID", childLoaded.childID);
+		auto* const quickbuildComponent = self.GetComponent<QuickBuildComponent>();
 		if (quickbuildComponent) {
 			quickbuildComponent->ResetQuickBuild(false);
 		}
-		self->AddTimer("SpawnHazmatNPCTimer", HAZMAT_NPC_SPAWN_TIMER);
-	} else if (lot == HAZMAT_VAN_LOT) {
-		StoreParent(self, objectId);
-		auto* const van = GetEntityByName(self, u"HazmatVanID");
+		self.AddTimer("SpawnHazmatNPCTimer", HAZMAT_NPC_SPAWN_TIMER);
+	} else if (childLoaded.templateID == HAZMAT_VAN_LOT) {
+		StoreParent(&self, childLoaded.childID);
+		auto* const van = GetEntityByName(&self, u"HazmatVanID");
 		if (van) {
 			van->Smash(LWOOBJID_EMPTY, eKillType::SILENT);
 		}
-		StoreEntityByName(self, u"HazmatVanID", objectId);
+		StoreEntityByName(&self, u"HazmatVanID", childLoaded.childID);
 	}
 
 	// print out all the objects

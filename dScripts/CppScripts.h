@@ -378,15 +378,7 @@ namespace CppScripts {
 		 */
 		virtual void OnObjectLoaded(Entity* self, LWOOBJID object, LOT templateId) {};
 
-		/**
-		 * @brief Handles when an object has its child loaded or if a child has its parent changed
-		 *
-		 * @param self
-		 * @param object the object that was loaded
-		 * @param templateId the template id of the object
-		 */
-		virtual void OnChildLoaded(Entity* self, const LWOOBJID objectId, const LOT lot) {};
-				/*
+		/*
 		 * @brief Handles notifying when activity data is done
 		 * 
 		 * @param self 
