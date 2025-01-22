@@ -319,7 +319,7 @@ void SkunkEvent::SpawnRebuildVan(Entity* const self) const {
 }
 
 void SkunkEvent::SpawnStinkClouds(Entity* const self) const {
-	for (int32_t i = 1; i < NUM_STINK_CLOUDS; ++i) {
+	for (int32_t i = 0; i < NUM_STINK_CLOUDS; ++i) {
 		SpawnSingleStinkCloud(self, i);
 	}
 }
@@ -355,7 +355,7 @@ void SkunkEvent::SpawnSingleHazmatNpc(Entity* const self, const std::string& pat
 }
 
 void SkunkEvent::SpawnSkunks(Entity* const self) const {
-	for (int32_t i = 1; i < NUM_SKUNKS; i++) {
+	for (int32_t i = 0; i < NUM_SKUNKS; i++) {
 		SpawnSingleSkunk(self, i, false);
 	}
 }
