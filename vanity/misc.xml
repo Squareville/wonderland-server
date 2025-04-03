@@ -26,7 +26,7 @@
 			<key>rocketLaunchPreCondition=0:47</key>
 			<key>rocketLaunchUseDBDefaults=7:0</key>
 			<key>rocketUseAltLandingPrecondition=7:0</key>
-			<key>rocketUseLaunchPrecondition=7:0</key>
+			<key>rocketUseLaunchPrecondition=7:1</key>
 			<key>summaryCamera=0:CP_Summary</key>
 			<key>targetScene=0:</key>
 			<key>targetZone=1:1260</key>
