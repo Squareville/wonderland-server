@@ -17,8 +17,19 @@
 	<object lot="12442">
 		<config>
 			<key>CheckPrecondition=0:47</key>
+			<key>GMLevel=1:0</key>
+			<key>playSummary=7:1</key>
+			<key>playerAnim=0:launch-property</key>
+			<key>rocketAltLandingPrecondition=0:</key>
+			<key>rocketAltLandingSpawnName=0:</key>
+			<key>rocketLaunchMusic=13:</key>
 			<key>rocketLaunchPreCondition=0:47</key>
+			<key>rocketLaunchUseDBDefaults=7:0</key>
+			<key>rocketUseAltLandingPrecondition=7:0</key>
 			<key>rocketUseLaunchPrecondition=7:0</key>
+			<key>summaryCamera=0:CP_Summary</key>
+			<key>targetScene=0:</key>
+			<key>targetZone=1:1260</key>
 		</config>
 		<locations>
 			<location zone="1200" x="246.72" y="289.35" z="248.96" rw="0.9994786381721497" rx="0.00" ry="0.03228670358657837" rz="0.00" />
