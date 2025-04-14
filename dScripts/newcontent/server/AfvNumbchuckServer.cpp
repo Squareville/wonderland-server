@@ -4,7 +4,7 @@
 #include "RenderComponent.h"
 
 void AfvNumbchuckServer::OnStartup(Entity* self) {
-	self->SetProximityRadius(5.0f, "NumbChuckRadius");
+	self->SetProximityRadius(25.0f, "NumbChuckRadius");
 	self->SetVar<uint32_t>(u"PlayerCount", 0);
 }
 
