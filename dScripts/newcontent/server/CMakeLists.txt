@@ -1,5 +1,6 @@
 set(DSCRIPTS_SOURCES_NEWCONTENT_SERVER
 	"AfvNumbchuckServer.cpp"
+	"SpawnMaelstromNinjaOnDeath.cpp"
 	"DieAfterXSeconds.cpp"
 	"SpawnSkeletonOnDeath.cpp"
 	"SpawnSnowmanOnDeath.cpp"
