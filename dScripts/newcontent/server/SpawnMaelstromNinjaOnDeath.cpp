@@ -8,9 +8,9 @@
 LOT RollLOT() {
 	LOT chosenLOT{};
 	auto chance = GeneralUtils::GenerateRandomNumber<uint32_t>(1, 50);
-	if (chance <= 25) {
+	if (chance <= 35) {
 		chosenLOT = 20021;
-	} else if (chance <= 40) {
+	} else if (chance <= 49) {
 		chosenLOT = 20022;
 	} else if (chance == 50) {
 		chosenLOT = 20051;
