@@ -1,6 +1,7 @@
 #include "SpecialSpeedBuffSpawner.h"
 
 #include "GameMessages.h"
+#include "MissionComponent.h"
 #include "SkillComponent.h"
 #include "EntityManager.h"
 #include "eReplicaComponentType.h"
@@ -14,6 +15,12 @@ void SpecialSpeedBuffSpawner::OnProximityUpdate(Entity* self, Entity* entering, 
 	if (name != "powerupEnter" && status != "ENTER") return;
 	if (!entering->IsPlayer()) return;
 	if (self->GetVar<bool>(u"bIsDead")) return;
+	
+	auto* missionComponent = entering->GetComponent<MissionComponent>();
+	if (!missionComponent) return;
+
+	auto* mission = missionComponent->GetMission(20208);
+	if (!mission || !mission->IsComplete()) return;
 
 	GameMessages::SendPlayFXEffect(self, -1, u"pickup", "", LWOOBJID_EMPTY, 1, 1, true);
 
