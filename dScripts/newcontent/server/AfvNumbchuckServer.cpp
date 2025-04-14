@@ -11,7 +11,7 @@ void AfvNumbchuckServer::OnStartup(Entity* self) {
 void AfvNumbchuckServer::OnProximityUpdate(Entity* self, Entity* entering, std::string name, std::string status) {
 	if (name != "NumbChuckRadius") return;
 	auto curPlayerCount = self->GetVar<uint32_t>(u"PlayerCount");
-	LOG("%s %s %i", name.c_str(), status.c_str(), curPlayerCount);
+	// LOG("%s %s %i", name.c_str(), status.c_str(), curPlayerCount);
 	if (status == "ENTER") {
 		self->SetVar<uint32_t>(u"PlayerCount", curPlayerCount + 1);
 
