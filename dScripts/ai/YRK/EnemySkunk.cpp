@@ -2,6 +2,22 @@
 
 #include "ControllablePhysicsComponent.h"
 #include "MovementAIComponent.h"
+#include "SkillComponent.h"
+
+void EnemySkunk::OnStartup(Entity* self) {
+	self->SetProximityRadius(3.0f, "StinkyPlayer");
+}
+
+void EnemySkunk::OnProximityUpdate(Entity* self, Entity* entering, std::string name, std::string status) {
+	if (!entering || status != "ENTER" || name != "StinkyPlayer") return;
+
+	if (GeneralUtils::GenerateRandomNumber<uint32_t>(0, 100) <= 30) {
+		auto* skillComponent = self->GetComponent<SkillComponent>();
+		if (!skillComponent) return;
+
+		skillComponent->CastSkill(772, entering->GetObjectID());
+	}
+}
 
 void EnemySkunk::OnSkillEventFired(Entity* self, Entity* caster, const std::string& message) {
 	if (message != "waterspray") return;
