@@ -6,7 +6,7 @@
 #include "EntityManager.h"
 
 LOT RollLOT() {
-	LOT chosenLOT{};
+	LOT chosenLOT{ LOT_NULL };
 	auto chance = GeneralUtils::GenerateRandomNumber<uint32_t>(1, 50);
 	if (chance <= 35) {
 		chosenLOT = 20021;
@@ -21,8 +21,11 @@ LOT RollLOT() {
 
 void SpawnMaelstromNinjaOnDeath::OnDie(Entity* self, Entity* killer) {
 	LOG("ROLLING");
+	const auto chosenLot = RollLOT();
+	if (chosenLot == LOT_NULL) return;
+
 	EntityInfo info{};
-	info.lot = RollLOT();
+	info.lot = chosenLot;
 	info.pos = self->GetPosition();
 	info.spawnerID = killer->GetObjectID();
 	Game::entityManager->ConstructEntity(Game::entityManager->CreateEntity(info, nullptr, killer));
