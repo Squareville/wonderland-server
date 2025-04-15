@@ -20,7 +20,6 @@ LOT RollLOT() {
 }
 
 void SpawnMaelstromNinjaOnDeath::OnDie(Entity* self, Entity* killer) {
-	LOG("ROLLING");
 	const auto chosenLot = RollLOT();
 	if (chosenLot == LOT_NULL) return;
 
