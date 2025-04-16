@@ -13,7 +13,7 @@ LOT RollLOT() {
 	} else if (chance <= 50) {
 		chosenLOT = 20155;
 	} else if (chance == 100) {
-		chosenLOT = 20051;
+		chosenLOT = 20156;
 	}
 	
 	return chosenLOT;
