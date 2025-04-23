@@ -368,6 +368,7 @@
 #include "HalloweenManager.h"
 #include "AfvNumbchuckServer.h"
 #include "SpawnMaelstromNinjaOnDeath.h"
+#include "NpMilo.h"
 
 namespace {
 	// This is in the translation unit instead of the header to prevent weird linker errors
@@ -769,6 +770,7 @@ namespace {
 		{R"(scripts\newcontent\server\halloweenmanager.lua)", []() {return new HalloweenManager();}},
 		{R"(scripts\newcontent\server\afv_numbchuck_server.lua)", []() {return new AfvNumbchuckServer();}},
 		{R"(scripts\newcontent\server\spawnmaelninjaondeath.lua)", []() {return new SpawnMaelstromNinjaOnDeath();}},
+		{R"(scripts\newcontent\server\np_milo.lua)", []() {return new NpMilo();}},
 	};
 
 	std::set<std::string> g_ExcludedScripts = {
