@@ -98,12 +98,52 @@ void ChatPackets::SendMessageFail(const SystemAddress& sysAddr) {
 	SEND_PACKET;
 }
 
-void ChatPackets::Announcement::Send() {
+namespace ChatPackets {
+	void Announcement::Serialize(RakNet::BitStream& bitStream) const {
+		bitStream.Write<uint32_t>(title.size());
+		bitStream.Write(title);
+		bitStream.Write<uint32_t>(message.size());
+		bitStream.Write(message);
+	}
+}
+
+void ChatPackets::AchievementNotify::Serialize(RakNet::BitStream& bitstream) const {
+	bitstream.Write<uint64_t>(0); // Packing
+	bitstream.Write<uint32_t>(0); // Packing
+	bitstream.Write<uint8_t>(0); // Packing
+	bitstream.Write(earnerName);
+	bitstream.Write<uint64_t>(0); // Packing / No way to know meaning because of not enough data.
+	bitstream.Write<uint32_t>(0); // Packing / No way to know meaning because of not enough data.
+	bitstream.Write<uint16_t>(0); // Packing / No way to know meaning because of not enough data.
+	bitstream.Write<uint8_t>(0); // Packing / No way to know meaning because of not enough data.
+	bitstream.Write(missionEmailID);
+	bitstream.Write(earningPlayerID);
+	bitstream.Write(targetPlayerName);
+}
+
+bool ChatPackets::AchievementNotify::Deserialize(RakNet::BitStream& bitstream) {
+	bitstream.IgnoreBytes(13);
+	VALIDATE_READ(bitstream.Read(earnerName));
+	bitstream.IgnoreBytes(15);
+	VALIDATE_READ(bitstream.Read(missionEmailID));
+	VALIDATE_READ(bitstream.Read(earningPlayerID));
+	VALIDATE_READ(bitstream.Read(targetPlayerName));
+
+	return true;
+}
+
+void ChatPackets::TeamInviteInitialResponse::Serialize(RakNet::BitStream& bitstream) const {
+	bitstream.Write<uint8_t>(inviteFailedToSend);
+	bitstream.Write(playerName);
+}
+
+void ChatPackets::SendRoutedMsg(const LUBitStream& msg, const LWOOBJID targetID, const SystemAddress& sysAddr) {
 	CBITSTREAM;
-	BitStreamUtils::WriteHeader(bitStream, eConnectionType::CHAT, MessageType::Chat::GM_ANNOUNCE);
-	bitStream.Write<uint32_t>(title.size());
-	bitStream.Write(title);
-	bitStream.Write<uint32_t>(message.size());
-	bitStream.Write(message);
-	SEND_PACKET_BROADCAST;
+	BitStreamUtils::WriteHeader(bitStream, eConnectionType::CHAT, MessageType::Chat::WORLD_ROUTE_PACKET);
+	bitStream.Write(targetID);
+
+	// Now write the actual packet
+	msg.WriteHeader(bitStream);
+	msg.Serialize(bitStream);
+	Game::server->Send(bitStream, sysAddr, sysAddr == UNASSIGNED_SYSTEM_ADDRESS);
 }

@@ -29,6 +29,7 @@
 #include "MessageType/Chat.h"
 #include "BitStreamUtils.h"
 #include "CheatDetection.h"
+#include "CharacterComponent.h"
 
 UserManager* UserManager::m_Address = nullptr;
 
@@ -305,13 +306,13 @@ void UserManager::CreateCharacter(const SystemAddress& sysAddr, Packet* packet) 
 	LOT shirtLOT = FindCharShirtID(shirtColor, shirtStyle);
 	LOT pantsLOT = FindCharPantsID(pantsColor);
 
-	if (!name.empty() && Database::Get()->GetCharacterInfo(name)) {
+	if (!name.empty() && Database::Get()->IsNameInUse(name)) {
 		LOG("AccountID: %i chose unavailable name: %s", u->GetAccountID(), name.c_str());
 		WorldPackets::SendCharacterCreationResponse(sysAddr, eCharacterCreationResponse::CUSTOM_NAME_IN_USE);
 		return;
 	}
 
-	if (Database::Get()->GetCharacterInfo(predefinedName)) {
+	if (Database::Get()->IsNameInUse(predefinedName)) {
 		LOG("AccountID: %i chose unavailable predefined name: %s", u->GetAccountID(), predefinedName.c_str());
 		WorldPackets::SendCharacterCreationResponse(sysAddr, eCharacterCreationResponse::PREDEFINED_NAME_IN_USE);
 		return;
@@ -324,7 +325,7 @@ void UserManager::CreateCharacter(const SystemAddress& sysAddr, Packet* packet) 
 	}
 
 	//Now that the name is ok, we can get an objectID from Master:
-	ObjectIDManager::RequestPersistentID([=, this](uint32_t objectID) mutable {
+	ObjectIDManager::RequestPersistentID([=, this](uint32_t objectID) {
 		if (Database::Get()->GetCharacterInfo(objectID)) {
 			LOG("Character object id unavailable, check object_id_tracker!");
 			WorldPackets::SendCharacterCreationResponse(sysAddr, eCharacterCreationResponse::OBJECT_ID_UNAVAILABLE);
@@ -340,7 +341,10 @@ void UserManager::CreateCharacter(const SystemAddress& sysAddr, Packet* packet) 
 
 		xml << "<char acct=\"" << u->GetAccountID() << "\" cc=\"0\" gm=\"0\" ft=\"0\" llog=\"" << time(NULL) << "\" ";
 		xml << "ls=\"0\" lzx=\"-626.5847\" lzy=\"613.3515\" lzz=\"-28.6374\" lzrx=\"0.0\" lzry=\"0.7015\" lzrz=\"0.0\" lzrw=\"0.7126\" ";
-		xml << "stt=\"0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;\"></char>";
+		xml << "stt=\"0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;0;\">";
+		xml << "<vl><l id=\"1000\" cid=\"0\"/></vl>";
+
+		xml << "</char>";
 
 		xml << "<dest hm=\"4\" hc=\"4\" im=\"0\" ic=\"0\" am=\"0\" ac=\"0\" d=\"0\"/>";
 
@@ -369,13 +373,14 @@ void UserManager::CreateCharacter(const SystemAddress& sysAddr, Packet* packet) 
 
 		// If predefined name is invalid, change it to be their object id
 		// that way more than one player can create characters if the predefined name files are not provided
-		if (predefinedName == "INVALID") {
+		auto assignedPredefinedName = predefinedName;
+		if (assignedPredefinedName == "INVALID") {
 			std::stringstream nameObjID;
 			nameObjID << "minifig" << objectID;
-			predefinedName = nameObjID.str();
+			assignedPredefinedName = nameObjID.str();
 		}
 
-		std::string_view nameToAssign = !name.empty() && nameOk ? name : predefinedName;
+		std::string_view nameToAssign = !name.empty() && nameOk ? name : assignedPredefinedName;
 		std::string pendingName = !name.empty() && !nameOk ? name : "";
 
 		ICharInfo::Info info;
@@ -521,6 +526,13 @@ void UserManager::LoginCharacter(const SystemAddress& sysAddr, uint32_t playerID
 		ZoneInstanceManager::Instance()->RequestZoneTransfer(Game::server, zoneID, character->GetZoneClone(), false, [=](bool mythranShift, uint32_t zoneID, uint32_t zoneInstance, uint32_t zoneClone, std::string serverIP, uint16_t serverPort) {
 			LOG("Transferring %s to Zone %i (Instance %i | Clone %i | Mythran Shift: %s) with IP %s and Port %i", character->GetName().c_str(), zoneID, zoneInstance, zoneClone, mythranShift == true ? "true" : "false", serverIP.c_str(), serverPort);
 			if (character) {
+				auto* entity = character->GetEntity();
+				if (entity) {
+					auto* characterComponent = entity->GetComponent<CharacterComponent>();
+					if (characterComponent) {
+						characterComponent->AddVisitedLevel(LWOZONEID(zoneID, LWOINSTANCEID_INVALID, zoneClone));
+					}
+				}
 				character->SetZoneID(zoneID);
 				character->SetZoneInstance(zoneInstance);
 				character->SetZoneClone(zoneClone);

@@ -1,4 +1,4 @@
-#include "JSONUtils.h"
+#include "ChatJSONUtils.h"
 
 #include "json.hpp"
 
@@ -18,16 +18,9 @@ void to_json(json& data, const PlayerData& playerData) {
 
 void to_json(json& data, const PlayerContainer& playerContainer) {
 	data = json::array();
-	for(auto& playerData : playerContainer.GetAllPlayers()) {
+	for (auto& playerData : playerContainer.GetAllPlayers()) {
 		if (playerData.first == LWOOBJID_EMPTY) continue;
 		data.push_back(playerData.second);
-	}
-}
-
-void to_json(json& data, const TeamContainer& teamContainer) {
-	for (auto& teamData : Game::playerContainer.GetTeams()) {
-		if (!teamData) continue;
-		data.push_back(*teamData);
 	}
 }
 
@@ -48,15 +41,9 @@ void to_json(json& data, const TeamData& teamData) {
 	}
 }
 
-std::string JSONUtils::CheckRequiredData(const json& data, const std::vector<std::string>& requiredData) {
-	json check;
-	check["error"] = json::array();
-	for (const auto& required : requiredData) {
-		if (!data.contains(required)) {
-			check["error"].push_back("Missing Parameter: " + required);
-		} else if (data[required] == "") {
-			check["error"].push_back("Empty Parameter: " + required);
-		}
+void TeamContainer::to_json(json& data, const TeamContainer::Data& teamContainer) {
+	for (auto& teamData : TeamContainer::GetTeams()) {
+		if (!teamData) continue;
+		data.push_back(*teamData);
 	}
-	return check["error"].empty() ? "" : check.dump();
 }

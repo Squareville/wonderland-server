@@ -152,7 +152,7 @@ void CDClientManager::LoadValuesFromDatabase() {
 	CDSkillBehaviorTable::Instance().LoadValuesFromDatabase();
 	CDTamingBuildPuzzleTable::Instance().LoadValuesFromDatabase();
 	CDVendorComponentTable::Instance().LoadValuesFromDatabase();
-	CDZoneTableTable::Instance().LoadValuesFromDatabase();
+	CDZoneTableTable::LoadValuesFromDatabase();
 }
 
 void CDClientManager::LoadValuesFromDefaults() {

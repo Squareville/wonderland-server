@@ -342,7 +342,8 @@ void SGCannon::StartGame(Entity* self) {
 
 	auto* player = Game::entityManager->GetEntity(self->GetVar<LWOOBJID>(PlayerIDVariable));
 	if (player != nullptr) {
-		GetLeaderboardData(self, player->GetObjectID(), GetActivityID(self), 1);
+		// The client cant accept more than 10 results.
+		GetLeaderboardData(self, player->GetObjectID(), GetConstants().activityID, 10);
 		LOG("Sending ActivityStart");
 		GameMessages::SendActivityStart(self->GetObjectID(), player->GetSystemAddress());
 
@@ -612,7 +613,7 @@ void SGCannon::StopGame(Entity* self, bool cancel) {
 
 	// Destroy all spawners
 	for (auto* entity : Game::entityManager->GetEntitiesInGroup("SGEnemy")) {
-		entity->Kill();
+		entity->Smash(LWOOBJID_EMPTY, eKillType::SILENT);
 	}
 
 	ResetVars(self);
