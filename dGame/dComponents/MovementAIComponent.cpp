@@ -175,10 +175,11 @@ void MovementAIComponent::Update(const float deltaTime) {
 				Stop();
 				return;
 			}
-		}
-		SetDestination(m_CurrentPath.top().position);
+		} else {
+			SetDestination(m_CurrentPath.top().position);
 
-		m_CurrentPath.pop();
+			m_CurrentPath.pop();
+		}
 	}
 
 	Game::entityManager->SerializeEntity(m_Parent);
