@@ -471,7 +471,7 @@ void Mission::YieldRewards() {
 	int32_t coinsToSend = 0;
 	if (info.LegoScore > 0) {
 		eLootSourceType lootSource = info.isMission ? eLootSourceType::MISSION : eLootSourceType::ACHIEVEMENT;
-		if (levelComponent->GetLevel() >= Game::zoneManager->GetWorldConfig()->levelCap) {
+		if (levelComponent->GetLevel() >= Game::zoneManager->GetWorldConfig().levelCap) {
 			// If player is at the level cap and doesnt want to keep earning UScore at max level we convert it here.
 			coinsToSend += info.LegoScore * Game::zoneManager->GetWorldConfig().levelCapCurrencyConversion;
 		} else {

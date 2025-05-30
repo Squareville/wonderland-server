@@ -103,7 +103,6 @@ DEFINE_TABLE_STORAGE(CDScriptComponentTable);
 DEFINE_TABLE_STORAGE(CDSkillBehaviorTable);
 DEFINE_TABLE_STORAGE(CDTamingBuildPuzzleTable);
 DEFINE_TABLE_STORAGE(CDVendorComponentTable);
-DEFINE_TABLE_STORAGE(CDZoneTableTable);
 DEFINE_TABLE_STORAGE(CDMapFacesAndHairTable);
 
 void CDClientManager::LoadValuesFromDatabase() {
