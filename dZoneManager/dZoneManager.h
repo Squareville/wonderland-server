@@ -73,6 +73,5 @@ private:
 	std::map<LWOOBJID, Spawner*> m_Spawners;
 	std::optional<WorldConfig> m_WorldConfig = std::nullopt;
 
-	// RandomQBManager* m_RandomQBManager;
 	Entity* m_ZoneControlObject = nullptr;
 };

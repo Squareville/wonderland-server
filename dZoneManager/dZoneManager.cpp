@@ -11,7 +11,6 @@
 #include "WorldConfig.h"
 #include "CDZoneTableTable.h"
 #include <chrono>
-// #include "RandomQBManager.h"
 #include "eObjectBits.h"
 #include "CDZoneTableTable.h"
 #include "AssetManager.h"
@@ -70,10 +69,6 @@ void dZoneManager::Initialize(const LWOZONEID& zoneID) {
 	LOG("Zone prepared in: %llu ms", (endTime - startTime));
 
 	VanityUtilities::SpawnVanity();
-	// m_RandomQBManager = new RandomQBManager();
-
-	// m_RandomQBManager->Load(0);
-	// m_RandomQBManager->Load(zoneID.GetMapID());
 }
 
 dZoneManager::~dZoneManager() {
@@ -111,8 +106,6 @@ void dZoneManager::Update(float deltaTime) {
 	for (auto spawner : m_Spawners | std::views::values) {
 		spawner->Update(deltaTime);
 	}
-
-	// m_RandomQBManager->Update(deltaTime);
 }
 
 LWOOBJID dZoneManager::MakeSpawner(SpawnerInfo info) {
