@@ -369,6 +369,11 @@
 #include "AfvNumbchuckServer.h"
 #include "SpawnMaelstromNinjaOnDeath.h"
 #include "NpMilo.h"
+#include "NpAnt.h"
+#include "NpFelix.h"
+#include "NpRotatingPlatform.h"
+#include "NpMime.h"
+#include "NpPicnicBot.h"
 
 namespace {
 	// This is in the translation unit instead of the header to prevent weird linker errors
@@ -771,6 +776,11 @@ namespace {
 		{R"(scripts\newcontent\server\afv_numbchuck_server.lua)", []() {return new AfvNumbchuckServer();}},
 		{R"(scripts\newcontent\server\spawnmaelninjaondeath.lua)", []() {return new SpawnMaelstromNinjaOnDeath();}},
 		{R"(scripts\newcontent\server\np_milo.lua)", []() {return new NpMilo();}},
+		{R"(scripts\newcontent\server\np_ant.lua)", []() {return new NpAnt();}},
+		{R"(scripts\newcontent\server\np_felix.lua)", []() {return new NpFelix();}},
+		{R"(scripts\newcontent\server\np_mime.lua)", []() {return new NpMime();}},
+		{R"(scripts\newcontent\server\np_picnicbot.lua)", []() {return new NpPicnicBot();}},
+		{R"(scripts\ai\NP\L_NP_ROTATING_PLATFORM.lua)", []() {return new NpRotatingPlatform();}},
 	};
 
 	std::set<std::string> g_ExcludedScripts = {

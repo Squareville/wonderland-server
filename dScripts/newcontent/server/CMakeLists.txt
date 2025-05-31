@@ -8,4 +8,8 @@ set(DSCRIPTS_SOURCES_NEWCONTENT_SERVER
 	"SpawnEntityOnDeath.cpp"
 	"HalloweenManager.cpp"
 	"NpMilo.cpp"
+	"NpAnt.cpp"
+	"NpFelix.cpp"
+	"NpMime.cpp"
+	"NpPicnicBot.cpp"
 	PARENT_SCOPE)
