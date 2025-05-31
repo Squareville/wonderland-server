@@ -1,6 +1,8 @@
 #include "NpFelix.h"
-#include "Chatacter.h"
+#include "Entity.h"
+#include "Character.h"
 #include "eMissionState.h"
+#include "MissionComponent.h"
 
 void NpFelix::OnStartup(Entity* self) {
 	self->SetVar(u"teleportAnim", m_TeleportAnim);
@@ -40,11 +42,28 @@ void NpFelix::OnStartup(Entity* self) {
 }
 
 void NpFelix::OnUse(Entity* self, Entity* player) {
+	if (!player) return;
 
-	auto chatacter = player->GetCharacter();
-	if (!chatacter) return;
-	if (character->GetMissionState(m_MissionId) != eMissionState::COMPLETED) return;	
+	// check if the player has completed the mission
+	auto misstionComponent = player->GetComponent<MissionComponent>();
+	if (!misstionComponent) return;
+	if (misstionComponent->GetMissionState(m_MissionId) != eMissionState::COMPLETE) return;
 
 	BaseOnUse(self, player);
 }
 
+void NpFelix::OnMessageBoxResponse(Entity* self, Entity* sender, int32_t button, const std::u16string& identifier, const std::u16string& userData) {
+
+}
+
+void NpFelix::OnChoiceBoxResponse(Entity* self, Entity* sender, int32_t button, const std::u16string& buttonIdentifier, const std::u16string& identifier) {
+
+}
+
+void NpFelix::OnTimerDone(Entity* self, std::string timerName) {
+
+}
+
+void NpFelix::OnFireEventServerSide(Entity* self, Entity* sender, std::string args, int32_t param1, int32_t param2, int32_t param3) {
+
+}
