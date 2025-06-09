@@ -40,7 +40,7 @@ public:
 	//To make it obvious this SHOULD NOT be used outside of debug:
 	const std::unordered_map<LWOOBJID, Entity*>& GetAllEntities() const { return m_Entities; }
 
-	void ConstructEntity(Entity* entity, const SystemAddress& sysAddr = UNASSIGNED_SYSTEM_ADDRESS, bool skipChecks = false);
+	void ConstructEntity(Entity* entity, const SystemAddress& sysAddr = UNASSIGNED_SYSTEM_ADDRESS);
 	void DestructEntity(Entity* entity, const SystemAddress& sysAddr = UNASSIGNED_SYSTEM_ADDRESS);
 	void SerializeEntity(Entity* entity);
 	void SerializeEntity(const Entity& entity);
