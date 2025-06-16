@@ -3,67 +3,108 @@
 #include "Character.h"
 #include "eMissionState.h"
 #include "MissionComponent.h"
+#include "eTerminateType.h"
+#include "RenderComponent.h"
+#include "eStateChangeType.h"
+#include "Amf3.h"
+#include <ranges>
 
 void NpFelix::OnStartup(Entity* self) {
-	self->SetVar(u"teleportAnim", m_TeleportAnim);
-	self->SetVar(u"teleportString", m_TeleportString);
+	// Already initialized for a given lot or is not a lot we need to set this up for
+	if (m_TeleportArgs.contains(self->GetLOT()) || !m_SceneLotMap.contains(self->GetLOT())) return;
+	auto& teleportArgs = m_TeleportArgs[self->GetLOT()];
 
-	teleportArgs.Reset();
-
-	teleportArgs.Insert("callbackClient", std::to_string(self->GetObjectID()));
-	teleportArgs.Insert("strIdentifier", "choiceDoor");
+	teleportArgs.Insert("strIdentifier", "FastTravel");
 	teleportArgs.Insert("title", "%[UI_CHOICE_DESTINATION]");
-	// find what our lot in the lotscenemap
-	auto scene = m_SceneLotMap.find(self->GetLOT());
-	if (scene == m_SceneLotMap.end()) return;
-
-	// remove the scene we are currently in from the map
-	m_SceneLotMap.erase(scene);
 
 	auto& choiceOptions = *teleportArgs.InsertArray("options");
 	// insert the scene image into the map
-
-	for (const auto& [_, sceneId] : m_SceneLotMap) {
-		auto image = m_SceneImageMap.find(sceneId);
-		if (image == m_SceneImageMap.end()) continue;
-		auto caption = m_SceneCaptionMap.find(sceneId);
-		if (caption == m_SceneCaptionMap.end()) continue;
-		auto tooltip = m_SceneTooltipMap.find(sceneId);
-		if (tooltip == m_SceneTooltipMap.end()) continue;
-		auto identifier = m_SceneIdentifierMap.find(sceneId);
-		if (identifier == m_SceneIdentifierMap.end()) continue;
+	for (const auto& [secondLot, sceneId] : m_SceneLotMap) {
+		// Skip this object
+		if (secondLot == self->GetLOT()) continue;
 
 		auto& sceneArgs = *choiceOptions.PushArray();
-		sceneArgs.Insert("image", image->second);
-		sceneArgs.Insert("caption", caption->second);
-		sceneArgs.Insert("identifier", 	identifier->second);
-		sceneArgs.Insert("tooltipText", tooltip->second);
+		const auto sceneIdStr = std::to_string(sceneId);
+		sceneArgs.Insert("image", "textures/ui/zone_thumnails/np_scene" + sceneIdStr + ".dds");
+		sceneArgs.Insert("caption", "%[UI_FELIX_CHOICE_SCENE" + sceneIdStr + "]");
+		sceneArgs.Insert("identifier", "felix" + sceneIdStr + "spawn");
+		sceneArgs.Insert("tooltipText", "%[UI_FELIX_CHOICE_SCENE" + sceneIdStr + "_HOVER]");
 	}
 }
 
 void NpFelix::OnUse(Entity* self, Entity* player) {
-	if (!player) return;
+	if (!player || !m_TeleportArgs.contains(self->GetLOT())) return;
+	auto& teleportArgs = m_TeleportArgs[self->GetLOT()];
+	teleportArgs.Insert("callbackClient", std::to_string(self->GetObjectID()));
 
 	// check if the player has completed the mission
-	auto misstionComponent = player->GetComponent<MissionComponent>();
-	if (!misstionComponent) return;
-	if (misstionComponent->GetMissionState(m_MissionId) != eMissionState::COMPLETE) return;
+	auto missionComponent = player->GetComponent<MissionComponent>();
+	if (!missionComponent) return;
+	if (missionComponent->GetMissionState(m_MissionId) != eMissionState::COMPLETE) return;
 
-	BaseOnUse(self, player);
+	GameMessages::SendUIMessageServerToSingleClient(player, player->GetSystemAddress(), "QueueChoiceBox", teleportArgs);
 }
 
 void NpFelix::OnMessageBoxResponse(Entity* self, Entity* sender, int32_t button, const std::u16string& identifier, const std::u16string& userData) {
+	if (!m_TeleportArgs.contains(self->GetLOT()) || !m_SceneLotMap.contains(self->GetLOT())) return;
+
+	if (button != 1) {
+		GameMessages::SendTerminateInteraction(sender->GetObjectID(), eTerminateType::FROM_INTERACTION, sender->GetObjectID());
+	} else {
+		const auto& teleportArgs = m_TeleportArgs.find(self->GetLOT())->second;
+		const auto senderObjId = sender->GetObjectID();
+		const auto senderSysAddr = sender->GetSystemAddress();
+		const auto identifierAsStr = GeneralUtils::UTF16ToWTF8(identifier);
+
+		// Bad arg if out of bounds
+		GameMessages::SendSetStunned(senderObjId, eStateChangeType::PUSH, senderSysAddr, LWOOBJID_EMPTY,
+			/* bCantAttack */ true,
+			/* bCantEquip */ true,
+			/* bCantInteract */ true,
+			/* bCantJump */ true,
+			/* bCantMove */ true,
+			/* bCantTurn */ true,
+			/* bCantUseItem */ true,
+			/* bDontTerminateInteract */ true,
+			/* bIgnoreImmunity */ true
+		);
+
+		auto time = RenderComponent::PlayAnimation(sender, "felix-teleport");
+		sender->AddCallbackTimer(time, [sender, senderObjId, senderSysAddr, identifierAsStr]() {
+			auto felixSpawn = Game::entityManager->GetEntitiesInGroup(identifierAsStr);
+			if (felixSpawn.empty()) return;
+
+			const auto felixEntity = felixSpawn[0];
+			if (!felixEntity) return;
+
+			const auto newPos = felixEntity->GetPosition();
+			const auto newRot = felixEntity->GetRotation();
+			GameMessages::SendTeleport(senderObjId, newPos, newRot, senderSysAddr, true);
+			if (!sender) return;
+
+			const auto time = RenderComponent::PlayAnimation(sender, "tube-resurrect");
+			sender->AddCallbackTimer(time, [senderObjId, senderSysAddr]() {
+				GameMessages::SendSetStunned(senderObjId, eStateChangeType::POP, senderSysAddr, LWOOBJID_EMPTY,
+					/* bCantAttack */ true,
+					/* bCantEquip */ true,
+					/* bCantInteract */ true,
+					/* bCantJump */ true,
+					/* bCantMove */ true,
+					/* bCantTurn */ true,
+					/* bCantUseItem */ true,
+					/* bDontTerminateInteract */ true,
+					/* bIgnoreImmunity */ true
+					);
+				});
+			});
+	}
 
 }
 
 void NpFelix::OnChoiceBoxResponse(Entity* self, Entity* sender, int32_t button, const std::u16string& buttonIdentifier, const std::u16string& identifier) {
-
-}
-
-void NpFelix::OnTimerDone(Entity* self, std::string timerName) {
-
-}
-
-void NpFelix::OnFireEventServerSide(Entity* self, Entity* sender, std::string args, int32_t param1, int32_t param2, int32_t param3) {
-
+	if (button != -1) {
+		GameMessages::SendDisplayMessageBox(sender->GetObjectID(), true, self->GetObjectID(), buttonIdentifier, 0, u"%[UI_FELIX_CHOICE_SCENE_CONFIRM]", u"", sender->GetSystemAddress());
+	} else {
+		GameMessages::SendTerminateInteraction(sender->GetObjectID(), eTerminateType::FROM_INTERACTION, self->GetObjectID());
+	}
 }
