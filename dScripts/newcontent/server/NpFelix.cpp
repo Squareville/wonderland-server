@@ -81,8 +81,7 @@ void NpFelix::OnMessageBoxResponse(Entity* self, Entity* sender, int32_t button,
 		const auto senderSysAddr = sender->GetSystemAddress();
 		const auto identifierAsStr = GeneralUtils::UTF16ToWTF8(identifier);
 
-		auto time = RenderComponent::GetAnimationTime(sender, "felix-teleport") + 1.0f;
-		RenderComponent::PlayAnimation(sender, "felix-teleport");
+		auto time = RenderComponent::PlayAnimation(sender, "felix-teleport") + 1.0f;
 		GameMessages::SendPlayFXEffect(senderObjId, 20158, u"felix-teleport", "");
 		sender->AddCallbackTimer(time, [sender, senderObjId, senderSysAddr, identifierAsStr]() {
 			auto felixSpawn = Game::entityManager->GetEntitiesInGroup(identifierAsStr);
