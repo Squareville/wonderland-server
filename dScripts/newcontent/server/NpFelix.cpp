@@ -32,6 +32,28 @@ void NpFelix::OnStartup(Entity* self) {
 	}
 }
 
+void DoStun(const Entity& player, const eStateChangeType state) {
+	GameMessages::SendSetStunned(player.GetObjectID(), state, player.GetSystemAddress(), LWOOBJID_EMPTY,
+		/* bCantAttack */ true,
+		/* bCantEquip */ true,
+		/* bCantInteract */ true,
+		/* bCantJump */ true,
+		/* bCantMove */ true,
+		/* bCantTurn */ true,
+		/* bCantUseItem */ true,
+		/* bDontTerminateInteract */ true,
+		/* bIgnoreImmunity */ true
+	);
+}
+
+void UnstunPlayer(const Entity& player) {
+	DoStun(player, eStateChangeType::POP);
+}
+
+void StunPlayer(const Entity& player) {
+	DoStun(player, eStateChangeType::PUSH);
+}
+
 void NpFelix::OnUse(Entity* self, Entity* player) {
 	if (!player || !m_TeleportArgs.contains(self->GetLOT())) return;
 	auto& teleportArgs = m_TeleportArgs[self->GetLOT()];
@@ -43,33 +65,24 @@ void NpFelix::OnUse(Entity* self, Entity* player) {
 	if (missionComponent->GetMissionState(m_MissionId) != eMissionState::COMPLETE) return;
 
 	GameMessages::SendUIMessageServerToSingleClient(player, player->GetSystemAddress(), "QueueChoiceBox", teleportArgs);
+
+	StunPlayer(*player);
 }
 
 void NpFelix::OnMessageBoxResponse(Entity* self, Entity* sender, int32_t button, const std::u16string& identifier, const std::u16string& userData) {
-	if (!m_TeleportArgs.contains(self->GetLOT()) || !m_SceneLotMap.contains(self->GetLOT())) return;
+	if (!m_TeleportArgs.contains(self->GetLOT()) || !m_SceneLotMap.contains(self->GetLOT()) || !sender) return;
 
 	if (button != 1) {
 		GameMessages::SendTerminateInteraction(sender->GetObjectID(), eTerminateType::FROM_INTERACTION, sender->GetObjectID());
+		UnstunPlayer(*sender);
 	} else {
 		const auto& teleportArgs = m_TeleportArgs.find(self->GetLOT())->second;
 		const auto senderObjId = sender->GetObjectID();
 		const auto senderSysAddr = sender->GetSystemAddress();
 		const auto identifierAsStr = GeneralUtils::UTF16ToWTF8(identifier);
 
-		// Bad arg if out of bounds
-		GameMessages::SendSetStunned(senderObjId, eStateChangeType::PUSH, senderSysAddr, LWOOBJID_EMPTY,
-			/* bCantAttack */ true,
-			/* bCantEquip */ true,
-			/* bCantInteract */ true,
-			/* bCantJump */ true,
-			/* bCantMove */ true,
-			/* bCantTurn */ true,
-			/* bCantUseItem */ true,
-			/* bDontTerminateInteract */ true,
-			/* bIgnoreImmunity */ true
-		);
-
-		auto time = RenderComponent::PlayAnimation(sender, "felix-teleport");
+		auto time = RenderComponent::GetAnimationTime(sender, "felix-teleport");
+		GameMessages::SendPlayFXEffect(senderObjId, 20158, u"felix-teleport", "");
 		sender->AddCallbackTimer(time, [sender, senderObjId, senderSysAddr, identifierAsStr]() {
 			auto felixSpawn = Game::entityManager->GetEntitiesInGroup(identifierAsStr);
 			if (felixSpawn.empty()) return;
@@ -83,18 +96,9 @@ void NpFelix::OnMessageBoxResponse(Entity* self, Entity* sender, int32_t button,
 			if (!sender) return;
 
 			const auto time = RenderComponent::PlayAnimation(sender, "tube-resurrect");
-			sender->AddCallbackTimer(time, [senderObjId, senderSysAddr]() {
-				GameMessages::SendSetStunned(senderObjId, eStateChangeType::POP, senderSysAddr, LWOOBJID_EMPTY,
-					/* bCantAttack */ true,
-					/* bCantEquip */ true,
-					/* bCantInteract */ true,
-					/* bCantJump */ true,
-					/* bCantMove */ true,
-					/* bCantTurn */ true,
-					/* bCantUseItem */ true,
-					/* bDontTerminateInteract */ true,
-					/* bIgnoreImmunity */ true
-					);
+			sender->AddCallbackTimer(time, [sender]() {
+				if (!sender) return;
+				UnstunPlayer(*sender);
 				});
 			});
 	}
@@ -102,9 +106,12 @@ void NpFelix::OnMessageBoxResponse(Entity* self, Entity* sender, int32_t button,
 }
 
 void NpFelix::OnChoiceBoxResponse(Entity* self, Entity* sender, int32_t button, const std::u16string& buttonIdentifier, const std::u16string& identifier) {
+	if (!sender) return;
+
 	if (button != -1) {
 		GameMessages::SendDisplayMessageBox(sender->GetObjectID(), true, self->GetObjectID(), buttonIdentifier, 0, u"%[UI_FELIX_CHOICE_SCENE_CONFIRM]", u"", sender->GetSystemAddress());
 	} else {
 		GameMessages::SendTerminateInteraction(sender->GetObjectID(), eTerminateType::FROM_INTERACTION, self->GetObjectID());
+		UnstunPlayer(*sender);
 	}
 }
