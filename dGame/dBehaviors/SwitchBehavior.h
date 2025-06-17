@@ -9,6 +9,8 @@ public:
 	Behavior* m_actionFalse;
 
 	uint32_t m_imagination;
+	uint32_t m_armor;
+	uint32_t m_health;
 
 	bool m_isEnemyFaction;
 
