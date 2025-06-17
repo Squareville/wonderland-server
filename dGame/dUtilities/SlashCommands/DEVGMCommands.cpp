@@ -172,11 +172,13 @@ namespace DEVGMCommands {
 			charComp->m_Character->SetRightHand(minifigItemId);
 		} else {
 			Game::entityManager->ConstructEntity(entity);
+			Game::entityManager->ConstructEntity(entity, entity->GetSystemAddress());
 			ChatPackets::SendSystemMessage(sysAddr, u"Invalid Minifig item to change, try one of the following: Eyebrows, Eyes, HairColor, HairStyle, Pants, LeftHand, Mouth, RightHand, Shirt, Hands");
 			return;
 		}
 
 		Game::entityManager->ConstructEntity(entity);
+		Game::entityManager->ConstructEntity(entity, entity->GetSystemAddress());
 		ChatPackets::SendSystemMessage(sysAddr, GeneralUtils::ASCIIToUTF16(lowerName) + u" set to " + (GeneralUtils::to_u16string(minifigItemId)));
 
 		GameMessages::SendToggleGMInvis(entity->GetObjectID(), false, UNASSIGNED_SYSTEM_ADDRESS); // need to retoggle because it gets reenabled on creation of new character
