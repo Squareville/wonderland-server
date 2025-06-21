@@ -27,7 +27,7 @@ public:
 	void OnMessageBoxResponse(Entity* self, Entity* sender, int32_t button, const std::u16string& identifier, const std::u16string& userData) override;
 	void OnChoiceBoxResponse(Entity* self, Entity* sender, int32_t button, const std::u16string& buttonIdentifier, const std::u16string& identifier) override;
 private:
-	static constexpr uint32_t m_MissionId = 20228;
+	static constexpr uint32_t m_MissionId = 20250;
 	std::map<LOT, int> m_SceneLotMap = {
 		{ 20126, 1 },
 		{ 20127, 2 },
