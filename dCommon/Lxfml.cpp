@@ -6,6 +6,35 @@
 
 #include <ranges>
 
+#include <cmath> 
+#include <type_traits> 
+
+// https://www.quora.com/How-do-you-round-to-specific-increments-like-0-5-in-C
+template <
+	typename T,
+	std::enable_if_t<std::is_floating_point<T>::value, int> = 0
+>
+T round_to_nearest_even(const T value, const T modulus) {
+	const auto modulo = std::fmod(value, modulus);
+	const auto abs_modulo_2 = std::abs(modulo * 2);
+	const auto abs_modulus = std::abs(modulus);
+
+	bool round_away_from_zero = false;
+	if (abs_modulo_2 > abs_modulus) {
+		round_away_from_zero = true;
+	} else if (abs_modulo_2 == abs_modulus) {
+		const auto trunc_quot = std::floor(std::abs(value / modulus));
+		const auto odd = std::fmod(trunc_quot, T{ 2 }) != 0;
+		round_away_from_zero = odd;
+	}
+
+	if (round_away_from_zero) {
+		return value + (std::copysign(modulus, value) - modulo);
+	} else {
+		return value - modulo;
+	}
+}
+
 Lxfml::Result Lxfml::NormalizePosition(const std::string_view data) {
 	Result toReturn;
 	tinyxml2::XMLDocument doc;
@@ -66,6 +95,8 @@ Lxfml::Result Lxfml::NormalizePosition(const std::string_view data) {
 
 	auto delta = (highest - lowest) / 2.0f;
 	auto newRootPos = lowest + delta;
+	newRootPos.x = round_to_nearest_even(newRootPos.x, 0.8f);
+	newRootPos.z = round_to_nearest_even(newRootPos.z, 0.8f);
 
 	// Clamp the Y to the lowest point on the model 
 	newRootPos.y = lowest.y;
