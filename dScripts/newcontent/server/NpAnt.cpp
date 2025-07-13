@@ -9,9 +9,7 @@ void NpAnt::OnWaypointReached(Entity* self, uint32_t waypointIndex) {
 	if (!inventoryComponent) return;
 	
 	if (waypointIndex == 0) {
-		auto index = GeneralUtils::GenerateRandomNumber<int>(0, 2);
-
-		auto item = inventoryComponent->FindItemByLot(m_ItemsToEquip[index]);
+		auto item = inventoryComponent->FindItemByLot(GeneralUtils::GetRandomElement(m_ItemsToEquip));
 		if (!item) return;
 
 		// Equip the item
