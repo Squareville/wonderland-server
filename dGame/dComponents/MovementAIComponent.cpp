@@ -12,6 +12,7 @@
 #include "CDClientManager.h"
 #include "Game.h"
 #include "dZoneManager.h"
+#include "eWaypointCommandType.h"
 
 #include "CDComponentsRegistryTable.h"
 #include "QuickBuildComponent.h"
@@ -170,17 +171,17 @@ void MovementAIComponent::Update(const float deltaTime) {
 					if (m_IsBounced) std::ranges::reverse(waypoints);
 					SetPath(waypoints);
 				} else if (m_Path->pathBehavior == PathBehavior::Once) {
-					m_Parent->GetScript()->OnWaypointReached(m_Parent, waypointNum);
+					RunWaypointCommands(waypointNum);
 					Stop();
 					return;
 				}
 			} else {
-				m_Parent->GetScript()->OnWaypointReached(m_Parent, waypointNum);
+				RunWaypointCommands(waypointNum);
 				Stop();
 				return;
 			}
 		} else {
-			m_Parent->GetScript()->OnWaypointReached(m_Parent, waypointNum);
+			RunWaypointCommands(waypointNum);
 			SetDestination(m_CurrentPath.top().position);
 
 			m_CurrentPath.pop();
@@ -422,4 +423,34 @@ void MovementAIComponent::SetMaxSpeed(const float value) {
 	if (value == m_MaxSpeed) return;
 	m_MaxSpeed = value;
 	m_Acceleration = value / 5;
+}
+
+void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
+	m_Parent->GetScript()->OnWaypointReached(m_Parent, waypointNum);
+
+	if (!m_Path || waypointNum >= m_Path->pathWaypoints.size()) return;
+
+	const auto& commands = m_Path->pathWaypoints[waypointNum].commands;
+	for (const auto& [command, data] : commands) {
+		switch (command) {
+			case eWaypointCommandType::INVALID: break;
+			case eWaypointCommandType::BOUNCE: break;
+			case eWaypointCommandType::STOP: break;
+			case eWaypointCommandType::GROUP_EMOTE: break;
+			case eWaypointCommandType::SET_VARIABLE: break;
+			case eWaypointCommandType::CAST_SKILL: break;
+			case eWaypointCommandType::EQUIP_INVENTORY: break;
+			case eWaypointCommandType::UNEQUIP_INVENTORY: break;
+			case eWaypointCommandType::DELAY: break;
+			case eWaypointCommandType::EMOTE: break;
+			case eWaypointCommandType::TELEPORT: break;
+			case eWaypointCommandType::PATH_SPEED: break;
+			case eWaypointCommandType::REMOVE_NPC: break;
+			case eWaypointCommandType::CHANGE_WAYPOINT: break;
+			case eWaypointCommandType::DELETE_SELF: break;
+			case eWaypointCommandType::KILL_SELF: m_Parent->Smash();
+			case eWaypointCommandType::SPAWN_OBJECT: break;
+			case eWaypointCommandType::PLAY_SOUND: break;
+		}
+	}
 }

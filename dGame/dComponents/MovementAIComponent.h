@@ -232,6 +232,12 @@ private:
 	void SetVelocity(const NiPoint3& value);
 
 	/**
+	 * @brief 
+	 * Runs the commands on a waypoint if a path exists
+	 */
+	void RunWaypointCommands(uint32_t waypointNum);
+
+	/**
 	 * Base information regarding the movement information for this entity
 	 */
 	MovementAIInfo m_Info;
