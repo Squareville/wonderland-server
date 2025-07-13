@@ -194,7 +194,7 @@ public:
 	 * Sets a path to follow for the AI
 	 * @param path the path to follow
 	 */
-	void SetPath(std::vector<PathWaypoint> path);
+	void SetPath(std::vector<PathWaypoint> path, const uint32_t waypointStart = 0);
 
 	void Pause();
 

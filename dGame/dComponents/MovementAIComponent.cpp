@@ -64,9 +64,10 @@ void MovementAIComponent::SetPath(const std::string pathName) {
 	m_Path = Game::zoneManager->GetZone()->GetPath(pathName);
 	if (!pathName.empty()) LOG("WARNING: %s path %s", m_Path ? "Found" : "Failed to find", pathName.c_str());
 	if (!m_Path) return;
+	const auto waypointStart = m_Parent->GetVarAs<uint32_t>(u"attached_path_start");
 	SetMaxSpeed(1);
 	SetCurrentSpeed(m_BaseSpeed);
-	SetPath(m_Path->pathWaypoints);
+	SetPath(m_Path->pathWaypoints, waypointStart);
 }
 
 void MovementAIComponent::Pause() {
@@ -275,15 +276,15 @@ void MovementAIComponent::PullToPoint(const NiPoint3& point) {
 	m_PullPoint = point;
 }
 
-void MovementAIComponent::SetPath(std::vector<PathWaypoint> path) {
-	if (path.empty()) return;
+void MovementAIComponent::SetPath(std::vector<PathWaypoint> path, const uint32_t waypointStart) {
+	if (path.empty() || waypointStart >= path.size()) return;
 	while (!m_CurrentPath.empty()) m_CurrentPath.pop();
-	std::for_each(path.rbegin(), path.rend() - 1, [this](const PathWaypoint& point) {
+	std::for_each(path.rbegin(), path.rend() - 1 - waypointStart, [this](const PathWaypoint& point) {
 		this->m_CurrentPath.push(point);
 		});
 
 	m_CurrentPathWaypointCount = path.size();
-	SetDestination(path.front().position);
+	SetDestination(path[waypointStart].position);
 }
 
 float MovementAIComponent::GetBaseSpeed(LOT lot) {

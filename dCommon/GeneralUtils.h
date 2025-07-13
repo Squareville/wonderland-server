@@ -19,6 +19,7 @@
 #include "dPlatforms.h"
 #include "Game.h"
 #include "Logger.h"
+#include "DluAssert.h"
 
 enum eInventoryType : uint32_t;
 enum class eObjectBits : size_t;
