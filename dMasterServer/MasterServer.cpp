@@ -861,7 +861,7 @@ void HandlePacket(Packet* packet) {
 
 			Game::logger->Log("MasterServer","Attempting to shutdown an zone %i instance %i via slash command\n", zoneID, instanceID);
 
-			auto* instance = Game::im->FindInstance(zoneID, instanceID);
+			const auto& instance = Game::im->FindInstance(zoneID, instanceID);
 
 			if (instance) {
 				Game::logger->Log("MasterServer","Shutting down found instance\n");
@@ -894,13 +894,7 @@ void HandlePacket(Packet* packet) {
 
 			auto respondingSysAddr = Game::im->FindInstance(respondingZoneID, respondingInstanceID)->GetSysAddr();
 
-			std::vector<Instance*> instances;
-			if (zoneID == LWOMAPID_INVALID) {
-				instances = Game::im->GetInstances();
-			} else {
-				instances = Game::im->FindInstancesByMapID(zoneID);
-			}
-
+			const auto& instances = Game::im->GetInstances();
 			bitStream.Write<uint32_t>(instances.size());
 
 			for (uint32_t i = 0; i < instances.size(); i++) {

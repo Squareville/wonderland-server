@@ -91,7 +91,7 @@ void SkunkEvent::RewardPlayers(Entity* const self) const {
 		auto* const player = Game::entityManager->GetEntity(playerId);
 		if (player) {
 			const auto coins = points * REWARD_MULTIPLIER;
-			Loot::DropLoot(player, player, -1, coins, coins);
+			Loot::DropLoot(player, player->GetObjectID(), -1, coins, coins);
 		}
 	}
 	g_PlayerPoints.clear();
