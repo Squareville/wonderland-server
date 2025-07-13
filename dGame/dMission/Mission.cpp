@@ -97,20 +97,18 @@ void Mission::LoadFromXmlCur(const tinyxml2::XMLElement& element) {
 		if (index >= m_Tasks.size()) {
 			break;
 		}
+		auto* const curTask = m_Tasks[index];
 
-		const auto type = m_Tasks[index]->GetType();
+		const auto type = curTask->GetType();
 
-		if (type == eMissionTaskType::COLLECTION ||
-			type == eMissionTaskType::VISIT_PROPERTY) {
+		auto value = std::stoul(task->Attribute("v"));
+		curTask->SetProgress(value, false);
+		task = task->NextSiblingElement();
+
+		// Collection tasks and visit property tasks store each of the collected/visited targets after the progress value
+		if (type == eMissionTaskType::COLLECTION || type == eMissionTaskType::VISIT_PROPERTY) {
 			std::vector<uint32_t> uniques;
-
-			const auto value = std::stoul(task->Attribute("v"));
-
-			m_Tasks[index]->SetProgress(value, false);
-
-			task = task->NextSiblingElement();
-
-			while (task != nullptr) {
+			while (task != nullptr && value > 0) {
 				const auto unique = std::stoul(task->Attribute("v"));
 
 				uniques.push_back(unique);
@@ -120,19 +118,10 @@ void Mission::LoadFromXmlCur(const tinyxml2::XMLElement& element) {
 				}
 
 				task = task->NextSiblingElement();
+				value--;
 			}
 
-			m_Tasks[index]->SetUnique(uniques);
-
-			m_Tasks[index]->SetProgress(uniques.size(), false);
-
-			break;
-		} else {
-			const auto value = std::stoul(task->Attribute("v"));
-
-			m_Tasks[index]->SetProgress(value, false);
-
-			task = task->NextSiblingElement();
+			curTask->SetUnique(uniques);
 		}
 
 		index++;
@@ -164,31 +153,19 @@ void Mission::UpdateXmlCur(tinyxml2::XMLElement& element) {
 
 	if (IsComplete()) return;
 
-	for (auto* task : m_Tasks) {
-		if (task->GetType() == eMissionTaskType::COLLECTION ||
-			task->GetType() == eMissionTaskType::VISIT_PROPERTY) {
-
-			auto* child = element.GetDocument()->NewElement("sv");
-
-			child->SetAttribute("v", static_cast<unsigned int>(task->GetProgress()));
-
-			element.LinkEndChild(child);
-
-			for (auto unique : task->GetUnique()) {
-				auto* uniqueElement = element.GetDocument()->NewElement("sv");
-
-				uniqueElement->SetAttribute("v", static_cast<unsigned int>(unique));
-
-				element.LinkEndChild(uniqueElement);
-			}
-
-			break;
-		}
-		auto* child = element.GetDocument()->NewElement("sv");
-
+	for (const auto* const task : m_Tasks) {
+		auto* const child = element.InsertNewChildElement("sv");
 		child->SetAttribute("v", static_cast<unsigned int>(task->GetProgress()));
 
-		element.LinkEndChild(child);
+		// Collection and visit property tasks then need to store the collected/visited items after the progress
+		const auto taskType = task->GetType();
+		if (taskType == eMissionTaskType::COLLECTION || taskType == eMissionTaskType::VISIT_PROPERTY) {
+			for (const auto unique : task->GetUnique()) {
+				auto* uniqueElement = element.InsertNewChildElement("sv");
+
+				uniqueElement->SetAttribute("v", static_cast<unsigned int>(unique));
+			}
+		}
 	}
 }
 

@@ -1463,12 +1463,21 @@ void SlashCommandHandler::Startup() {
 		.requiredLevel = eGameMasterLevel::CIVILIAN
 	};
 	RegisterCommand(notifyzonecontrolCommand);
-	Command shutdownCommand{
+
+	Command command{
 		.help = "Shuts this world down",
 		.info = "Shuts this world down",
 		.aliases = {"shutdown"},
 		.handle = DEVGMCommands::Shutdown,
 		.requiredLevel = eGameMasterLevel::DEVELOPER
 	};
-	RegisterCommand(shutdownCommand);
+	RegisterCommand(command);
+
+	RegisterCommand({
+		.help = "Turns all players' pvp mode on",
+		.info = "Turns all players' pvp mode on",
+		.aliases = {"barfight"},
+		.handle = DEVGMCommands::Barfight,
+		.requiredLevel = eGameMasterLevel::DEVELOPER
+	});
 }

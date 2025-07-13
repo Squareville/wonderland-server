@@ -29,7 +29,7 @@ void MinigameTreasureChestServer::OnUse(Entity* self, Entity* user) {
 				if (self->GetLOT() == frakjawChestId || Game::server->GetZoneID() == 1204)
 					activityRating = team->members.size();
 
-				Loot::DropActivityLoot(teamMember, self, sac->GetActivityID(), activityRating);
+				Loot::DropActivityLoot(teamMember, self->GetObjectID(), sac->GetActivityID(), activityRating);
 			}
 		}
 	} else {
@@ -38,7 +38,7 @@ void MinigameTreasureChestServer::OnUse(Entity* self, Entity* user) {
 		if (self->GetLOT() == frakjawChestId || Game::server->GetZoneID() == 1204)
 			activityRating = 1;
 
-		Loot::DropActivityLoot(user, self, sac->GetActivityID(), activityRating);
+		Loot::DropActivityLoot(user, self->GetObjectID(), sac->GetActivityID(), activityRating);
 	}
 
 	sac->PlayerRemove(user->GetObjectID());
