@@ -158,6 +158,7 @@ void MovementAIComponent::Update(const float deltaTime) {
 		}
 	} else {
 		// Check if there are more waypoints in the queue, if so set our next destination to the next waypoint
+		const auto waypointNum = m_IsBounced ? m_CurrentPath.size() : m_CurrentPathWaypointCount - m_CurrentPath.size() - 1;
 		if (m_CurrentPath.empty()) {
 			if (m_Path) {
 				if (m_Path->pathBehavior == PathBehavior::Loop) {
@@ -165,17 +166,20 @@ void MovementAIComponent::Update(const float deltaTime) {
 				} else if (m_Path->pathBehavior == PathBehavior::Bounce) {
 					m_IsBounced = !m_IsBounced;
 					std::vector<PathWaypoint> waypoints = m_Path->pathWaypoints;
-					if (m_IsBounced) std::reverse(waypoints.begin(), waypoints.end());
+					if (m_IsBounced) std::ranges::reverse(waypoints);
 					SetPath(waypoints);
 				} else if (m_Path->pathBehavior == PathBehavior::Once) {
+					m_Parent->GetScript()->OnWaypointReached(m_Parent, waypointNum);
 					Stop();
 					return;
 				}
 			} else {
+				m_Parent->GetScript()->OnWaypointReached(m_Parent, waypointNum);
 				Stop();
 				return;
 			}
 		} else {
+			m_Parent->GetScript()->OnWaypointReached(m_Parent, waypointNum);
 			SetDestination(m_CurrentPath.top().position);
 
 			m_CurrentPath.pop();
@@ -255,6 +259,7 @@ void MovementAIComponent::Stop() {
 
 	m_InterpolatedWaypoints.clear();
 	while (!m_CurrentPath.empty()) m_CurrentPath.pop();
+	m_CurrentPathWaypointCount = 0;
 
 	m_PathIndex = 0;
 
@@ -277,6 +282,7 @@ void MovementAIComponent::SetPath(std::vector<PathWaypoint> path) {
 		this->m_CurrentPath.push(point);
 		});
 
+	m_CurrentPathWaypointCount = path.size();
 	SetDestination(path.front().position);
 }
 

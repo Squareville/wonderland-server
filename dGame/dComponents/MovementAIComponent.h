@@ -325,6 +325,9 @@ private:
 	NiPoint3 m_SavedVelocity;
 
 	bool m_IsBounced{};
+
+	// The number of waypoints that were on the path in the call to SetPath
+	uint32_t m_CurrentPathWaypointCount{ 0 };
 };
 
 #endif // MOVEMENTAICOMPONENT_H
