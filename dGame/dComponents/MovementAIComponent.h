@@ -334,6 +334,9 @@ private:
 
 	// The number of waypoints that were on the path in the call to SetPath
 	uint32_t m_CurrentPathWaypointCount{ 0 };
+
+	// The delay before this AI starts moving again
+	float m_Delay{ 0.0f };
 };
 
 #endif // MOVEMENTAICOMPONENT_H

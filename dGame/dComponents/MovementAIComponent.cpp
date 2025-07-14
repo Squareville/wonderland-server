@@ -3,7 +3,10 @@
 #include <utility>
 #include <cmath>
 
+#include "SkillComponent.h"
 #include "ControllablePhysicsComponent.h"
+#include "InventoryComponent.h"
+#include "RenderComponent.h"
 #include "BaseCombatAIComponent.h"
 #include "dpCommon.h"
 #include "dpWorld.h"
@@ -91,6 +94,9 @@ void MovementAIComponent::Resume() {
 
 void MovementAIComponent::Update(const float deltaTime) {
 	if (m_Paused) return;
+
+	m_Delay -= deltaTime;
+	if (m_Delay >= 0.0f) return;
 
 	auto* const quickBuildComponent = m_Parent->GetComponent<QuickBuildComponent>();
 	if (quickBuildComponent && quickBuildComponent->GetState() != eQuickBuildState::COMPLETED) return;
@@ -433,24 +439,55 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 	const auto& commands = m_Path->pathWaypoints[waypointNum].commands;
 	for (const auto& [command, data] : commands) {
 		switch (command) {
-			case eWaypointCommandType::INVALID: break;
-			case eWaypointCommandType::BOUNCE: break;
-			case eWaypointCommandType::STOP: Pause(); break;
-			case eWaypointCommandType::GROUP_EMOTE: break;
-			case eWaypointCommandType::SET_VARIABLE: break;
-			case eWaypointCommandType::CAST_SKILL: break;
-			case eWaypointCommandType::EQUIP_INVENTORY: break;
-			case eWaypointCommandType::UNEQUIP_INVENTORY: break;
-			case eWaypointCommandType::DELAY: break;
-			case eWaypointCommandType::EMOTE: break;
-			case eWaypointCommandType::TELEPORT: break;
-			case eWaypointCommandType::PATH_SPEED: break;
-			case eWaypointCommandType::REMOVE_NPC: break;
-			case eWaypointCommandType::CHANGE_WAYPOINT: break;
-			case eWaypointCommandType::DELETE_SELF: break;
-			case eWaypointCommandType::KILL_SELF: m_Parent->Smash(); break;
-			case eWaypointCommandType::SPAWN_OBJECT: break;
-			case eWaypointCommandType::PLAY_SOUND: break;
+		case eWaypointCommandType::INVALID: break;
+		case eWaypointCommandType::BOUNCE: break;
+		case eWaypointCommandType::STOP: Pause(); break;
+		case eWaypointCommandType::GROUP_EMOTE: break;
+		case eWaypointCommandType::SET_VARIABLE: break; // Empty in the client
+		case eWaypointCommandType::CAST_SKILL: {
+			const auto skill = GeneralUtils::TryParse<uint32_t>(data);
+			if (skill) {
+				auto* const skillComponent = m_Parent->GetComponent<SkillComponent>();
+				if (skillComponent) skillComponent->CastSkill(skill.value());
+			}
+			break;
+		}
+		case eWaypointCommandType::EQUIP_INVENTORY: {
+			auto* const inventoryComponent = m_Parent->GetComponent<InventoryComponent>();
+			if (inventoryComponent) {
+				// items should always exist
+				auto* const item = inventoryComponent->GetInventory(eInventoryType::ITEMS)->FindItemBySlot(0);
+				inventoryComponent->EquipItem(item);
+			}
+			break;
+		}
+		case eWaypointCommandType::UNEQUIP_INVENTORY: {
+			auto* const inventoryComponent = m_Parent->GetComponent<InventoryComponent>();
+			if (inventoryComponent) {
+				// items should always exist
+				auto* const item = inventoryComponent->GetInventory(eInventoryType::ITEMS)->FindItemBySlot(0);
+				inventoryComponent->UnEquipItem(item);
+			}
+			break;
+		}
+		case eWaypointCommandType::DELAY: {
+			m_Delay = GeneralUtils::TryParse<float>(data).value_or(0.0f);
+			break;
+		}
+		case eWaypointCommandType::EMOTE: {
+			m_Delay = RenderComponent::GetAnimationTime(m_Parent, data);
+			const auto emoteID = GeneralUtils::TryParse<uint32_t>(data);
+			if (emoteID) GameMessages::SendPlayEmote(m_Parent->GetObjectID(), emoteID.value(), LWOOBJID_EMPTY, UNASSIGNED_SYSTEM_ADDRESS);
+			break;
+		}
+		case eWaypointCommandType::TELEPORT: break;
+		case eWaypointCommandType::PATH_SPEED: break;
+		case eWaypointCommandType::REMOVE_NPC: break;
+		case eWaypointCommandType::CHANGE_WAYPOINT: break;
+		case eWaypointCommandType::DELETE_SELF: break;
+		case eWaypointCommandType::KILL_SELF: m_Parent->Smash(); break;
+		case eWaypointCommandType::SPAWN_OBJECT: break;
+		case eWaypointCommandType::PLAY_SOUND: break;
 		}
 	}
 }
