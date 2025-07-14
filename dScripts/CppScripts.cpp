@@ -375,6 +375,7 @@
 #include "NpRotatingPlatform.h"
 #include "NpMime.h"
 #include "NpPicnicBot.h"
+#include "PicnicBotPicnicBot.h"
 
 namespace {
 	// This is in the translation unit instead of the header to prevent weird linker errors
@@ -782,6 +783,7 @@ namespace {
 		{R"(scripts\newcontent\server\np_felix.lua)", []() {return new NpFelix();}},
 		{R"(scripts\newcontent\server\np_mime.lua)", []() {return new NpMime();}},
 		{R"(scripts\newcontent\server\np_picnicbot.lua)", []() {return new NpPicnicBot();}},
+		{R"(scripts\newcontent\server\picnicbot\picnicbot\picnicbot\picnicbot_picnicbot.lua)", []() {return new PicnicBotPicnicBot();}}, // gotta stay organized :strong muscle emoji:
 		{R"(scripts\ai\NP\L_NP_ROTATING_PLATFORM.lua)", []() {return new NpRotatingPlatform();}},
 	};
 

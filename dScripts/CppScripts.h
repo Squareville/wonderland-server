@@ -7,6 +7,7 @@
 class User;
 class Entity;
 class NiPoint3;
+struct Path;
 enum class eMissionState : int32_t;
 enum class ePetTamingNotifyType : uint32_t;
 enum class eQuickBuildState : uint32_t;
@@ -367,7 +368,7 @@ namespace CppScripts {
 		 * @param pathType the type of path the object was following
 		 * @param waypoint index of the waypoint in the path
 		 */
-		virtual void OnArrived(Entity* self, const std::string& pathType, const uint32_t waypoint) {};
+		virtual void OnArrived(Entity& self, const std::string& pathType, const uint32_t waypoint, const Path* const levelPath) {};
 
 		/**
 		 * @brief Handles when an object has loaded on the server

@@ -437,6 +437,7 @@ void MovementAIComponent::SetMaxSpeed(const float value) {
 
 void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 	m_Parent->GetScript()->OnWaypointReached(m_Parent, waypointNum);
+	m_Parent->GetScript()->OnArrived(*m_Parent, "", waypointNum, m_Path);
 
 	if (!m_Path || waypointNum >= m_Path->pathWaypoints.size()) return;
 
