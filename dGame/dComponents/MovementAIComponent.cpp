@@ -435,7 +435,7 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 		switch (command) {
 			case eWaypointCommandType::INVALID: break;
 			case eWaypointCommandType::BOUNCE: break;
-			case eWaypointCommandType::STOP: break;
+			case eWaypointCommandType::STOP: Pause(); break;
 			case eWaypointCommandType::GROUP_EMOTE: break;
 			case eWaypointCommandType::SET_VARIABLE: break;
 			case eWaypointCommandType::CAST_SKILL: break;
@@ -448,7 +448,7 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 			case eWaypointCommandType::REMOVE_NPC: break;
 			case eWaypointCommandType::CHANGE_WAYPOINT: break;
 			case eWaypointCommandType::DELETE_SELF: break;
-			case eWaypointCommandType::KILL_SELF: m_Parent->Smash();
+			case eWaypointCommandType::KILL_SELF: m_Parent->Smash(); break;
 			case eWaypointCommandType::SPAWN_OBJECT: break;
 			case eWaypointCommandType::PLAY_SOUND: break;
 		}
