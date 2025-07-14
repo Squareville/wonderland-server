@@ -151,6 +151,8 @@ public:
 
 	void SetRespawnRot(const NiQuaternion& rotation) const;
 
+	void SetAngularVelocity(const NiPoint3& rotation);
+
 	void SetVelocity(const NiPoint3& velocity);
 
 	/**

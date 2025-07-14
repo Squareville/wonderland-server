@@ -1970,6 +1970,28 @@ void Entity::SetVelocity(const NiPoint3& velocity) {
 	Game::entityManager->SerializeEntity(this);
 }
 
+void Entity::SetAngularVelocity(const NiPoint3& velocity) {
+	auto* controllable = GetComponent<ControllablePhysicsComponent>();
+
+	if (controllable != nullptr) {
+		controllable->SetAngularVelocity(velocity);
+	}
+
+	auto* simple = GetComponent<SimplePhysicsComponent>();
+
+	if (simple != nullptr) {
+		simple->SetAngularVelocity(velocity);
+	}
+
+	auto* vehicel = GetComponent<HavokVehiclePhysicsComponent>();
+
+	if (vehicel != nullptr) {
+		vehicel->SetAngularVelocity(velocity);
+	}
+
+	Game::entityManager->SerializeEntity(this);
+}
+
 const NiPoint3& Entity::GetVelocity() const {
 	auto* controllable = GetComponent<ControllablePhysicsComponent>();
 
