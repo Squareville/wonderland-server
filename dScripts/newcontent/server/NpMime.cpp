@@ -8,36 +8,25 @@ void NpMime::OnWaypointReached(Entity* self, uint32_t waypointIndex) {
 	if (waypointIndex == 0) {
 		auto movementAI = self->GetComponent<MovementAIComponent>();
 		if (!movementAI) return;
-		movementAI->Pause();
-		self->AddTimer("ResumeMovement", 14.3f);
+		movementAI->Pause(14.3f);
 		self->SetPosition(m_JugglePosition);
 		self->SetRotation(m_JuggleRotation);
 
-		for (auto& juggler : Game::entityManager->GetEntitiesInGroup("jugglers")) {
+		for (auto* juggler : Game::entityManager->GetEntitiesInGroup("Jugglers")) {
 			if (!juggler) continue;
-			auto renderComponent = juggler->GetComponent<RenderComponent>();
-			if (!renderComponent) continue;
-			renderComponent->PlayAnimation(juggler, "cast");
+			RenderComponent::PlayAnimation(juggler, "cast", 0.4f);
 		}
-		auto renderComponent = self->GetComponent<RenderComponent>();
-		if (!renderComponent) return;
-		renderComponent->PlayAnimation(self, "juggle");
+		RenderComponent::PlayAnimation(self, "juggle", 0.4f);
 	} else if (waypointIndex == 3) {
 		auto movementAI = self->GetComponent<MovementAIComponent>();
 		if (!movementAI) return;
-		movementAI->Pause();
-		self->AddTimer("ResumeMovement", 14.1f);
-		auto renderComponent = self->GetComponent<RenderComponent>();
-		if (!renderComponent) return;
-		renderComponent->PlayAnimation(self, "box");
+		movementAI->Pause(14.1f);
+		RenderComponent::PlayAnimation(self, "box", 0.4f);
 	} else if (waypointIndex == 4) {
 		auto movementAI = self->GetComponent<MovementAIComponent>();
 		if (!movementAI) return;
-		movementAI->Pause();
-		self->AddTimer("ResumeMovement", 17.5f);
-		auto renderComponent = self->GetComponent<RenderComponent>();
-		if (!renderComponent) return;
-		renderComponent->PlayAnimation(self, "lasso");
+		movementAI->Pause(17.5f);
+		RenderComponent::PlayAnimation(self, "lasso", 0.4f);
 	}
 }
 

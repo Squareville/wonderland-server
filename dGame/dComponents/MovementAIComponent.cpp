@@ -74,9 +74,10 @@ void MovementAIComponent::SetPath(const std::string pathName) {
 	SetPath(m_Path->pathWaypoints, waypointStart);
 }
 
-void MovementAIComponent::Pause() {
+void MovementAIComponent::Pause(const float pauseTime) {
 	if (m_Paused) return;
 	m_Paused = true;
+	m_Delay = pauseTime;
 	SetPosition(ApproximateLocation());
 	m_SavedVelocity = GetVelocity();
 	SetVelocity(NiPoint3Constant::ZERO);
@@ -93,10 +94,15 @@ void MovementAIComponent::Resume() {
 }
 
 void MovementAIComponent::Update(const float deltaTime) {
-	if (m_Paused) return;
-
+	bool wasPaused = m_Delay > 0.0f;
 	m_Delay -= deltaTime;
-	if (m_Delay >= 0.0f) return;
+	if (m_Delay > 0.0f) return;
+	else if (wasPaused) {
+		Resume();
+		return;
+	}
+
+	if (m_Paused) return;
 
 	auto* const quickBuildComponent = m_Parent->GetComponent<QuickBuildComponent>();
 	if (quickBuildComponent && quickBuildComponent->GetState() != eQuickBuildState::COMPLETED) return;
@@ -167,6 +173,7 @@ void MovementAIComponent::Update(const float deltaTime) {
 	} else {
 		// Check if there are more waypoints in the queue, if so set our next destination to the next waypoint
 		const auto waypointNum = m_IsBounced ? m_CurrentPath.size() : m_CurrentPathWaypointCount - m_CurrentPath.size() - 1;
+		RunWaypointCommands(waypointNum);
 		if (m_CurrentPath.empty()) {
 			if (m_Path) {
 				if (m_Path->pathBehavior == PathBehavior::Loop) {
@@ -177,17 +184,14 @@ void MovementAIComponent::Update(const float deltaTime) {
 					if (m_IsBounced) std::ranges::reverse(waypoints);
 					SetPath(waypoints);
 				} else if (m_Path->pathBehavior == PathBehavior::Once) {
-					RunWaypointCommands(waypointNum);
 					Stop();
 					return;
 				}
 			} else {
-				RunWaypointCommands(waypointNum);
 				Stop();
 				return;
 			}
 		} else {
-			RunWaypointCommands(waypointNum);
 			SetDestination(m_CurrentPath.top().position);
 
 			m_CurrentPath.pop();
@@ -472,6 +476,7 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 		}
 		case eWaypointCommandType::DELAY: {
 			m_Delay = GeneralUtils::TryParse<float>(data).value_or(0.0f);
+			Pause();
 			break;
 		}
 		case eWaypointCommandType::EMOTE: {

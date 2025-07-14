@@ -196,7 +196,7 @@ public:
 	 */
 	void SetPath(std::vector<PathWaypoint> path, const uint32_t waypointStart = 0);
 
-	void Pause();
+	void Pause(const float delay = 0.0f);
 
 	void Resume();
 
@@ -210,6 +210,8 @@ public:
 	static float GetBaseSpeed(LOT lot);
 
 	bool IsPaused() const { return m_Paused; }
+
+	void SetDelay(const float val) { m_Delay = val; }
 
 private:
 
