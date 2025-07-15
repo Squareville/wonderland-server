@@ -7,7 +7,7 @@
 
 void MechEuBroombot::OnUpdate(Entity* self) {
 	// This is omega bodge but i cant really do anything better at this time
-	for (auto* const entity : Game::entityManager->GetEntitiesByProximity(self->GetPosition(), 3.0f)) {
+	for (auto* const entity : Game::entityManager->GetEntitiesByProximity(self->GetPosition(), 6.0f)) {
 		if (!entity || entity->GetLOT() != SkunkEvent::INVASION_STINK_CLOUD_LOT || entity->GetVar<bool>(u"cleaned")) continue;
 		auto const [skillComponent, movementAiComponent] = self->GetComponentsMut<SkillComponent, MovementAIComponent>();
 		if (skillComponent) {
