@@ -23,7 +23,7 @@ void YrkNpcStink::OnProximityUpdate(Entity* self, Entity* entering, std::string 
 }
 
 void YrkNpcStink::OnSkillEventFired(Entity* self, Entity* caster, const std::string& message) {
-	if (message != "waterspray") return;
+	if (message != "waterspray" && message != "skunkstink") return;
 
 	if (caster->GetLOT() == broomBotLot) {
 		self->AddTimer("RemoveSelf", 4.0f);
@@ -46,6 +46,6 @@ void YrkNpcStink::OnSkillEventFired(Entity* self, Entity* caster, const std::str
 
 void YrkNpcStink::OnTimerDone(Entity* self, std::string name) {
 	if (name == "RemoveSelf") {
-		self->Smash(LWOOBJID_EMPTY, eKillType::VIOLENT);
+		self->Smash();
 	}
 }

@@ -358,6 +358,7 @@
 #include "YrkNpcStink.h"
 #include "HazmatTruck.h"
 #include "EnemySkunk.h"
+#include "MechEuBroombot.h"
 
 // Wonderland
 #include "SpawnSkeletonOnDeath.h"
@@ -757,6 +758,7 @@ namespace {
 		{"scripts\\ai\\YRK\\L_HAZMAT_TRUCK.lua", []() {return new HazmatTruck();}},
 		{"scripts\\ai\\WILD\\L_WILD_EU_HAZMAT.lua", []() {return new WildEuHazmat();}},
 		{"scripts\\ai\\ACT\\L_ACT_PET_INSTANCE.lua", []() {return new ActPetInstance();}},
+		{R"(scripts\ai\YRK\L_MECH_EU_BROOMBOT.lua)", []() {return new MechEuBroombot();}},
 		
 		// newcontent
 		{"scripts\\EquipmentScripts\\XMarksTheSpot1.lua", [](){return new XMarksTheSpotChest();}},
@@ -804,7 +806,6 @@ namespace {
 		"scripts\\ai\\ACT\\L_ACT_PET_INSTANCE_EXIT.lua",
 		"scripts\\ai\\YRK\\L_MAZE_TROLL.lua",
 		"scripts\\ai\\YRK\\L_HYDRANT_QB.lua",
-		"scripts\\ai\\YRK\\L_MECH_EU_BROOMBOT.lua",
 		"scripts\\ai\\YRK\\L_SKUNK_BOUNCER.lua",
 		"scripts\\ai\\YRK\\L_BABY_SKUNKS.lua",
 		"scripts\\ai\\YRK\\L_HAZMAT_TRUCK_NPC.lua",

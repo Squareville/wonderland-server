@@ -8,7 +8,8 @@ set(DSCRIPTS_SOURCES_AI_YRK
 	"Spout.cpp"
 	"YrkActor.cpp"
 	"YrkNpcOnTimer.cpp"
-	"YrkNpcStink.cpp")
+	"YrkNpcStink.cpp"
+	"MechEuBroombot.cpp")
 
 add_library(dScriptsAiYrk OBJECT ${DSCRIPTS_SOURCES_AI_YRK})
 target_include_directories(dScriptsAiYrk PUBLIC ".")
