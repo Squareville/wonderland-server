@@ -488,7 +488,7 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 			break;
 		}
 		case eWaypointCommandType::TELEPORT: break;
-		case eWaypointCommandType::PATH_SPEED: break;
+		case eWaypointCommandType::PATH_SPEED: m_BaseSpeed = GetBaseSpeed(m_Parent->GetLOT()) * GeneralUtils::TryParse<float>(data).value_or(1.0f); break;
 		case eWaypointCommandType::REMOVE_NPC: break;
 		case eWaypointCommandType::CHANGE_WAYPOINT: break;
 		case eWaypointCommandType::DELETE_SELF: break;
