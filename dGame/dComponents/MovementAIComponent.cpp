@@ -22,6 +22,7 @@
 #include "CDPhysicsComponentTable.h"
 
 #include "dNavMesh.h"
+#include "StringifiedEnum.h"
 
 namespace {
 	/**
@@ -97,7 +98,8 @@ void MovementAIComponent::Update(const float deltaTime) {
 	bool wasPaused = m_Delay > 0.0f;
 	m_Delay -= deltaTime;
 	if (m_Delay > 0.0f) return;
-	else if (wasPaused) {
+	
+	if (wasPaused) {
 		Resume();
 		return;
 	}
@@ -440,9 +442,9 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 	m_Parent->GetScript()->OnArrived(*m_Parent, "", waypointNum, m_Path);
 
 	if (!m_Path || waypointNum >= m_Path->pathWaypoints.size()) return;
-
 	const auto& commands = m_Path->pathWaypoints[waypointNum].commands;
 	for (const auto& [command, data] : commands) {
+		LOG_DEBUG("%s %s %s", StringifiedEnum::ToString(command).data(), m_Path->pathName.c_str(), data.c_str());
 		switch (command) {
 		case eWaypointCommandType::INVALID: break;
 		case eWaypointCommandType::BOUNCE: break;
@@ -476,8 +478,7 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 			break;
 		}
 		case eWaypointCommandType::DELAY: {
-			m_Delay = GeneralUtils::TryParse<float>(data).value_or(0.0f);
-			Pause();
+			Pause(GeneralUtils::TryParse<float>(data).value_or(0.0f));
 			break;
 		}
 		case eWaypointCommandType::EMOTE: {
