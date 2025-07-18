@@ -15,6 +15,10 @@ void RemoveBuffBehavior::Handle(BehaviorContext* context, RakNet::BitStream& bit
 	buffComponent->RemoveBuff(m_BuffId, false, m_RemoveImmunity);
 }
 
+void RemoveBuffBehavior::Calculate(BehaviorContext* context, RakNet::BitStream& bitStream, BehaviorBranchContext branch) {
+	Handle(context, bitStream, branch);
+}
+
 void RemoveBuffBehavior::Load() {
 	this->m_RemoveImmunity = GetBoolean("remove_immunity");
 	this->m_BuffId = GetInt("buff_id");
