@@ -6,7 +6,7 @@
 #include "BuffComponent.h"
 
 void RemoveBuffBehavior::Handle(BehaviorContext* context, RakNet::BitStream& bitStream, BehaviorBranchContext branch) {
-	auto* entity = Game::entityManager->GetEntity(context->caster);
+	auto* entity = Game::entityManager->GetEntity(branch.target);
 	if (!entity) return;
 
 	auto* buffComponent = entity->GetComponent<BuffComponent>();
