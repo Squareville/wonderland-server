@@ -445,6 +445,7 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 	const auto& commands = m_Path->pathWaypoints[waypointNum].commands;
 	for (const auto& [command, data] : commands) {
 		LOG_DEBUG("%s %s %s", StringifiedEnum::ToString(command).data(), m_Path->pathName.c_str(), data.c_str());
+		const auto dataSplit = GeneralUtils::SplitString(data, ',');
 		switch (command) {
 		case eWaypointCommandType::INVALID: break;
 		case eWaypointCommandType::BOUNCE: break;
@@ -490,7 +491,7 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 		case eWaypointCommandType::TELEPORT: break;
 		case eWaypointCommandType::PATH_SPEED: m_BaseSpeed = GetBaseSpeed(m_Parent->GetLOT()) * GeneralUtils::TryParse<float>(data).value_or(1.0f); break;
 		case eWaypointCommandType::REMOVE_NPC: break;
-		case eWaypointCommandType::CHANGE_WAYPOINT: break;
+		case eWaypointCommandType::CHANGE_WAYPOINT: SetPath(dataSplit[0]); break;
 		case eWaypointCommandType::DELETE_SELF: break;
 		case eWaypointCommandType::KILL_SELF: m_Parent->Smash(); break;
 		case eWaypointCommandType::SPAWN_OBJECT: break;
