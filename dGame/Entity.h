@@ -177,6 +177,8 @@ public:
 
 	void AddComponent(eReplicaComponentType componentId, Component* component);
 
+	bool MsgRequestServerObjectInfo(GameMessages::GameMsg& msg);
+
 	// This is expceted to never return nullptr, an assert checks this.
 	CppScripts::Script* const GetScript() const;
 
@@ -338,6 +340,10 @@ public:
 	void RegisterMsg(const MessageType::Game msgId, std::function<bool(GameMessages::GameMsg&)> handler);
 
 	bool HandleMsg(GameMessages::GameMsg& msg) const;
+
+	void RegisterMsg(const MessageType::Game msgId, auto* self, const auto handler) {
+		RegisterMsg(msgId, std::bind(handler, self, std::placeholders::_1));
+	}
 
 	/**
 	 * @brief The observable for player entity position updates.

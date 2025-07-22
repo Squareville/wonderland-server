@@ -1,5 +1,7 @@
 #include "DEVGMCommands.h"
 
+#include <ranges>
+
 // Classes
 #include "AssetManager.h"
 #include "Character.h"
@@ -42,12 +44,14 @@
 #include "SkillComponent.h"
 #include "TriggerComponent.h"
 #include "RigidbodyPhantomPhysicsComponent.h"
+#include "PhantomPhysicsComponent.h"
 
 // Enums
 #include "eGameMasterLevel.h"
 #include "MessageType/Master.h"
 #include "eInventoryType.h"
 #include "ePlayerFlag.h"
+#include "StringifiedEnum.h"
 
 
 namespace DEVGMCommands {
@@ -761,6 +765,7 @@ namespace DEVGMCommands {
 		info.spawner = nullptr;
 		info.spawnerID = entity->GetObjectID();
 		info.spawnerNodeID = 0;
+		info.settings = { new LDFData<bool>(u"SpawnedFromSlashCommand", true) };
 
 		Entity* newEntity = Game::entityManager->CreateEntity(info, nullptr);
 
@@ -802,6 +807,7 @@ namespace DEVGMCommands {
 		info.spawner = nullptr;
 		info.spawnerID = entity->GetObjectID();
 		info.spawnerNodeID = 0;
+		info.settings = { new LDFData<bool>(u"SpawnedFromSlashCommand", true) };
 
 		auto playerPosition = entity->GetPosition();
 		while (numberToSpawn > 0) {
@@ -1516,7 +1522,12 @@ namespace DEVGMCommands {
 		}
 
 		if (!closest) return;
-		LOG("%llu", closest->GetObjectID());
+
+		GameMessages::RequestServerObjectInfo objectInfo;
+		objectInfo.bVerbose = true;
+		objectInfo.target = closest->GetObjectID();
+		objectInfo.targetForReport = entity->GetObjectID();
+		closest->HandleMsg(objectInfo);
 
 		Game::entityManager->SerializeEntity(closest);
 
@@ -1529,16 +1540,6 @@ namespace DEVGMCommands {
 		header << info.name << " [" << std::to_string(info.id) << "]" << " " << std::to_string(closestDistance) << " " << std::to_string(closest->IsSleeping());
 
 		ChatPackets::SendSystemMessage(sysAddr, GeneralUtils::ASCIIToUTF16(header.str()));
-
-		for (const auto& pair : closest->GetComponents()) {
-			auto id = pair.first;
-
-			std::stringstream stream;
-
-			stream << "Component [" << std::to_string(static_cast<uint32_t>(id)) << "]";
-
-			ChatPackets::SendSystemMessage(sysAddr, GeneralUtils::ASCIIToUTF16(stream.str()));
-		}
 
 		if (splitArgs.size() >= 2) {
 			if (splitArgs[1] == "-m" && splitArgs.size() >= 3) {
@@ -1559,13 +1560,6 @@ namespace DEVGMCommands {
 				Game::entityManager->SerializeEntity(closest);
 			} else if (splitArgs[1] == "-a" && splitArgs.size() >= 3) {
 				RenderComponent::PlayAnimation(closest, splitArgs.at(2));
-			} else if (splitArgs[1] == "-s") {
-				for (auto* entry : closest->GetSettings()) {
-					ChatPackets::SendSystemMessage(sysAddr, GeneralUtils::UTF8ToUTF16(entry->GetString()));
-				}
-
-				ChatPackets::SendSystemMessage(sysAddr, u"------");
-				ChatPackets::SendSystemMessage(sysAddr, u"Spawner ID: " + GeneralUtils::to_u16string(closest->GetSpawnerID()));
 			} else if (splitArgs[1] == "-p") {
 				const auto postion = closest->GetPosition();
 
@@ -1647,5 +1641,28 @@ namespace DEVGMCommands {
 		}
 		const auto msg = u"Pvp has been turned on for all players by " + GeneralUtils::ASCIIToUTF16(characterComponent->GetName());
 		ChatPackets::SendSystemMessage(UNASSIGNED_SYSTEM_ADDRESS, msg, true);
+	}
+
+	void Despawn(Entity* entity, const SystemAddress& sysAddr, const std::string args) {
+		if (args.empty()) return;
+
+		const auto splitArgs = GeneralUtils::SplitString(args, ' ');
+		const auto objId = GeneralUtils::TryParse<LWOOBJID>(splitArgs[0]);
+		if (!objId) return;
+
+		auto* const target = Game::entityManager->GetEntity(*objId);
+		if (!target) {
+			ChatPackets::SendSystemMessage(sysAddr, u"Entity not found: " + GeneralUtils::UTF8ToUTF16(splitArgs[0]));
+			return;
+		}
+
+		if (!target->GetVar<bool>(u"SpawnedFromSlashCommand")) {
+			ChatPackets::SendSystemMessage(sysAddr, u"You cannot despawn this entity as it was not despawned from a slash command.");
+			return;
+		}
+
+		target->Smash(LWOOBJID_EMPTY, eKillType::SILENT);
+		LOG("Despawned entity (%llu)", target->GetObjectID());
+		ChatPackets::SendSystemMessage(sysAddr, u"Despawned entity: " + GeneralUtils::to_u16string(target->GetObjectID()));
 	}
 };
