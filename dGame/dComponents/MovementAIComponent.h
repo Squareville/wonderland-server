@@ -215,6 +215,8 @@ public:
 
 private:
 
+	bool OnGetObjectReportInfo(GameMessages::GameMsg& msg);
+
 	/**
 	 * Sets the current position of the entity
 	 * @param value the position to set
