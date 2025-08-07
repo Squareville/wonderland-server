@@ -371,7 +371,7 @@ void SkunkEvent::SpawnSingleSkunk(Entity* const self, const int32_t num, const b
 		path = Game::zoneManager->GetZone()->GetPath(pathStr);
 		if (!path || path->pathWaypoints.empty()) return;
 		// LOG("size is %i", path->pathWaypoints.size());
-		pathStart = GeneralUtils::GenerateRandomNumber<int32_t>(0, path->pathWaypoints.size());
+		pathStart = GeneralUtils::GenerateRandomNumber<int32_t>(0, path->pathWaypoints.size() - 1);
 	}
 	if (!path || path->pathWaypoints.empty()) return;
 
