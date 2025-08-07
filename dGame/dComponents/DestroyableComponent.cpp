@@ -21,6 +21,7 @@
 #include "BuffComponent.h"
 #include "SkillComponent.h"
 #include "Item.h"
+#include "Amf3.h"
 
 #include <sstream>
 #include <algorithm>
@@ -29,6 +30,7 @@
 #include "CharacterComponent.h"
 #include "PossessableComponent.h"
 #include "PossessorComponent.h"
+#include "ModelComponent.h"
 #include "InventoryComponent.h"
 #include "dZoneManager.h"
 #include "WorldConfig.h"
@@ -42,6 +44,7 @@ Implementation<bool, const Entity*> DestroyableComponent::IsEnemyImplentation;
 Implementation<bool, const Entity*> DestroyableComponent::IsFriendImplentation;
 
 DestroyableComponent::DestroyableComponent(Entity* parent) : Component(parent) {
+	using namespace GameMessages;
 	m_iArmor = 0;
 	m_fMaxArmor = 0.0f;
 	m_iImagination = 0;
@@ -78,6 +81,9 @@ DestroyableComponent::DestroyableComponent(Entity* parent) : Component(parent) {
 	m_DeathBehavior = -1;
 
 	m_DamageCooldownTimer = 0.0f;
+
+	RegisterMsg<GetObjectReportInfo>(this, &DestroyableComponent::OnGetObjectReportInfo);
+	RegisterMsg<GameMessages::SetFaction>(this, &DestroyableComponent::OnSetFaction);
 }
 
 DestroyableComponent::~DestroyableComponent() {
@@ -575,6 +581,14 @@ void DestroyableComponent::Damage(uint32_t damage, const LWOOBJID source, uint32
 		return;
 	}
 
+	// Client does the same check, so we're doing it too
+	auto* const modelComponent = m_Parent->GetComponent<ModelComponent>();
+	if (modelComponent) {
+		modelComponent->OnHit();
+		// Don't actually deal the damage so the model doesn't die
+		return;
+	}
+
 	// If this entity has damage reduction, reduce the damage to a minimum of 1
 	if (m_DamageReduction > 0 && damage > 0) {
 		if (damage > m_DamageReduction) {
@@ -1030,4 +1044,66 @@ void DestroyableComponent::DoHardcoreModeDrops(const LWOOBJID source) {
 			Game::entityManager->SerializeEntity(m_Parent);
 		}
 	}
+}
+
+bool DestroyableComponent::OnGetObjectReportInfo(GameMessages::GameMsg& msg) {
+	auto& reportInfo = static_cast<GameMessages::GetObjectReportInfo&>(msg);
+
+	auto& destroyableInfo = reportInfo.info->PushDebug("Destroyable");
+	destroyableInfo.PushDebug<AMFIntValue>("Health") = m_iHealth;
+	destroyableInfo.PushDebug<AMFDoubleValue>("Max Health") = m_fMaxHealth;
+	destroyableInfo.PushDebug<AMFIntValue>("Armor") = m_iArmor;
+	destroyableInfo.PushDebug<AMFDoubleValue>("Max Armor") = m_fMaxArmor;
+	destroyableInfo.PushDebug<AMFIntValue>("Imagination") = m_iImagination;
+	destroyableInfo.PushDebug<AMFDoubleValue>("Max Imagination") = m_fMaxImagination;
+	destroyableInfo.PushDebug<AMFIntValue>("Damage To Absorb") = m_DamageToAbsorb;
+	destroyableInfo.PushDebug<AMFBoolValue>("Is GM Immune") = m_IsGMImmune;
+	destroyableInfo.PushDebug<AMFBoolValue>("Is Shielded") = m_IsShielded;
+	destroyableInfo.PushDebug<AMFIntValue>("Attacks To Block") = m_AttacksToBlock;
+	destroyableInfo.PushDebug<AMFIntValue>("Damage Reduction") = m_DamageReduction;
+	auto& factions = destroyableInfo.PushDebug("Factions");
+	size_t i = 0;
+	for (const auto factionID : m_FactionIDs) {
+		factions.PushDebug<AMFStringValue>(std::to_string(i++) + " " + std::to_string(factionID)) = "";
+	}
+	auto& enemyFactions = destroyableInfo.PushDebug("Enemy Factions");
+	i = 0;
+	for (const auto enemyFactionID : m_EnemyFactionIDs) {
+		enemyFactions.PushDebug<AMFStringValue>(std::to_string(i++) + " " + std::to_string(enemyFactionID)) = "";
+	}
+	destroyableInfo.PushDebug<AMFBoolValue>("Is Smashable") = m_IsSmashable;
+	destroyableInfo.PushDebug<AMFBoolValue>("Is Dead") = m_IsDead;
+	destroyableInfo.PushDebug<AMFBoolValue>("Is Smashed") = m_IsSmashed;
+	destroyableInfo.PushDebug<AMFBoolValue>("Is Module Assembly") = m_IsModuleAssembly;
+	destroyableInfo.PushDebug<AMFDoubleValue>("Explode Factor") = m_ExplodeFactor;
+	destroyableInfo.PushDebug<AMFBoolValue>("Has Threats") = m_HasThreats;
+	destroyableInfo.PushDebug<AMFIntValue>("Loot Matrix ID") = m_LootMatrixID;
+	destroyableInfo.PushDebug<AMFIntValue>("Min Coins") = m_MinCoins;
+	destroyableInfo.PushDebug<AMFIntValue>("Max Coins") = m_MaxCoins;
+	destroyableInfo.PushDebug<AMFStringValue>("Killer ID") = std::to_string(m_KillerID);
+
+	// "Scripts"; idk what to do about scripts yet
+	auto& immuneCounts = destroyableInfo.PushDebug("Immune Counts");
+	immuneCounts.PushDebug<AMFIntValue>("Basic Attack") = m_ImmuneToBasicAttackCount;
+	immuneCounts.PushDebug<AMFIntValue>("Damage Over Time") = m_ImmuneToDamageOverTimeCount;
+	immuneCounts.PushDebug<AMFIntValue>("Knockback") = m_ImmuneToKnockbackCount;
+	immuneCounts.PushDebug<AMFIntValue>("Interrupt") = m_ImmuneToInterruptCount;
+	immuneCounts.PushDebug<AMFIntValue>("Speed") = m_ImmuneToSpeedCount;
+	immuneCounts.PushDebug<AMFIntValue>("Imagination Gain") = m_ImmuneToImaginationGainCount;
+	immuneCounts.PushDebug<AMFIntValue>("Imagination Loss") = m_ImmuneToImaginationLossCount;
+	immuneCounts.PushDebug<AMFIntValue>("Quickbuild Interrupt") = m_ImmuneToQuickbuildInterruptCount;
+	immuneCounts.PushDebug<AMFIntValue>("Pull To Point") = m_ImmuneToPullToPointCount;
+
+	destroyableInfo.PushDebug<AMFIntValue>("Death Behavior") = m_DeathBehavior;
+	destroyableInfo.PushDebug<AMFDoubleValue>("Damage Cooldown Timer") = m_DamageCooldownTimer;
+
+	return true;
+}
+
+bool DestroyableComponent::OnSetFaction(GameMessages::GameMsg& msg) {
+	auto& modifyFaction = static_cast<GameMessages::SetFaction&>(msg);
+	m_DirtyHealth = true;
+	Game::entityManager->SerializeEntity(m_Parent);
+	SetFaction(modifyFaction.factionID, modifyFaction.bIgnoreChecks);
+	return true;
 }
