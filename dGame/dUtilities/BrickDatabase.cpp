@@ -14,23 +14,27 @@ const BrickList& BrickDatabase::GetBricks(const LxfmlPath& lxfmlPath) {
 	const auto cached = m_Cache.find(lxfmlPath);
 
 	if (cached != m_Cache.end()) {
+		LOG("");
 		return cached->second;
 	}
 
 	auto file = Game::assetManager->GetFile((lxfmlPath).c_str());
 
 	if (!file) {
+		LOG("");
 		return emptyCache;
 	}
 
 	std::stringstream data;
 	data << file.rdbuf();
 	if (data.str().empty()) {
+		LOG("");
 		return emptyCache;
 	}
 
 	tinyxml2::XMLDocument doc;
 	if (doc.Parse(data.str().c_str(), data.str().size()) != 0) {
+		LOG("");
 		return emptyCache;
 	}
 
@@ -41,16 +45,19 @@ const BrickList& BrickDatabase::GetBricks(const LxfmlPath& lxfmlPath) {
 	std::string searchTerm = "Brick";
 
 	if (!bricks) {
+		LOG("");
 		searchTerm = "Part";
 		bricks = lxfml->FirstChildElement("Scene")->FirstChildElement("Model")->FirstChildElement("Group");
 
 		if (!bricks) {
+			LOG("");
 			return emptyCache;
 		}
 	}
 
 	auto* currentBrick = bricks->FirstChildElement(searchTerm.c_str());
 	while (currentBrick != nullptr) {
+		LOG("");
 
 		auto* part = currentBrick->FirstChildElement("Part");
 		if (part == nullptr) part = currentBrick;
@@ -81,9 +88,11 @@ const BrickList& BrickDatabase::GetBricks(const LxfmlPath& lxfmlPath) {
 		}
 
 		currentBrick = currentBrick->NextSiblingElement(searchTerm.c_str());
+		LOG("");
 	}
 
 	m_Cache[lxfmlPath] = parts;
 
+	LOG("");
 	return m_Cache[lxfmlPath];
 }
