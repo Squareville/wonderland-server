@@ -110,6 +110,13 @@ public:
 
 	[[nodiscard]] Vector3 GetEulerAngles() const;
 
+	NiQuaternion operator*(const float scalar) const noexcept;
+
+	NiQuaternion operator*(const NiQuaternion& q) const noexcept;
+	NiQuaternion& operator*=(const NiQuaternion& q) noexcept;
+
+	void Normalize();
+
 	// MARK: Operators
 
 	//! Operator to check for equality

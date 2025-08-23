@@ -3,6 +3,8 @@
 // C++
 #include <cmath>
 
+#define math_sucks 	auto& [ow, ox, oy, oz] = q;this->w = w * ow - x * ox - y * oy - z * oz;this->x = w * ox + x * ow + y * oz - z * oy;this->y = w * oy + y * ow + z * ox - x * oz;this->z = w * oz + z * ow + x * oy - y * ox;return *this;
+
 // MARK: Member Functions
 
 Vector3 NiQuaternion::GetEulerAngles() const {
@@ -14,13 +16,14 @@ Vector3 NiQuaternion::GetEulerAngles() const {
 	angles.x = std::atan2(sinr_cosp, cosr_cosp);
 
 	// pitch (y-axis rotation)
-	const float sinp = 2 * (w * y - z * x);
+	const float t2 = 2 * (w * y - z * x);
+	angles.y = std::asin(std::clamp(t2, -1.0f, 1.0f)); // clamp to avoid NaN
 
-	if (std::abs(sinp) >= 1) {
-		angles.y = std::copysign(3.14 / 2, sinp); // use 90 degrees if out of range
-	} else {
-		angles.y = std::asin(sinp);
-	}
+	// if (std::abs(p) >= 1) {
+	// 	angles.y = std::copysign(3.14 / 2, p); // use 90 degrees if out of range
+	// } else {
+	// 	angles.y = std::asin(p);
+	// }
 
 	// yaw (z-axis rotation)
 	const float siny_cosp = 2 * (w * z + x * y);
@@ -28,6 +31,31 @@ Vector3 NiQuaternion::GetEulerAngles() const {
 	angles.z = std::atan2(siny_cosp, cosy_cosp);
 
 	return angles;
+}
+
+NiQuaternion NiQuaternion::operator*(const float scalar) const noexcept {
+	return NiQuaternion(this->w * scalar, this->x * scalar, this->y * scalar, this->z * scalar);
+}
+
+NiQuaternion& NiQuaternion::operator*= (const NiQuaternion& q) {
+	math_sucks
+}
+
+NiQuaternion NiQuaternion::operator* (const NiQuaternion& q) const {
+	auto& [ow, ox, oy, oz] = q;
+	return NiQuaternion
+	(
+		/* w */w * ow - x * ox - y * oy - z * oz,
+		/* x */w * ox + x * ow + y * oz - z * oy,
+		/* y */w * oy + y * ow + z * ox - x * oz,
+		/* z */w * oz + z * ow + x * oy - y * ox
+	);
+}
+
+void NiQuaternion::Normalize() {
+	float length = w * w + x * x + y * y + z * z;
+	float invLength = 1.0f / std::sqrt(length);
+	*this = *this * invLength;
 }
 
 // MARK: Helper Functions

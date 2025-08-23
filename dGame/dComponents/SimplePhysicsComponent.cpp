@@ -31,17 +31,34 @@ SimplePhysicsComponent::SimplePhysicsComponent(Entity* parent, int32_t component
 	} else {
 		SetClimbableType(eClimbableType::CLIMBABLE_TYPE_NOT);
 	}
-	m_PhysicsMotionState = m_Parent->GetVarAs<uint32_t>(u"motionType");
+	m_PhysicsMotionState = m_Parent->HasVar(u"motionType") ? m_Parent->GetVarAs<uint32_t>(u"motionType") : 5;
 }
 
 SimplePhysicsComponent::~SimplePhysicsComponent() {
 }
 
 void SimplePhysicsComponent::Update(const float deltaTime) {
-	if (m_Velocity == NiPoint3Constant::ZERO) return;
-	m_Position += m_Velocity * deltaTime;
-	m_DirtyPosition = true;
-	Game::entityManager->SerializeEntity(m_Parent);
+	if (m_Velocity != NiPoint3Constant::ZERO) {
+		if (m_PhysicsMotionState == 5) {
+			m_PhysicsMotionState = 1;
+			m_DirtyPhysicsMotionState = true;
+		}
+		m_Position += m_Velocity * deltaTime;
+		m_DirtyPosition = true;
+		Game::entityManager->SerializeEntity(m_Parent);
+	}
+
+	if (m_AngularVelocity != NiPoint3Constant::ZERO) {
+		if (m_PhysicsMotionState == 5) {
+			m_PhysicsMotionState = 1;
+			m_DirtyPhysicsMotionState = true;
+		}
+		m_Rotation.Normalize();
+		m_Rotation *= NiQuaternion::FromEulerAngles(m_AngularVelocity * deltaTime);
+		const auto euler = m_Rotation.GetEulerAngles();
+		m_DirtyPosition = true;
+		Game::entityManager->SerializeEntity(m_Parent);
+	}
 }
 
 void SimplePhysicsComponent::Serialize(RakNet::BitStream& outBitStream, bool bIsInitialUpdate) {

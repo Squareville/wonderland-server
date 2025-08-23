@@ -8,7 +8,8 @@ void NpRotatingPlatform::OnStartup(Entity* self) {
 
 void NpRotatingPlatform::OnTimerDone(Entity* self, const std::string timerName) {
 	if (timerName == "setvelocity") {
-		const auto rotation = NiPoint3(self->GetVar<float>(u"rotX"), self->GetVar<float>(u"rotY"), self->GetVar<float>(u"rotZ"));
+		const auto rotation = NiPoint3(self->GetVarAs<float>(u"rotX"), self->GetVarAs<float>(u"rotY"), self->GetVarAs<float>(u"rotZ"));
 		self->SetAngularVelocity(rotation);
+		Game::entityManager->SerializeEntity(self);
 	}
 }

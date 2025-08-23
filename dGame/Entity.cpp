@@ -2259,6 +2259,8 @@ bool Entity::MsgRequestServerObjectInfo(GameMessages::GameMsg& msg) {
 	objectInfo.PushDebug<AMFIntValue>("Template ID(LOT)") = GetLOT();
 	objectInfo.PushDebug<AMFStringValue>("Object ID") = std::to_string(GetObjectID());
 	objectInfo.PushDebug<AMFStringValue>("Spawner's Object ID") = std::to_string(GetSpawnerID());
+	objectInfo.PushDebug<AMFBoolValue>("Is Sleeping") = IsSleeping();
+	objectInfo.PushDebug<AMFBoolValue>("Is Ghosting Candidate") = GetIsGhostingCandidate();
 
 	auto& componentDetails = objectInfo.PushDebug("Component Information");
 	for (const auto [id, component] : m_Components) {
