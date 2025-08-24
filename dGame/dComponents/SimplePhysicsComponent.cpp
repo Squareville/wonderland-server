@@ -47,18 +47,6 @@ void SimplePhysicsComponent::Update(const float deltaTime) {
 		m_DirtyPosition = true;
 		Game::entityManager->SerializeEntity(m_Parent);
 	}
-
-	if (m_AngularVelocity != NiPoint3Constant::ZERO) {
-		if (m_PhysicsMotionState == 5) {
-			m_PhysicsMotionState = 1;
-			m_DirtyPhysicsMotionState = true;
-		}
-		m_Rotation.Normalize();
-		m_Rotation *= NiQuaternion::FromEulerAngles(m_AngularVelocity * deltaTime);
-		const auto euler = m_Rotation.GetEulerAngles();
-		m_DirtyPosition = true;
-		Game::entityManager->SerializeEntity(m_Parent);
-	}
 }
 
 void SimplePhysicsComponent::Serialize(RakNet::BitStream& outBitStream, bool bIsInitialUpdate) {
