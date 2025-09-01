@@ -43,6 +43,7 @@
 #include "CDZoneTableTable.h"
 #include "eGameMasterLevel.h"
 #include "StringifiedEnum.h"
+#include "ServiceType.h"
 
 #ifdef DARKFLAME_PLATFORM_UNIX
 
@@ -890,7 +891,7 @@ void HandlePacket(Packet* packet) {
 
 			CBITSTREAM
 
-			BitStreamUtils::WriteHeader(bitStream, eConnectionType::MASTER, MessageType::Master::RESPOND_INSTANCES);
+			BitStreamUtils::WriteHeader(bitStream, ServiceType::MASTER, MessageType::Master::RESPOND_INSTANCES);
 
 			bitStream.Write(objectID);
 
