@@ -31,9 +31,10 @@
 #include "ChatPackets.h"
 #include "PlayerManager.h"
 #include "StringifiedEnum.h"
+#include "CDPlayerFlagsTable.h"
 
 namespace {
-	std::set<uint32_t> g_TestedMissions = {773, 774, 775, 776, 777}; // TODO Figure out why these missions are broken sometimes
+	std::set<uint32_t> g_TestedMissions = { 773, 774, 775, 776, 777 }; // TODO Figure out why these missions are broken sometimes
 }
 
 Mission::Mission(MissionComponent* missionComponent, const uint32_t missionId) {
@@ -88,6 +89,7 @@ void Mission::LoadFromXmlDone(const tinyxml2::XMLElement& element) {
 }
 
 void Mission::LoadFromXmlCur(const tinyxml2::XMLElement& element) {
+	const auto* const character = GetCharacter();
 	// Start custom XML
 	if (element.Attribute("state") != nullptr) {
 		m_State = static_cast<eMissionState>(std::stoul(element.Attribute("state")));
@@ -127,6 +129,12 @@ void Mission::LoadFromXmlCur(const tinyxml2::XMLElement& element) {
 			}
 
 			curTask->SetUnique(uniques);
+		} else if (type == eMissionTaskType::PLAYER_FLAG) {
+			int32_t progress = 0; // Update the progress to not include session flags which are unset between logins
+			for (const auto flag : curTask->GetAllTargets()) {
+				if (character->GetPlayerFlag(flag)) progress++;
+			}
+			curTask->SetProgress(progress, false);
 		}
 
 		index++;
