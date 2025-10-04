@@ -37,6 +37,7 @@
 #include "eMissionTaskType.h"
 #include "eStateChangeType.h"
 #include "eGameActivity.h"
+#include <ranges>
 
 #include "CDComponentsRegistryTable.h"
 
@@ -666,11 +667,6 @@ void DestroyableComponent::Damage(uint32_t damage, const LWOOBJID source, uint32
 		return;
 	}
 
-	//check if hardcore mode is enabled
-	if (Game::entityManager->GetHardcoreMode()) {
-		DoHardcoreModeDrops(source);
-	}
-
 	Smash(source, eKillType::VIOLENT, u"", skillID);
 }
 
@@ -698,6 +694,11 @@ void DestroyableComponent::NotifySubscribers(Entity* attacker, uint32_t damage) 
 }
 
 void DestroyableComponent::Smash(const LWOOBJID source, const eKillType killType, const std::u16string& deathType, uint32_t skillID) {
+	//check if hardcore mode is enabled
+	if (Game::entityManager->GetHardcoreMode()) {
+		DoHardcoreModeDrops(source);
+	}
+
 	if (m_iHealth > 0) {
 		SetArmor(0);
 		SetHealth(0);
@@ -981,7 +982,8 @@ void DestroyableComponent::DoHardcoreModeDrops(const LWOOBJID source) {
 		auto* character = m_Parent->GetComponent<CharacterComponent>();
 		auto uscore = character->GetUScore();
 
-		auto uscoreToLose = uscore * (Game::entityManager->GetHardcoreLoseUscoreOnDeathPercent() / 100);
+		auto uscoreToLose = static_cast<uint64_t>(uscore * (Game::entityManager->GetHardcoreLoseUscoreOnDeathPercent() / 100.0f));
+		LOG("Player %llu has lost %llu uscore!", m_Parent->GetObjectID(), uscoreToLose);
 		character->SetUScore(uscore - uscoreToLose);
 
 		GameMessages::SendModifyLEGOScore(m_Parent, m_Parent->GetSystemAddress(), -uscoreToLose, eLootSourceType::MISSION);
@@ -995,13 +997,11 @@ void DestroyableComponent::DoHardcoreModeDrops(const LWOOBJID source) {
 				if (items) {
 					auto itemMap = items->GetItems();
 					if (!itemMap.empty()) {
-						for (const auto& item : itemMap) {
-							//drop the item:
-							if (!item.second) continue;
-							// don't drop the thinkng cap
-							if (item.second->GetLot() == 6086) continue;
-							GameMessages::SendDropClientLoot(m_Parent, source, item.second->GetLot(), 0, m_Parent->GetPosition(), item.second->GetCount());
-							item.second->SetCount(0, false, false);
+						for (const auto item : itemMap | std::views::values) {
+							// Don't drop excluded items or null ones
+							if (!item || Game::entityManager->GetHardcoreExcludedItemDrops().contains(item->GetLot())) continue;
+							GameMessages::SendDropClientLoot(m_Parent, source, item->GetLot(), 0, m_Parent->GetPosition(), item->GetCount());
+							item->SetCount(0, false, false);
 						}
 						Game::entityManager->SerializeEntity(m_Parent);
 					}
@@ -1020,24 +1020,25 @@ void DestroyableComponent::DoHardcoreModeDrops(const LWOOBJID source) {
 			//drop all coins:
 			GameMessages::SendDropClientLoot(m_Parent, source, LOT_NULL, coins, m_Parent->GetPosition());
 		}
-
-		// Reload the player since we can't normally reduce uscore from the server and we want the UI to update
-		// do this last so we don't get killed.... again
-		Game::entityManager->DestructEntity(m_Parent);
-		Game::entityManager->ConstructEntity(m_Parent);
 		return;
 	}
 
 	//award the player some u-score:
 	auto* player = Game::entityManager->GetEntity(source);
 	if (player && player->IsPlayer()) {
+		const auto lot = m_Parent->GetLOT();
 		auto* playerStats = player->GetComponent<CharacterComponent>();
-		if (playerStats) {
+		if (playerStats && GetMaxHealth() > 0 && !Game::entityManager->GetHardcoreUscoreExcludedEnemies().contains(lot)) {
 			//get the maximum health from this enemy:
 			auto maxHealth = GetMaxHealth();
+			const auto uscoreMultiplier = Game::entityManager->GetHardcoreUscoreEnemiesMultiplier();
+			const bool isUscoreReducedLot =
+			Game::entityManager->GetHardcoreUscoreReducedLots().contains(lot) ||
+			Game::entityManager->GetHardcoreUscoreReduced();
+			const auto uscoreReduction = isUscoreReducedLot ? Game::entityManager->GetHardcoreUscoreReduction() : 1.0f;
 
-			int uscore = maxHealth * Game::entityManager->GetHardcoreUscoreEnemiesMultiplier();
-
+			int uscore = maxHealth * Game::entityManager->GetHardcoreUscoreEnemiesMultiplier() * uscoreReduction;
+			LOG("Rewarding player %llu with %i uscore for killing enemy %i", player->GetObjectID(), uscore, lot);
 			playerStats->SetUScore(playerStats->GetUScore() + uscore);
 			GameMessages::SendModifyLEGOScore(player, player->GetSystemAddress(), uscore, eLootSourceType::MISSION);
 

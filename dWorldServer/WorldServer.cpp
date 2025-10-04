@@ -35,7 +35,6 @@
 #include "CDClientManager.h"
 #include "CDClientDatabase.h"
 #include "GeneralUtils.h"
-#include "ObjectIDManager.h"
 #include "ZoneInstanceManager.h"
 #include "dChatFilter.h"
 #include "ClientPackets.h"
@@ -82,6 +81,7 @@
 #include "MissionComponent.h"
 #include "SlashCommandHandler.h"
 #include "InventoryComponent.h"
+#include "Item.h"
 
 namespace Game {
 	Logger* logger = nullptr;
@@ -159,6 +159,7 @@ int main(int argc, char** argv) {
 	//Create all the objects we need to run our service:
 	Server::SetupLogger("WorldServer_" + std::to_string(zoneID) + "_" + std::to_string(g_InstanceID));
 	if (!Game::logger) return EXIT_FAILURE;
+	Game::config->LogSettings();
 
 	LOG("Starting World server...");
 	LOG("Version: %s", Game::projectVersion.c_str());
@@ -674,15 +675,6 @@ void HandleMasterPacket(Packet* packet) {
 	if (packet->length < 2) return;
 	if (static_cast<ServiceType>(packet->data[1]) != ServiceType::MASTER || packet->length < 4) return;
 	switch (static_cast<MessageType::Master>(packet->data[3])) {
-	case MessageType::Master::REQUEST_PERSISTENT_ID_RESPONSE: {
-		CINSTREAM_SKIP_HEADER;
-		uint64_t requestID;
-		inStream.Read(requestID);
-		uint32_t objectID;
-		inStream.Read(objectID);
-		ObjectIDManager::HandleRequestPersistentIDResponse(requestID, objectID);
-		break;
-	}
 
 	case MessageType::Master::SESSION_KEY_RESPONSE: {
 		//Read our session key and to which user it belongs:
@@ -861,7 +853,7 @@ void HandlePacket(Packet* packet) {
 	}
 
 	if (luBitStream.connectionType != ServiceType::WORLD) return;
-
+	LOG_DEBUG("Got world packet %s", StringifiedEnum::ToString(static_cast<MessageType::World>(luBitStream.internalPacketID)).data());
 	switch (static_cast<MessageType::World>(luBitStream.internalPacketID)) {
 	case MessageType::World::VALIDATION: {
 		CINSTREAM_SKIP_HEADER;
@@ -983,7 +975,7 @@ void HandlePacket(Packet* packet) {
 
 		LWOOBJID playerID = 0;
 		inStream.Read(playerID);
-
+		LOG("User is requesting to login with character %llu", playerID);
 		bool valid = CheatDetection::VerifyLwoobjidIsSender(
 			playerID,
 			packet->systemAddress,
@@ -991,18 +983,15 @@ void HandlePacket(Packet* packet) {
 			"Sending login request with a sending player that does not match their own. Player ID: %llu",
 			playerID
 		);
-
+		LOG("Login request for player %llu is %s", playerID, valid ? "valid" : "invalid");
 		if (!valid) return;
-
-		GeneralUtils::ClearBit(playerID, eObjectBits::CHARACTER);
-		GeneralUtils::ClearBit(playerID, eObjectBits::PERSISTENT);
 
 		auto user = UserManager::Instance()->GetUser(packet->systemAddress);
 
 		if (user) {
 			auto lastCharacter = user->GetLoggedInChar();
 			// This means we swapped characters and we need to remove the previous player from the container.
-			if (static_cast<uint32_t>(lastCharacter) != playerID) {
+			if (lastCharacter != playerID) {
 				CBITSTREAM;
 				BitStreamUtils::WriteHeader(bitStream, ServiceType::CHAT, MessageType::Chat::UNEXPECTED_DISCONNECT);
 				bitStream.Write(lastCharacter);
@@ -1010,7 +999,7 @@ void HandlePacket(Packet* packet) {
 			}
 		}
 
-		UserManager::Instance()->LoginCharacter(packet->systemAddress, static_cast<uint32_t>(playerID));
+		UserManager::Instance()->LoginCharacter(packet->systemAddress, playerID);
 		break;
 	}
 
@@ -1040,21 +1029,6 @@ void HandlePacket(Packet* packet) {
 				auto* characterComponent = player->GetComponent<CharacterComponent>();
 				if (!characterComponent) return;
 
-				WorldPackets::SendCreateCharacter(packet->systemAddress, player->GetComponent<CharacterComponent>()->GetReputation(), player->GetObjectID(), c->GetXMLData(), username, c->GetGMLevel(), c->GetPropertyCloneID());
-				WorldPackets::SendServerState(packet->systemAddress);
-
-				const auto respawnPoint = player->GetCharacter()->GetRespawnPoint(Game::zoneManager->GetZone()->GetWorldID());
-
-				Game::entityManager->ConstructEntity(player, UNASSIGNED_SYSTEM_ADDRESS);
-
-				if (respawnPoint != NiPoint3Constant::ZERO) {
-					GameMessages::SendPlayerReachedRespawnCheckpoint(player, respawnPoint, NiQuaternionConstant::IDENTITY);
-				}
-
-				Game::entityManager->ConstructAllEntities(packet->systemAddress);
-
-				characterComponent->RocketUnEquip(player);
-
 				// Do charxml fixes here
 				auto* levelComponent = player->GetComponent<LevelProgressionComponent>();
 				auto* const inventoryComponent = player->GetComponent<InventoryComponent>();
@@ -1062,62 +1036,95 @@ void HandlePacket(Packet* packet) {
 				if (!levelComponent || !missionComponent || !inventoryComponent) return;
 
 				auto version = levelComponent->GetCharacterVersion();
-				switch (version) {
-				case eCharacterVersion::RELEASE:
-					// TODO: Implement, super low priority
-					[[fallthrough]];
-				case eCharacterVersion::LIVE:
-					LOG("Updating Character Flags");
-					c->SetRetroactiveFlags();
-					levelComponent->SetCharacterVersion(eCharacterVersion::PLAYER_FACTION_FLAGS);
-					[[fallthrough]];
-				case eCharacterVersion::PLAYER_FACTION_FLAGS:
-					LOG("Updating Vault Size");
-					player->RetroactiveVaultSize();
-					levelComponent->SetCharacterVersion(eCharacterVersion::VAULT_SIZE);
-					[[fallthrough]];
-				case eCharacterVersion::VAULT_SIZE:
-					LOG("Updaing Speedbase");
-					levelComponent->SetRetroactiveBaseSpeed();
-					levelComponent->SetCharacterVersion(eCharacterVersion::SPEED_BASE);
-					[[fallthrough]];
-				case eCharacterVersion::SPEED_BASE: {
-					LOG("Removing lots from NJ Jay missions bugged at foss");
-					// https://explorer.lu/missions/1789
-					const auto* mission = missionComponent->GetMission(1789);
-					if (mission && mission->IsComplete()) {
-						inventoryComponent->RemoveItem(14474, 1, eInventoryType::ITEMS);
-						inventoryComponent->RemoveItem(14474, 1, eInventoryType::VAULT_ITEMS);
-					}
-					// https://explorer.lu/missions/1927
-					mission = missionComponent->GetMission(1927);
-					if (mission && mission->IsComplete()) {
-						inventoryComponent->RemoveItem(14493, 1, eInventoryType::ITEMS);
-						inventoryComponent->RemoveItem(14493, 1, eInventoryType::VAULT_ITEMS);
-					}
-					levelComponent->SetCharacterVersion(eCharacterVersion::NJ_JAYMISSIONS);
-					[[fallthrough]];
-				}
-				case eCharacterVersion::NJ_JAYMISSIONS: {
-					LOG("Fixing Nexus Force Explorer missions");
-					auto missions = { 502 /* Pet Cove */, 593/* Nimbus Station */, 938/* Avant Gardens */, 284/* Gnarled Forest */, 754/* Forbidden Valley */ };
-					bool complete = true;
-					for (auto missionID : missions) {
-						auto* mission = missionComponent->GetMission(missionID);
-						if (!mission || !mission->IsComplete()) {
-							complete = false;
+				LOG("Updating character from version %s", StringifiedEnum::ToString(version).data());
+				if (version < eCharacterVersion::UP_TO_DATE) {
+					switch (version) {
+					case eCharacterVersion::RELEASE:
+						// TODO: Implement, super low priority
+						[[fallthrough]];
+					case eCharacterVersion::LIVE:
+						LOG("Updating Character Flags");
+						c->SetRetroactiveFlags();
+						levelComponent->SetCharacterVersion(eCharacterVersion::PLAYER_FACTION_FLAGS);
+						[[fallthrough]];
+					case eCharacterVersion::PLAYER_FACTION_FLAGS:
+						LOG("Updating Vault Size");
+						player->RetroactiveVaultSize();
+						levelComponent->SetCharacterVersion(eCharacterVersion::VAULT_SIZE);
+						[[fallthrough]];
+					case eCharacterVersion::VAULT_SIZE:
+						LOG("Updaing Speedbase");
+						levelComponent->SetRetroactiveBaseSpeed();
+						levelComponent->SetCharacterVersion(eCharacterVersion::SPEED_BASE);
+						[[fallthrough]];
+					case eCharacterVersion::SPEED_BASE: {
+						LOG("Removing lots from NJ Jay missions bugged at foss");
+						// https://explorer.lu/missions/1789
+						const auto* mission = missionComponent->GetMission(1789);
+						if (mission && mission->IsComplete()) {
+							inventoryComponent->RemoveItem(14474, 1, eInventoryType::ITEMS);
+							inventoryComponent->RemoveItem(14474, 1, eInventoryType::VAULT_ITEMS);
 						}
+						// https://explorer.lu/missions/1927
+						mission = missionComponent->GetMission(1927);
+						if (mission && mission->IsComplete()) {
+							inventoryComponent->RemoveItem(14493, 1, eInventoryType::ITEMS);
+							inventoryComponent->RemoveItem(14493, 1, eInventoryType::VAULT_ITEMS);
+						}
+						levelComponent->SetCharacterVersion(eCharacterVersion::NJ_JAYMISSIONS);
+						[[fallthrough]];
 					}
+					case eCharacterVersion::NJ_JAYMISSIONS: {
+						LOG("Fixing Nexus Force Explorer missions");
+						auto missions = { 502 /* Pet Cove */, 593/* Nimbus Station */, 938/* Avant Gardens */, 284/* Gnarled Forest */, 754/* Forbidden Valley */ };
+						bool complete = true;
+						for (auto missionID : missions) {
+							auto* mission = missionComponent->GetMission(missionID);
+							if (!mission || !mission->IsComplete()) {
+								complete = false;
+							}
+						}
 
-					if (complete) missionComponent->CompleteMission(937 /* Nexus Force explorer */);
-					levelComponent->SetCharacterVersion(eCharacterVersion::UP_TO_DATE);
-					[[fallthrough]];
-				}
-				case eCharacterVersion::UP_TO_DATE:
-					break;
+						if (complete) missionComponent->CompleteMission(937 /* Nexus Force explorer */);
+						levelComponent->SetCharacterVersion(eCharacterVersion::NEXUS_FORCE_EXPLORER);
+						[[fallthrough]];
+					}
+					case eCharacterVersion::NEXUS_FORCE_EXPLORER: {
+						LOG("Fixing pet IDs");
+
+						// First copy the original ids
+						const auto pets = inventoryComponent->GetPetsMut();
+
+						// Then clear the pets so we can re-add them with the updated IDs
+						auto& invPets = inventoryComponent->GetPetsMut();
+						invPets.clear();
+						for (auto& [id, databasePet] : pets) {
+							const auto originalID = id;
+							const auto newId = GeneralUtils::ClearBit(id, 32); // Persistent bit that didn't exist
+							LOG("New ID %llu", newId);
+							auto* item = inventoryComponent->FindItemBySubKey(originalID);
+							if (item) {
+								LOG("item subkey %llu", item->GetSubKey());
+								item->SetSubKey(newId);
+								invPets[newId] = databasePet;
+							}
+						}
+						levelComponent->SetCharacterVersion(eCharacterVersion::PET_IDS);
+						[[fallthrough]];
+					}
+					case eCharacterVersion::PET_IDS: {
+						LOG("Regenerating item ids");
+						inventoryComponent->RegenerateItemIDs();
+						levelComponent->SetCharacterVersion(eCharacterVersion::UP_TO_DATE);
+						[[fallthrough]];
+					}
+					case eCharacterVersion::UP_TO_DATE:
+						break;
+					}
 				}
 
-				player->GetCharacter()->SetTargetScene("");
+				// Update the characters xml to ensure the update above is not only saved, but so the client picks up on the changes.
+				c->SaveXMLToDatabase();
 
 				// Fix the destroyable component
 				auto* destroyableComponent = player->GetComponent<DestroyableComponent>();
@@ -1125,6 +1132,23 @@ void HandlePacket(Packet* packet) {
 				if (destroyableComponent != nullptr) {
 					destroyableComponent->FixStats();
 				}
+
+				WorldPackets::SendCreateCharacter(packet->systemAddress, characterComponent->GetReputation(), player->GetObjectID(), c->GetXMLData(), username, c->GetGMLevel(), c->GetPropertyCloneID());
+				WorldPackets::SendServerState(packet->systemAddress);
+
+				const auto respawnPoint = player->GetCharacter()->GetRespawnPoint(Game::zoneManager->GetZone()->GetWorldID());
+
+				Game::entityManager->ConstructEntity(player, UNASSIGNED_SYSTEM_ADDRESS);
+
+				if (respawnPoint != NiPoint3Constant::ZERO) {
+					GameMessages::SendPlayerReachedRespawnCheckpoint(player, respawnPoint, QuatUtils::IDENTITY);
+				}
+
+				Game::entityManager->ConstructAllEntities(packet->systemAddress);
+
+				characterComponent->RocketUnEquip(player);
+
+				player->GetCharacter()->SetTargetScene("");
 
 				//Tell the player to generate BBB models, if any:
 				if (g_CloneID != 0) {
@@ -1151,8 +1175,6 @@ void HandlePacket(Packet* packet) {
 
 						//Send message:
 						LWOOBJID blueprintID = bbbModel.id;
-						GeneralUtils::SetBit(blueprintID, eObjectBits::CHARACTER);
-						GeneralUtils::SetBit(blueprintID, eObjectBits::PERSISTENT);
 
 						// Workaround for not having a UGC server to get model LXFML onto the client so it
 						// can generate the physics and nif for the object.

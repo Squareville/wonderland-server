@@ -402,9 +402,13 @@ public:
 	bool SetSkill(BehaviorSlot slot, uint32_t skillId);
 
 	void UpdateGroup(const GroupUpdate& groupUpdate);
-	void RemoveGroup(const std::string& groupId);
+
+	std::unordered_map<LWOOBJID, DatabasePet>& GetPetsMut() { return m_Pets; };
 
 	void FixInvisibleItems();
+
+	// Used to migrate a character version, no need to call outside of that context
+	void RegenerateItemIDs();
 
 	~InventoryComponent() override;
 	

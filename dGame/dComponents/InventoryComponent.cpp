@@ -626,7 +626,8 @@ void InventoryComponent::UpdateXml(tinyxml2::XMLDocument& document) {
 	for (const auto& pair : this->m_Inventories) {
 		auto* inventory = pair.second;
 
-		if (inventory->GetType() == VENDOR_BUYBACK || inventory->GetType() == eInventoryType::MODELS_IN_BBB) {
+		static const auto EXCLUDED_INVENTORIES = {VENDOR_BUYBACK, MODELS_IN_BBB, ITEM_SETS};
+		if (std::ranges::find(EXCLUDED_INVENTORIES, inventory->GetType()) != EXCLUDED_INVENTORIES.end()) {
 			continue;
 		}
 
@@ -1279,7 +1280,7 @@ void InventoryComponent::SpawnPet(Item* item) {
 	EntityInfo info{};
 	info.lot = item->GetLot();
 	info.pos = m_Parent->GetPosition();
-	info.rot = NiQuaternionConstant::IDENTITY;
+	info.rot = QuatUtils::IDENTITY;
 	info.spawnerID = m_Parent->GetObjectID();
 
 	auto* pet = Game::entityManager->CreateEntity(info);
@@ -1807,5 +1808,11 @@ void InventoryComponent::LoadGroupXml(const tinyxml2::XMLElement& groups) {
 		}
 
 		groupElement = groupElement->NextSiblingElement("grp");
+	}
+}
+
+void InventoryComponent::RegenerateItemIDs() {
+	for (auto* const inventory : m_Inventories | std::views::values) {
+		inventory->RegenerateItemIDs();
 	}
 }
