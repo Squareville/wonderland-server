@@ -336,7 +336,7 @@ void SkunkEvent::SpawnSingleHazmatNpc(Entity* const self, const std::string& pat
 
 	EntityInfo info{};
 	info.pos = path->pathWaypoints[0].position;
-	info.rot = NiQuaternionConstant::IDENTITY;
+	info.rot = QuatUtils::IDENTITY;
 	auto* const van = GetEntityByName(self, u"HazmatVanID");
 	if (van) {
 		const auto& vanRotation = van->GetRotation();

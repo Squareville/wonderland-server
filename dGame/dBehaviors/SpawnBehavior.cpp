@@ -37,7 +37,7 @@ void SpawnBehavior::Handle(BehaviorContext* context, RakNet::BitStream& bitStrea
 	info.spawnerID = context->originator;
 	info.spawnerNodeID = 0;
 	const auto forward = QuatUtils::Forward(info.rot);
-	info.pos = info.pos + (forward * m_Distance) + (forward * m_Offset.z) + (info.rot.GetRightVector() * m_Offset.x) + (info.rot.GetUpVector() * m_Offset.y);
+	info.pos = info.pos + (forward * m_Distance) + (forward * m_Offset.z) + (QuatUtils::Right(info.rot) * m_Offset.x) + (QuatUtils::Up(info.rot) * m_Offset.y);
 
 	auto* entity = Game::entityManager->CreateEntity(
 		info,
