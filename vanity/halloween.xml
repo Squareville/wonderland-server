@@ -873,4 +873,108 @@
 			<location zone="1200" x="-68.30496978759766" y="296.3487548828125" z="-199.4384307861328" rw="-0.31647834181785583" rx="0.0" ry="0.9485998153686523" rz="0.0" />
 		</locations>
 	</object>
+
+	<!--MAD DOC VENDOR-->
+	<object lot="20294">
+		<locations>
+			<location zone="1200" x="111.0841064453125" y="292.99005126953125" z="-98.34580993652344" rw="0.6101304292678833" rx="0.0" ry="0.7923011183738708" rz="0.0" />
+		</locations>
+	</object>
+
+	<!--MAD DOC CRYPT-->
+	<object lot="20296">
+		<locations>
+			<location zone="1200" x="109.49798583984375" y="292.9896545410156" z="-88.20845794677734" rw="0.5778535604476929" rx="0.0" ry="-0.8161405324935913" rz="0.0" />
+		</locations>
+	</object>
+
+	<!--MAD DOC TABLE-->
+	<object lot="2329">
+		<locations>
+			<location zone="1200" x="107.18445587158203" y="292.9792175292969" z="-100.01212310791016" rw="0.798106849193573" rx="0.0" ry="0.6025159358978271" rz="0.0" />
+		</locations>
+	</object>
+
+	<!--MAD DOC SWORD BARREL-->
+	<object lot="2275">
+		<locations>
+			<location zone="1200" x="109.4471206665039" y="292.9792175292969" z="-95.86778259277344" rw="0.34365764260292053" rx="0.0" ry="0.9390950202941895" rz="0.0" />
+		</locations>
+	</object>
+
+	<!--MAD DOC CART-->
+	<object lot="2460">
+		<locations>
+			<location zone="1200" x="112.13839721679688" y="292.98046875" z="-103.88334655761719" rw="0.9986748099327087" rx="0.0" ry="-0.05146651342511177" rz="0.0" />
+		</locations>
+	</object>
+
+	<!--MAD DOC SKELETON 1-->
+	<object lot="20092">
+		<locations>
+			<location zone="1200" x="107.3756332397461" y="294.5805969238281" z="-102.0203628540039" rw="0.962454080581665" rx="0.0" ry="0.27144455909729004" rz="0.0" />
+		</locations>
+	</object>
+
+	<!--MAD DOC SKELETON 2-->
+	<object lot="20093">
+		<locations>
+			<location zone="1200" x="111.34835815429688" y="295.2492370605469" z="-104.9664306640625" rw="0.9372417330741882" rx="0.12055788934230804" ry="-0.295294851064682" rz="-0.14087136089801788" />
+		</locations>
+	</object>
+
+	<!--MAD DOC BRAINS-->
+	<object lot="20297">
+		<locations>
+			<location zone="1200" x="107.29553985595703" y="294.32000732421875" z="-98.3633041381836" rw="-0.4257796108722687" rx="0.0" ry="0.9048269391059875" rz="0.0" />
+			<location zone="1200" x="112.7938461303711" y="294.45001220703125" z="-102.61986541748047" rw="0.8597973585128784" rx="-0.38006412982940674" ry="-0.24521560966968536" rz="-0.23700012266635895" />
+			<location zone="1200" x="112.4800033569336" y="294.9800109863281" z="-102.66999816894531" rw="0.4596283435821533" rx="-0.35726198554039" ry="0.478664755821228" rz="0.6572563052177429" />
+		</locations>
+	</object>
+
+	<!--MAD DOC CANDLES-->
+	<object lot="176">
+		<config>
+			<key>CheckPrecondition=0:</key>
+			<key>SmashableDoesNotCutNavmesh=7:0</key>
+			<key>add_to_navmesh=7:1</key>
+			<key>bounding_radius_override=3:0</key>
+			<key>camGradSnap=7:0</key>
+			<key>camPrefersToFadeObject=7:0</key>
+			<key>carver_only=7:0</key>
+			<key>create_physics=7:1</key>
+			<key>custom_config_names=0:</key>
+			<key>explode_factor=3:1</key>
+			<key>friction=3:1.5</key>
+			<key>fxpriority=1:0</key>
+			<key>gravFactor=3:1</key>
+			<key>grpNameQBShowBricks=0:</key>
+			<key>ignoreCameraCollision=7:0</key>
+			<key>interaction_distance=3:16</key>
+			<key>is_smashable=7:0</key>
+			<key>loadOnClientOnly=7:0</key>
+			<key>max_to_spawn=1:-1</key>
+			<key>navmesh_carver=7:0</key>
+			<key>no_auto_spawn=7:1</key>
+			<key>no_timed_spawn=7:1</key>
+			<key>override_faction=7:0</key>
+			<key>radius=3:0</key>
+			<key>renderCullingGroup=5:0</key>
+			<key>respawn=5:20000</key>
+			<key>sceneIDOverride=1:255</key>
+			<key>sceneIDOverrideEnabled=7:0</key>
+			<key>sceneLayerIDOverride=5:0</key>
+			<key>set_faction=13:6 </key>
+			<key>smashable_loot_matrix=1:-1</key>
+			<key>smashable_loot_matrix_set=7:0</key>
+			<key>spawner_active_on_load=7:1</key>
+			<key>spawntemplate=1:8524</key>
+			<key>startsQBActivator=7:0</key>
+			<key>template=1:-1</key>
+		</config>
+		<locations>
+			<location zone="1200" x="109.38453674316406" y="294.5791931152344" z="-101.75041198730469" rw="0.9924392104148865" rx="0.0" ry="0.12273694574832916" rz="0.0" />
+			<location zone="1200" x="104.94523620605469" y="294.5791931152344" z="-98.12385559082031" rw="0.8594073057174683" rx="0.0" ry="-0.5112915635108948" rz="0.0" />
+		</locations>
+	</object>
 </objects>
