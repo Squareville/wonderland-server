@@ -881,6 +881,13 @@
 		</locations>
 	</object>
 
+	<!--MAD DOC ASSISTANT-->
+	<object lot="20298">
+		<locations>
+			<location zone="1200" x="111.381" y="293.067" z="-114.437" rw="0.724055" rx="0.0" ry="-0.689742" rz="0.0" />
+		</locations>
+	</object>
+
 	<!--MAD DOC CRYPT-->
 	<object lot="20296">
 		<locations>
