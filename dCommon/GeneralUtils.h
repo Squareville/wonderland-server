@@ -3,7 +3,7 @@
 // C++
 #include <charconv>
 #include <cstdint>
-#include <cmath> 
+#include <cmath>
 #include <ctime>
 #include <functional>
 #include <optional>
@@ -306,7 +306,7 @@ namespace GeneralUtils {
 	template<typename Container>
 	inline Container::value_type GetRandomElement(const Container& container) {
 		DluAssert(!container.empty());
-		return container[GenerateRandomNumber<typename Container::value_type>(0, container.size() - 1)];
+		return container[GenerateRandomNumber<typename Container::size_type>(0, container.size() - 1)];
 	}
 
 	/**
