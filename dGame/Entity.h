@@ -178,6 +178,10 @@ public:
 	void AddComponent(eReplicaComponentType componentId, Component* component);
 
 	bool MsgRequestServerObjectInfo(GameMessages::GameMsg& msg);
+	bool MsgDropClientLoot(GameMessages::GameMsg& msg);
+	bool MsgGetFlag(GameMessages::GameMsg& msg);
+	bool MsgGetFactionTokenType(GameMessages::GameMsg& msg);
+	bool MsgPickupItem(GameMessages::GameMsg& msg);
 
 	// This is expceted to never return nullptr, an assert checks this.
 	CppScripts::Script* const GetScript() const;
@@ -343,6 +347,12 @@ public:
 
 	void RegisterMsg(const MessageType::Game msgId, auto* self, const auto handler) {
 		RegisterMsg(msgId, std::bind(handler, self, std::placeholders::_1));
+	}
+
+	template<typename T>
+	inline void RegisterMsg(auto* self, const auto handler) {
+		T msg;
+		RegisterMsg(msg.msgId, self, handler);
 	}
 
 	/**
@@ -603,5 +613,5 @@ auto Entity::GetComponents() const {
 
 template<typename... T>
 auto Entity::GetComponentsMut() const {
-	return std::tuple{GetComponent<T>()...};
+	return std::tuple{ GetComponent<T>()... };
 }

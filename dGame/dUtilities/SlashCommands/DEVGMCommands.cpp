@@ -52,7 +52,7 @@
 #include "eInventoryType.h"
 #include "ePlayerFlag.h"
 #include "StringifiedEnum.h"
-
+#include "BinaryPathFinder.h"
 
 namespace DEVGMCommands {
 	void SetGMLevel(Entity* entity, const SystemAddress& sysAddr, const std::string args) {
@@ -370,6 +370,20 @@ namespace DEVGMCommands {
 		}
 	}
 
+	void HandleMacro(Entity& entity, const SystemAddress& sysAddr, std::istream& inStream) {
+		if (inStream.good()) {
+			std::string line;
+			while (std::getline(inStream, line)) {
+				// Do this in two separate calls to catch both \n and \r\n
+				line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
+				line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
+				SlashCommandHandler::HandleChatCommand(GeneralUtils::ASCIIToUTF16(line), &entity, sysAddr);
+			}
+		} else {
+			ChatPackets::SendSystemMessage(sysAddr, u"Unknown macro! Is the filename right?");
+		}
+	}
+
 	void RunMacro(Entity* entity, const SystemAddress& sysAddr, const std::string args) {
 		const auto splitArgs = GeneralUtils::SplitString(args, ' ');
 		if (splitArgs.empty()) return;
@@ -378,24 +392,16 @@ namespace DEVGMCommands {
 		if (splitArgs[0].find("/") != std::string::npos) return;
 		if (splitArgs[0].find("\\") != std::string::npos) return;
 
-		auto infile = Game::assetManager->GetFile(("macros/" + splitArgs[0] + ".scm").c_str());
-
-		if (!infile) {
+		const auto resServerPath = BinaryPathFinder::GetBinaryDir() / "resServer";
+		auto infile = Game::assetManager->GetFile("macros/" + splitArgs[0] + ".scm");
+		auto resServerInFile = std::ifstream(resServerPath / "macros" / (splitArgs[0] + ".scm"));
+		if (!infile.good() && !resServerInFile.good()) {
 			ChatPackets::SendSystemMessage(sysAddr, u"Unknown macro! Is the filename right?");
 			return;
 		}
 
-		if (infile.good()) {
-			std::string line;
-			while (std::getline(infile, line)) {
-				// Do this in two separate calls to catch both \n and \r\n
-				line.erase(std::remove(line.begin(), line.end(), '\n'), line.end());
-				line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
-				SlashCommandHandler::HandleChatCommand(GeneralUtils::ASCIIToUTF16(line), entity, sysAddr);
-			}
-		} else {
-			ChatPackets::SendSystemMessage(sysAddr, u"Unknown macro! Is the filename right?");
-		}
+		HandleMacro(*entity, sysAddr, infile);
+		HandleMacro(*entity, sysAddr, resServerInFile);
 	}
 
 	void AddMission(Entity* entity, const SystemAddress& sysAddr, const std::string args) {
@@ -1310,7 +1316,7 @@ namespace DEVGMCommands {
 
 		for (uint32_t i = 0; i < loops; i++) {
 			while (true) {
-				auto lootRoll = Loot::RollLootMatrix(lootMatrixIndex.value());
+				const auto lootRoll = Loot::RollLootMatrix(nullptr, lootMatrixIndex.value());
 				totalRuns += 1;
 				bool doBreak = false;
 				for (const auto& kv : lootRoll) {
@@ -1475,15 +1481,20 @@ namespace DEVGMCommands {
 	void Inspect(Entity* entity, const SystemAddress& sysAddr, const std::string args) {
 		const auto splitArgs = GeneralUtils::SplitString(args, ' ');
 		if (splitArgs.empty()) return;
+		const auto idParsed = GeneralUtils::TryParse<LWOOBJID>(splitArgs[0]);
 
+		// First try to get the object by its ID if provided.
+		// Second try to get the object by player name.
+		// Lastly assume we were passed a component or LDF and try to find the closest entity with that component or LDF.
 		Entity* closest = nullptr;
+		if (idParsed) closest = Game::entityManager->GetEntity(idParsed.value());
 		float closestDistance = 0.0f;
 
 		std::u16string ldf;
 
 		bool isLDF = false;
 
-		closest = PlayerManager::GetPlayer(splitArgs[0]);
+		if (!closest) closest = PlayerManager::GetPlayer(splitArgs[0]);
 		if (!closest) {
 			auto component = GeneralUtils::TryParse<eReplicaComponentType>(splitArgs[0]);
 			if (!component) {
