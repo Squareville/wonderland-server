@@ -4,6 +4,8 @@
 #include "Loot.h"
 #include "EntityManager.h"
 #include "eTerminateType.h"
+#include "eStateChangeType.h"
+#include "CharacterComponent.h"
 
 void WishingWellServer::OnStartup(Entity* self) {
 }

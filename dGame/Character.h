@@ -276,6 +276,7 @@ public:
 
 	/**
 	 * Sets the name of the landing scene that will play when the player lands in the new zone
+	 * not a scene why is it called this
 	 * NOTE: Generally set by launch pads before heading off to the next zone
 	 * @param value the name of the landing scene to set
 	 */
