@@ -16,7 +16,7 @@ void ZonePlayer::OnUse(Entity* self, Entity* user) {
 	auto* const characterComponent = user->GetComponent<CharacterComponent>();
 	auto* const character = user->GetCharacter();
 	if (characterComponent && character && self->HasVar(u"zoneID") && self->HasVar(u"spawnPoint")) {
-		character->SetTargetScene(self->GetVarAs<std::string>(u"spawnPoint"));
+		character->SetTargetScene(self->GetVarAsString(u"spawnPoint"));
 		characterComponent->SendToZone(self->GetVarAs<LWOMAPID>(u"zoneID"));
 	}
 }

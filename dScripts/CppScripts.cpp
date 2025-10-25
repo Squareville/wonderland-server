@@ -379,6 +379,7 @@
 #include "PicnicBotPicnicBot.h"
 #include "NpStrombieFlower.h"
 #include "ZonePlayer.h"
+#include "AfvBell.h"
 
 #define CPP_SCRIPT(filename, classname) { filename, []() { return new classname(); } }
 
@@ -783,6 +784,7 @@ namespace {
 		{R"(scripts\newcontent\server\halloweenminiboss.lua)", []() {return new SkillCastAndOptionalDeath(1996, true, 120.0f);}},
 		{R"(scripts\newcontent\server\halloweenmanager.lua)", []() {return new HalloweenManager();}},
 		{R"(scripts\newcontent\server\afv_numbchuck_server.lua)", []() {return new AfvNumbchuckServer();}},
+		CPP_SCRIPT(R"(scripts\newcontent\server\afv_bell.lua)", AfvBell),
 		{R"(scripts\newcontent\server\spawnmaelninjaondeath.lua)", []() {return new SpawnMaelstromNinjaOnDeath();}},
 		{R"(scripts\newcontent\server\np_milo.lua)", []() {return new NpMilo();}},
 		{R"(scripts\newcontent\server\np_ant.lua)", []() {return new NpAnt();}},
