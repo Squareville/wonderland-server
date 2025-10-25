@@ -13,4 +13,5 @@ set(DSCRIPTS_SOURCES_NEWCONTENT_SERVER
 	"NpMime.cpp"
 	"NpPicnicBot.cpp"
 	"PicnicBotPicnicBot.cpp"
+	"NpStrombieFlower.cpp"
 	PARENT_SCOPE)
