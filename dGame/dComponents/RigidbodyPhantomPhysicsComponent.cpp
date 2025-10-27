@@ -14,7 +14,7 @@
 #include "Amf3.h"
 
 RigidbodyPhantomPhysicsComponent::RigidbodyPhantomPhysicsComponent(Entity* parent, const int32_t componentID) : PhysicsComponent(parent, componentID) {
-	RegisterMsg(MessageType::Game::GET_OBJECT_REPORT_INFO, this, &RigidbodyPhantomPhysicsComponent::OnGetObjectReportInfo);
+	RegisterMsg(this, &RigidbodyPhantomPhysicsComponent::OnGetObjectReportInfo);
 
 	m_Position = m_Parent->GetDefaultPosition();
 	m_Rotation = m_Parent->GetDefaultRotation();
@@ -60,8 +60,8 @@ void RigidbodyPhantomPhysicsComponent::SpawnVertices() const {
 }
 
 bool RigidbodyPhantomPhysicsComponent::OnGetObjectReportInfo(GameMessages::GameMsg& msg) {
-	PhysicsComponent::OnGetObjectReportInfo(msg);
 	auto& reportInfo = static_cast<GameMessages::GetObjectReportInfo&>(msg);
+	PhysicsComponent::OnGetObjectReportInfo(reportInfo);
 	auto& info = reportInfo.subCategory->PushDebug("Rigidbody Phantom Info");
 	info.PushDebug<AMFDoubleValue>("Scale") = m_Scale;
 	return true;

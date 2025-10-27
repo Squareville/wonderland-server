@@ -62,7 +62,7 @@ MovementAIComponent::MovementAIComponent(Entity* parent, const int32_t component
 	m_SavedVelocity = NiPoint3Constant::ZERO;
 	m_IsBounced = false;
 
-	RegisterMsg<GameMessages::GetObjectReportInfo>(this, &MovementAIComponent::OnGetObjectReportInfo);
+	RegisterMsg(this, &MovementAIComponent::OnGetObjectReportInfo);
 
 	if (!m_Parent->GetComponent<BaseCombatAIComponent>()) SetPath(m_Parent->GetVarAsString(u"attached_path"));
 }

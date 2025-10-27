@@ -8,7 +8,7 @@ GhostComponent::GhostComponent(Entity* parent, const int32_t componentID) : Comp
 	m_GhostOverridePoint = NiPoint3Constant::ZERO;
 	m_GhostOverride = false;
 
-	RegisterMsg<GameMessages::GetObjectReportInfo>(this, &GhostComponent::MsgGetObjectReportInfo);
+	RegisterMsg(this, &GhostComponent::MsgGetObjectReportInfo);
 }
 
 GhostComponent::~GhostComponent() {

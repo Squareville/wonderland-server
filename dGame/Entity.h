@@ -20,6 +20,11 @@ namespace GameMessages {
 	struct ShootingGalleryFire;
 	struct ChildLoaded;
 	struct PlayerResurrectionFinished;
+	struct RequestServerObjectInfo;
+	struct DropClientLoot;
+	struct GetFlag;
+	struct GetFactionTokenType;
+	struct PickupItem;
 };
 
 namespace MessageType {
@@ -177,11 +182,11 @@ public:
 
 	void AddComponent(eReplicaComponentType componentId, Component* component);
 
-	bool MsgRequestServerObjectInfo(GameMessages::GameMsg& msg);
-	bool MsgDropClientLoot(GameMessages::GameMsg& msg);
-	bool MsgGetFlag(GameMessages::GameMsg& msg);
-	bool MsgGetFactionTokenType(GameMessages::GameMsg& msg);
-	bool MsgPickupItem(GameMessages::GameMsg& msg);
+	bool MsgRequestServerObjectInfo(GameMessages::RequestServerObjectInfo& msg);
+	bool MsgDropClientLoot(GameMessages::DropClientLoot& msg);
+	bool MsgGetFlag(GameMessages::GetFlag& msg);
+	bool MsgGetFactionTokenType(GameMessages::GetFactionTokenType& msg);
+	bool MsgPickupItem(GameMessages::PickupItem& msg);
 
 	// This is expceted to never return nullptr, an assert checks this.
 	CppScripts::Script* const GetScript() const;
@@ -346,13 +351,17 @@ public:
 	bool HandleMsg(GameMessages::GameMsg& msg) const;
 
 	void RegisterMsg(const MessageType::Game msgId, auto* self, const auto handler) {
-		RegisterMsg(msgId, std::bind(handler, self, std::placeholders::_1));
+		RegisterMsg(msgId, handler);
 	}
 
-	template<typename T>
-	inline void RegisterMsg(auto* self, const auto handler) {
-		T msg;
-		RegisterMsg(msg.msgId, self, handler);
+	template<typename DerivedGameMsg>
+	inline void RegisterMsg(auto* self, bool (Entity::* handler)(DerivedGameMsg&)) {
+		const auto boundFunction = std::bind(handler, self, std::placeholders::_1);
+		const auto castWrapper = [boundFunction](GameMessages::GameMsg& msg) {
+			return boundFunction(static_cast<DerivedGameMsg&>(msg));
+		};
+		DerivedGameMsg msg;
+		RegisterMsg(msg.msgId, self, castWrapper);
 	}
 
 	/**

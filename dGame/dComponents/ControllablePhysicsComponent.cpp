@@ -21,7 +21,7 @@
 #include "Amf3.h"
 
 ControllablePhysicsComponent::ControllablePhysicsComponent(Entity* entity, const int32_t componentID) : PhysicsComponent(entity, componentID) {
-	RegisterMsg(MessageType::Game::GET_OBJECT_REPORT_INFO, this, &ControllablePhysicsComponent::OnGetObjectReportInfo);
+	RegisterMsg(this, &ControllablePhysicsComponent::OnGetObjectReportInfo);
 
 	m_Velocity = {};
 	m_AngularVelocity = {};
@@ -374,8 +374,8 @@ void ControllablePhysicsComponent::SetStunImmunity(
 }
 
 bool ControllablePhysicsComponent::OnGetObjectReportInfo(GameMessages::GameMsg& msg) {
-	PhysicsComponent::OnGetObjectReportInfo(msg);
 	auto& reportInfo = static_cast<GameMessages::GetObjectReportInfo&>(msg);
+	PhysicsComponent::OnGetObjectReportInfo(reportInfo);
 	auto& info = reportInfo.subCategory->PushDebug("Controllable Info");
 
 	auto& vel = info.PushDebug("Velocity");

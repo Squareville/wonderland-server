@@ -44,8 +44,7 @@
 #include <ranges>
 
 InventoryComponent::InventoryComponent(Entity* parent, const int32_t componentID) : Component(parent, componentID) {
-	using namespace GameMessages;
-	RegisterMsg<GetObjectReportInfo>(this, &InventoryComponent::OnGetObjectReportInfo);
+	RegisterMsg(this, &InventoryComponent::OnGetObjectReportInfo);
 	this->m_Dirty = true;
 	this->m_Equipped = {};
 	this->m_Pushed = {};

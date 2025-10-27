@@ -6,8 +6,7 @@
 
 CollectibleComponent::CollectibleComponent(Entity* parentEntity, const int32_t componentID, const int32_t collectibleId) :
 	Component(parentEntity, componentID), m_CollectibleId(collectibleId) {
-	using namespace GameMessages;
-	RegisterMsg<GetObjectReportInfo>(this, &CollectibleComponent::MsgGetObjectReportInfo);
+	RegisterMsg(this, &CollectibleComponent::MsgGetObjectReportInfo);
 }
 
 void CollectibleComponent::Serialize(RakNet::BitStream& outBitStream, bool isConstruction) {

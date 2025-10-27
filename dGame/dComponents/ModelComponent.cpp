@@ -22,9 +22,9 @@ ModelComponent::ModelComponent(Entity* parent, const int32_t componentID) : Comp
 	m_NumListeningInteract = 0;
 
 	m_userModelID = m_Parent->GetVarAs<LWOOBJID>(u"userModelID");
-	RegisterMsg<RequestUse>(this, &ModelComponent::OnRequestUse);
-	RegisterMsg<ResetModelToDefaults>(this, &ModelComponent::OnResetModelToDefaults);
-	RegisterMsg<GetObjectReportInfo>(this, &ModelComponent::OnGetObjectReportInfo);
+	RegisterMsg(this, &ModelComponent::OnRequestUse);
+	RegisterMsg(this, &ModelComponent::OnResetModelToDefaults);
+	RegisterMsg(this, &ModelComponent::OnGetObjectReportInfo);
 }
 
 bool ModelComponent::OnResetModelToDefaults(GameMessages::GameMsg& msg) {

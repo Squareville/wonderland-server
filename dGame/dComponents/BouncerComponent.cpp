@@ -31,10 +31,7 @@ BouncerComponent::BouncerComponent(Entity* parent, const int32_t componentID) : 
 		LookupPetSwitch();
 	}
 
-	{
-		using namespace GameMessages;
-		RegisterMsg<GetObjectReportInfo>(this, &BouncerComponent::MsgGetObjectReportInfo);
-	}
+	RegisterMsg(this, &BouncerComponent::MsgGetObjectReportInfo);
 }
 
 BouncerComponent::~BouncerComponent() {

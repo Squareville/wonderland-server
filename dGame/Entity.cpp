@@ -194,10 +194,10 @@ Entity::~Entity() {
 }
 
 void Entity::Initialize() {
-	RegisterMsg<GameMessages::RequestServerObjectInfo>(this, &Entity::MsgRequestServerObjectInfo);
-	RegisterMsg<GameMessages::DropClientLoot>(this, &Entity::MsgDropClientLoot);
-	RegisterMsg<GameMessages::GetFactionTokenType>(this, &Entity::MsgGetFactionTokenType);
-	RegisterMsg<GameMessages::PickupItem>(this, &Entity::MsgPickupItem);
+	RegisterMsg(this, &Entity::MsgRequestServerObjectInfo);
+	RegisterMsg(this, &Entity::MsgDropClientLoot);
+	RegisterMsg(this, &Entity::MsgGetFactionTokenType);
+	RegisterMsg(this, &Entity::MsgPickupItem);
 	/**
 	 * Setup trigger
 	 */
@@ -2275,8 +2275,7 @@ void Entity::RegisterMsg(const MessageType::Game msgId, std::function<bool(GameM
 	m_MsgHandlers.emplace(msgId, handler);
 }
 
-bool Entity::MsgRequestServerObjectInfo(GameMessages::GameMsg& msg) {
-	auto& requestInfo = static_cast<GameMessages::RequestServerObjectInfo&>(msg);
+bool Entity::MsgRequestServerObjectInfo(GameMessages::RequestServerObjectInfo& requestInfo) {
 	AMFArrayValue response;
 	response.Insert("visible", true);
 	response.Insert("objectID", std::to_string(m_ObjectID));
@@ -2312,9 +2311,7 @@ bool Entity::MsgRequestServerObjectInfo(GameMessages::GameMsg& msg) {
 	return true;
 }
 
-bool Entity::MsgDropClientLoot(GameMessages::GameMsg& msg) {
-	auto& dropLootMsg = static_cast<GameMessages::DropClientLoot&>(msg);
-
+bool Entity::MsgDropClientLoot(GameMessages::DropClientLoot& dropLootMsg) {
 	if (dropLootMsg.item != LOT_NULL && dropLootMsg.item != 0) {
 		Loot::Info info{
 			.id = dropLootMsg.lootID,
@@ -2331,13 +2328,11 @@ bool Entity::MsgDropClientLoot(GameMessages::GameMsg& msg) {
 	return true;
 }
 
-bool Entity::MsgGetFlag(GameMessages::GameMsg& msg) {
-	auto& flagMsg = static_cast<GameMessages::GetFlag&>(msg);
+bool Entity::MsgGetFlag(GameMessages::GetFlag& flagMsg) {
 	if (m_Character) flagMsg.flag = m_Character->GetPlayerFlag(flagMsg.flagID);
 	return true;
 }
-bool Entity::MsgGetFactionTokenType(GameMessages::GameMsg& msg) {
-	auto& tokenMsg = static_cast<GameMessages::GetFactionTokenType&>(msg);
+bool Entity::MsgGetFactionTokenType(GameMessages::GetFactionTokenType& tokenMsg) {
 	GameMessages::GetFlag getFlagMsg{};
 
 	getFlagMsg.flagID = ePlayerFlag::ASSEMBLY_FACTION;
@@ -2360,8 +2355,7 @@ bool Entity::MsgGetFactionTokenType(GameMessages::GameMsg& msg) {
 	return tokenMsg.tokenType != LOT_NULL;
 }
 
-bool Entity::MsgPickupItem(GameMessages::GameMsg& msg) {
-	auto& pickupItemMsg = static_cast<GameMessages::PickupItem&>(msg);
+bool Entity::MsgPickupItem(GameMessages::PickupItem& pickupItemMsg) {
 	if (GetObjectID() == pickupItemMsg.lootOwnerID) {
 		PickupItem(pickupItemMsg.lootID);
 	} else {

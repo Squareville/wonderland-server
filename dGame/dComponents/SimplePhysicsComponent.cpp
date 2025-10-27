@@ -16,7 +16,7 @@
 #include "Amf3.h"
 
 SimplePhysicsComponent::SimplePhysicsComponent(Entity* parent, const int32_t componentID) : PhysicsComponent(parent, componentID) {
-	RegisterMsg(MessageType::Game::GET_OBJECT_REPORT_INFO, this, &SimplePhysicsComponent::OnGetObjectReportInfo);
+	RegisterMsg(this, &SimplePhysicsComponent::OnGetObjectReportInfo);
 
 	m_Position = m_Parent->GetDefaultPosition();
 	m_Rotation = m_Parent->GetDefaultRotation();
@@ -82,8 +82,8 @@ void SimplePhysicsComponent::SetPhysicsMotionState(uint32_t value) {
 }
 
 bool SimplePhysicsComponent::OnGetObjectReportInfo(GameMessages::GameMsg& msg) {
-	PhysicsComponent::OnGetObjectReportInfo(msg);
 	auto& reportInfo = static_cast<GameMessages::GetObjectReportInfo&>(msg);
+	PhysicsComponent::OnGetObjectReportInfo(reportInfo);
 	auto& info = reportInfo.subCategory->PushDebug("Simple Physics Info");
 	auto& velocity = info.PushDebug("Velocity");
 	velocity.PushDebug<AMFDoubleValue>("x") = m_Velocity.x;

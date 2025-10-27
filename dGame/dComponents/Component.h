@@ -55,17 +55,21 @@ public:
 	virtual void LoadFromXml(const tinyxml2::XMLDocument& doc) {}
 
 	virtual void Serialize(RakNet::BitStream& outBitStream, bool isConstruction) {}
-
-protected:
-
+private:
 	inline void RegisterMsg(const MessageType::Game msgId, auto* self, const auto handler) {
-		m_Parent->RegisterMsg(msgId, std::bind(handler, self, std::placeholders::_1));
+		m_Parent->RegisterMsg(msgId, handler);
 	}
 
-	template<typename T>
-	inline void RegisterMsg(auto* self, const auto handler) {
-		T msg;
-		RegisterMsg(msg.msgId, self, handler);
+protected:
+	template<typename GameObjClass, typename DerivedMsg>
+	inline void RegisterMsg(auto* self, bool (GameObjClass::*handler)(DerivedMsg&)) {
+		const auto handlerBound = std::bind(handler, self, std::placeholders::_1);
+		const auto castWrapper = [handlerBound](GameMessages::GameMsg& msg) {
+			return handlerBound(static_cast<DerivedMsg&>(msg));
+		};
+
+		DerivedMsg msg;
+		RegisterMsg(msg.msgId, self, castWrapper);
 	}
 
 	/**

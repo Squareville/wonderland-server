@@ -30,10 +30,7 @@
 #include "Amf3.h"
 
 BaseCombatAIComponent::BaseCombatAIComponent(Entity* parent, const int32_t componentID) : Component(parent, componentID) {
-	{
-		using namespace GameMessages;
-		RegisterMsg<GetObjectReportInfo>(this, &BaseCombatAIComponent::MsgGetObjectReportInfo);
-	}
+	RegisterMsg(this, &BaseCombatAIComponent::MsgGetObjectReportInfo);
 	m_Target = LWOOBJID_EMPTY;
 	m_DirtyStateOrTarget = true;
 	m_State = AiState::spawn;
@@ -874,12 +871,12 @@ bool BaseCombatAIComponent::MsgGetObjectReportInfo(GameMessages::GameMsg& msg) {
 	// roundInfo.PushDebug<AMFDoubleValue>("Combat Start Delay") = m_CombatStartDelay;
 	std::string curState;
 	switch (m_State) {
-		case idle: curState = "Idling"; break;
-		case aggro: curState = "Aggroed"; break;
-		case tether: curState = "Returning to Tether"; break;
-		case spawn: curState = "Spawn"; break;
-		case dead: curState = "Dead"; break;
-		default: curState = "Unknown or Undefined"; break;
+	case idle: curState = "Idling"; break;
+	case aggro: curState = "Aggroed"; break;
+	case tether: curState = "Returning to Tether"; break;
+	case spawn: curState = "Spawn"; break;
+	case dead: curState = "Dead"; break;
+	default: curState = "Unknown or Undefined"; break;
 	}
 	cmptType.PushDebug<AMFStringValue>("Current Combat State") = curState;
 
