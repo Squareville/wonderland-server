@@ -937,5 +937,11 @@ namespace GameMessages {
 		LWOOBJID lootID{};
 		LWOOBJID lootOwnerID{};
 	};
+
+	struct IsDead : public GameMsg {
+		IsDead() : GameMsg(MessageType::Game::IS_DEAD) {}
+
+		bool bDead{};
+	};
 };
 #endif // GAMEMESSAGES_H
