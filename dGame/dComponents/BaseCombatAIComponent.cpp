@@ -372,8 +372,11 @@ LWOOBJID BaseCombatAIComponent::FindTarget() {
 	if (m_MovementAI) reference = m_MovementAI->ApproximateLocation();
 
 	auto* target = GetTargetEntity();
+	GameMessages::IsDead deadMsg{};
+	deadMsg.target = m_Target;
+	deadMsg.Send();
 
-	if (target != nullptr && !m_DirtyThreat) {
+	if (target != nullptr && !m_DirtyThreat && !deadMsg.bDead) {
 		const auto targetPosition = target->GetPosition();
 
 		if (Vector3::DistanceSquared(targetPosition, m_StartPosition) < m_HardTetherRadius * m_HardTetherRadius) {
@@ -400,6 +403,11 @@ LWOOBJID BaseCombatAIComponent::FindTarget() {
 		if (entity == nullptr) {
 			continue;
 		}
+
+		GameMessages::IsDead deadMsg{};
+		deadMsg.target = entry;
+		deadMsg.Send();
+		if (deadMsg.bDead) continue;
 
 		const auto targetPosition = entity->GetPosition();
 
