@@ -379,8 +379,6 @@ namespace DEVGMCommands {
 				line.erase(std::remove(line.begin(), line.end(), '\r'), line.end());
 				SlashCommandHandler::HandleChatCommand(GeneralUtils::ASCIIToUTF16(line), &entity, sysAddr);
 			}
-		} else {
-			ChatPackets::SendSystemMessage(sysAddr, u"Unknown macro! Is the filename right?");
 		}
 	}
 
