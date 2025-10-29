@@ -12,7 +12,7 @@ void ZonePlayer::OnUse(Entity* self, Entity* user) {
 	false /* bCantJump */,
 	true /* bCantMove */);
 	
-	GameMessages::SendNotifyClientObject(user->GetObjectID(), u"ZonePlayerFromServer", 0, 0, LWOOBJID_EMPTY, "", user->GetSystemAddress());
+	GameMessages::SendNotifyClientObject(self->GetObjectID(), u"ZonePlayerFromServer", 0, 0, LWOOBJID_EMPTY, "", user->GetSystemAddress());
 	auto* const characterComponent = user->GetComponent<CharacterComponent>();
 	auto* const character = user->GetCharacter();
 	if (characterComponent && character && self->HasVar(u"zoneID") && self->HasVar(u"spawnPoint")) {
