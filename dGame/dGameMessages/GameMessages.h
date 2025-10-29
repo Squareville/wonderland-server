@@ -943,5 +943,15 @@ namespace GameMessages {
 
 		bool bDead{};
 	};
+
+	struct GetRespawnVolumeInfo : public GameMsg {
+		GetRespawnVolumeInfo() : GameMsg(MessageType::Game::GET_RESPAWN_VOLUME_INFO) {}
+
+		bool bIsRespawnVolume{ false };
+
+		NiPoint3 pos{};
+
+		NiQuaternion rot{ 0.0f, 0.0f, 0.0f, 0.0f };
+	};
 };
 #endif // GAMEMESSAGES_H

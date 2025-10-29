@@ -323,8 +323,14 @@ void Entity::Initialize() {
 					pos = m_Character->GetRespawnPoint(mapID);
 					rot = Game::zoneManager->GetZone()->GetSpawnRot();
 				} else if (targetScene != nullptr) {
-					pos = targetScene->GetPosition();
-					rot = targetScene->GetRotation();
+					GameMessages::GetRespawnVolumeInfo info{};
+					if (info.Send(targetScene->GetObjectID()) && info.bIsRespawnVolume) {
+						pos = info.pos;
+						rot = info.rot;
+					} else {
+						pos = targetScene->GetPosition();
+						rot = targetScene->GetRotation();
+					}
 				} else {
 					pos = Game::zoneManager->GetZone()->GetSpawnPos();
 					rot = Game::zoneManager->GetZone()->GetSpawnRot();

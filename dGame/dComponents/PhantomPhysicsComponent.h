@@ -12,6 +12,11 @@
 #include "eReplicaComponentType.h"
 #include "PhysicsComponent.h"
 
+namespace GameMessages {
+	struct GetObjectReportInfo;
+	struct GetRespawnVolumeInfo;
+};
+
 class LDFBaseData;
 class Entity;
 class dpEntity;
@@ -117,6 +122,7 @@ public:
 
 private:
 	bool OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo);
+	bool OnGetRespawnVolumeInfo(GameMessages::GetRespawnVolumeInfo& respawnInfo);
 
 	/**
 	 * A scale to apply to the size of the physics object

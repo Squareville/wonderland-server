@@ -174,9 +174,9 @@ Entity* EntityManager::CreateEntity(EntityInfo info, User* user, Entity* parentE
 	const auto& respawnVolName = entity->GetVar<std::u16string>(u"respawnVolName");
 
 	if (!spawnName.empty()) {
-		m_SpawnPoints.insert_or_assign(GeneralUtils::UTF16ToWTF8(spawnName), entity->GetObjectID());
+		m_SpawnPoints.insert({GeneralUtils::UTF16ToWTF8(spawnName), entity->GetObjectID()});
 	} else if (!respawnVolName.empty()) {
-		m_SpawnPoints.insert_or_assign(GeneralUtils::UTF16ToWTF8(respawnVolName), entity->GetObjectID());
+		m_SpawnPoints.insert({GeneralUtils::UTF16ToWTF8(respawnVolName), entity->GetObjectID()});
 	}
 
 	return entity;

@@ -30,6 +30,7 @@
 
 PhantomPhysicsComponent::PhantomPhysicsComponent(Entity* parent, const int32_t componentID) : PhysicsComponent(parent, componentID) {
 	RegisterMsg(&PhantomPhysicsComponent::OnGetObjectReportInfo);
+	RegisterMsg(&PhantomPhysicsComponent::OnGetRespawnVolumeInfo);
 
 	m_Position = m_Parent->GetDefaultPosition();
 	m_Rotation = m_Parent->GetDefaultRotation();
@@ -278,5 +279,12 @@ bool PhantomPhysicsComponent::OnGetObjectReportInfo(GameMessages::GetObjectRepor
 		respawnRot.PushDebug<AMFDoubleValue>("z") = m_RespawnRot.z;
 	}
 
+	return true;
+}
+
+bool PhantomPhysicsComponent::OnGetRespawnVolumeInfo(GameMessages::GetRespawnVolumeInfo& respawnInfo) {
+	respawnInfo.bIsRespawnVolume = m_IsRespawnVolume;
+	respawnInfo.pos = m_RespawnPos;
+	respawnInfo.rot = m_RespawnRot;
 	return true;
 }
