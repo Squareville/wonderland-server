@@ -171,9 +171,12 @@ Entity* EntityManager::CreateEntity(EntityInfo info, User* user, Entity* parentE
 
 	// Check if this entity is a respawn point, if so add it to the registry
 	const auto& spawnName = entity->GetVar<std::u16string>(u"respawnname");
+	const auto& respawnVolName = entity->GetVar<std::u16string>(u"respawnVolname");
 
 	if (!spawnName.empty()) {
 		m_SpawnPoints.insert_or_assign(GeneralUtils::UTF16ToWTF8(spawnName), entity->GetObjectID());
+	} else if (!respawnVolName.empty()) {
+		m_SpawnPoints.insert_or_assign(GeneralUtils::UTF16ToWTF8(respawnVolName), entity->GetObjectID());
 	}
 
 	return entity;
