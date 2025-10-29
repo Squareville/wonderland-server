@@ -395,8 +395,7 @@ void DropLoot(Entity* player, const LWOOBJID source, const std::map<LOT, LootDro
 	// Coin roll is divided up between the members, rounded up, then dropped for each player
 	const uint32_t coinRoll = static_cast<uint32_t>(minCoins + GeneralUtils::GenerateRandomNumber<float>(0, 1) * (maxCoins - minCoins));
 	// Just in case its empty don't allow divide by 0
-	const auto droppedCoins = lootEarners.empty() ? coinRoll : std::ceil(coinRoll / lootEarners.size());
-
+	const auto droppedCoins = team ? std::ceil(static_cast<float>(coinRoll) / team->members.size()) : coinRoll;
 	// Drops coins for each alive member of a team (or just a player)
 	for (auto member : lootEarners) {
 		GameMessages::DropClientLoot lootMsg{};
