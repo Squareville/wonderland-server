@@ -31,7 +31,7 @@ PhysicsComponent::PhysicsComponent(Entity* parent, const int32_t componentID) : 
 
 	if (m_Parent->HasVar(u"CollisionGroupID")) m_CollisionGroup = m_Parent->GetVar<int32_t>(u"CollisionGroupID");
 
-	RegisterMsg(this, &PhysicsComponent::OnGetPosition);
+	RegisterMsg(&PhysicsComponent::OnGetPosition);
 }
 
 bool PhysicsComponent::OnGetPosition(GameMessages::GetPosition& msg) {

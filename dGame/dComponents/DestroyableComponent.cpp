@@ -85,9 +85,9 @@ DestroyableComponent::DestroyableComponent(Entity* parent, const int32_t compone
 
 	m_DamageCooldownTimer = 0.0f;
 
-	RegisterMsg(this, &DestroyableComponent::OnGetObjectReportInfo);
-	RegisterMsg(this, &DestroyableComponent::OnSetFaction);
-	RegisterMsg(this, &DestroyableComponent::OnIsDead);
+	RegisterMsg(&DestroyableComponent::OnGetObjectReportInfo);
+	RegisterMsg(&DestroyableComponent::OnSetFaction);
+	RegisterMsg(&DestroyableComponent::OnIsDead);
 }
 
 DestroyableComponent::~DestroyableComponent() {
@@ -1061,8 +1061,7 @@ void DestroyableComponent::DoHardcoreModeDrops(const LWOOBJID source) {
 	}
 }
 
-bool DestroyableComponent::OnGetObjectReportInfo(GameMessages::GameMsg& msg) {
-	auto& reportInfo = static_cast<GameMessages::GetObjectReportInfo&>(msg);
+bool DestroyableComponent::OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo) {
 	auto& destroyableInfo = reportInfo.info->PushDebug("Destroyable");
 	destroyableInfo.PushDebug<AMFIntValue>("DestructibleComponent DB Table Template ID") = m_ComponentID;
 
@@ -1184,16 +1183,14 @@ bool DestroyableComponent::OnGetObjectReportInfo(GameMessages::GameMsg& msg) {
 	return true;
 }
 
-bool DestroyableComponent::OnSetFaction(GameMessages::GameMsg& msg) {
-	auto& modifyFaction = static_cast<GameMessages::SetFaction&>(msg);
+bool DestroyableComponent::OnSetFaction(GameMessages::SetFaction& setFaction) {
 	m_DirtyHealth = true;
 	Game::entityManager->SerializeEntity(m_Parent);
-	SetFaction(modifyFaction.factionID, modifyFaction.bIgnoreChecks);
+	SetFaction(setFaction.factionID, setFaction.bIgnoreChecks);
 	return true;
 }
 
-bool DestroyableComponent::OnIsDead(GameMessages::GameMsg& msg) {
-	auto& isDeadMsg = static_cast<GameMessages::IsDead&>(msg);
-	isDeadMsg.bDead = m_IsDead || (GetHealth() == 0 && GetArmor() == 0);
+bool DestroyableComponent::OnIsDead(GameMessages::IsDead& isDead) {
+	isDead.bDead = m_IsDead || (GetHealth() == 0 && GetArmor() == 0);
 	return true;
 }

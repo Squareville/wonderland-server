@@ -8,7 +8,7 @@ GhostComponent::GhostComponent(Entity* parent, const int32_t componentID) : Comp
 	m_GhostOverridePoint = NiPoint3Constant::ZERO;
 	m_GhostOverride = false;
 
-	RegisterMsg(this, &GhostComponent::MsgGetObjectReportInfo);
+	RegisterMsg(&GhostComponent::MsgGetObjectReportInfo);
 }
 
 GhostComponent::~GhostComponent() {
@@ -61,9 +61,8 @@ void GhostComponent::GhostEntity(LWOOBJID id) {
 	m_ObservedEntities.erase(id);
 }
 
-bool GhostComponent::MsgGetObjectReportInfo(GameMessages::GameMsg& msg) {
-	auto& reportMsg = static_cast<GameMessages::GetObjectReportInfo&>(msg);
-	auto& cmptType = reportMsg.info->PushDebug("Ghost");
+bool GhostComponent::MsgGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo) {
+	auto& cmptType = reportInfo.info->PushDebug("Ghost");
 	cmptType.PushDebug<AMFIntValue>("Component ID") = GetComponentID();
 	cmptType.PushDebug<AMFBoolValue>("Is GM Invis") = false;
 

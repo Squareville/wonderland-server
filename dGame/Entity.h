@@ -350,18 +350,14 @@ public:
 
 	bool HandleMsg(GameMessages::GameMsg& msg) const;
 
-	void RegisterMsg(const MessageType::Game msgId, auto* self, const auto handler) {
-		RegisterMsg(msgId, handler);
-	}
-
 	template<typename DerivedGameMsg>
-	inline void RegisterMsg(auto* self, bool (Entity::* handler)(DerivedGameMsg&)) {
-		const auto boundFunction = std::bind(handler, self, std::placeholders::_1);
+	inline void RegisterMsg(bool (Entity::* handler)(DerivedGameMsg&)) {
+		const auto boundFunction = std::bind(handler, this, std::placeholders::_1);
 		const auto castWrapper = [boundFunction](GameMessages::GameMsg& msg) {
 			return boundFunction(static_cast<DerivedGameMsg&>(msg));
 		};
 		DerivedGameMsg msg;
-		RegisterMsg(msg.msgId, self, castWrapper);
+		RegisterMsg(msg.msgId, castWrapper);
 	}
 
 	/**
