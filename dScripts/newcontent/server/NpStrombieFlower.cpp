@@ -12,7 +12,7 @@ void NpStrombieFlower::OnTimerDone(Entity* self, std::string timerName) {
 		auto* renderComponent = self->GetComponent<RenderComponent>();
 
 		if (renderComponent != nullptr) {
-			renderComponent->PlayEffect(644, u"create", "BurstFX1");
+			renderComponent->PlayEffect(20175, u"spawnstrombie", "BurstFX1");
 		}
 
 		EntityInfo info{};
@@ -55,7 +55,7 @@ void NpStrombieFlower::StartHatching(Entity& self) {
 	auto* renderComponent = self.GetComponent<RenderComponent>();
 
 	if (renderComponent != nullptr) {
-		renderComponent->PlayEffect(2260, u"rebuild_medium", "WakeUpFX1");
+		renderComponent->PlayEffect(20174, u"approach", "WakeUpFX1");
 	}
 
 	self.AddTimer("hatchTime", 2);
