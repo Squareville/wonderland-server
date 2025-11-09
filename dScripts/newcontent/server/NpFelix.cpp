@@ -109,7 +109,7 @@ void NpFelix::OnChoiceBoxResponse(Entity* self, Entity* sender, int32_t button, 
 	if (!sender) return;
 
 	if (button != -1) {
-		GameMessages::SendDisplayMessageBox(sender->GetObjectID(), true, self->GetObjectID(), buttonIdentifier, 0, u"%[UI_FELIX_CHOICE_SCENE_CONFIRM]", u"", sender->GetSystemAddress());
+		GameMessages::SendDisplayMessageBox(sender->GetObjectID(), true, self->GetObjectID(), buttonIdentifier, 0, u"%[UI_FELIX_CHOICE_CONFIRM]", u"", sender->GetSystemAddress());
 	} else {
 		GameMessages::SendTerminateInteraction(sender->GetObjectID(), eTerminateType::FROM_INTERACTION, self->GetObjectID());
 		UnstunPlayer(*sender);
