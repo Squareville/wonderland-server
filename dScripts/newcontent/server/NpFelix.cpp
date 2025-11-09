@@ -26,9 +26,9 @@ void NpFelix::OnStartup(Entity* self) {
 		auto& sceneArgs = *choiceOptions.PushArray();
 		const auto sceneIdStr = std::to_string(sceneId);
 		sceneArgs.Insert("image", "textures/ui/zone_thumnails/np_scene" + sceneIdStr + ".dds");
-		sceneArgs.Insert("caption", "%[UI_FELIX_CHOICE_SCENE" + sceneIdStr + "]");
+		sceneArgs.Insert("caption", "%[UI_CHOICE_FELIX_SCENE" + sceneIdStr + "]");
 		sceneArgs.Insert("identifier", "felix" + sceneIdStr + "spawn");
-		sceneArgs.Insert("tooltipText", "%[UI_FELIX_CHOICE_SCENE" + sceneIdStr + "_HOVER]");
+		sceneArgs.Insert("tooltipText", "%[UI_CHOICE_FELIX_SCENE" + sceneIdStr + "_HOVER]");
 	}
 }
 
