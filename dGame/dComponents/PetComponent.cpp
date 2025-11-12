@@ -537,6 +537,18 @@ void PetComponent::NotifyTamingBuildSuccess(NiPoint3 position) {
 		UNASSIGNED_SYSTEM_ADDRESS
 	);
 
+	GameMessages::SendNotifyPetTamingMinigame(
+		m_Parent->GetObjectID(),
+		m_Parent->GetObjectID(),
+		m_Tamer,
+		false,
+		ePetTamingNotifyType::NAMINGPET,
+		NiPoint3Constant::ZERO,
+		NiPoint3Constant::ZERO,
+		QuatUtils::IDENTITY,
+		UNASSIGNED_SYSTEM_ADDRESS
+	);
+
 	// Triggers the catch a pet missions
 	constexpr auto PET_FLAG_BASE = 800;
 	tamer->GetCharacter()->SetPlayerFlag(PET_FLAG_BASE + m_ComponentID, true);
@@ -637,6 +649,18 @@ void PetComponent::RequestSetPetName(std::u16string name) {
 		UNASSIGNED_SYSTEM_ADDRESS
 	);
 
+	GameMessages::SendNotifyPetTamingMinigame(
+		m_Parent->GetObjectID(),
+		m_Parent->GetObjectID(),
+		m_Tamer,
+		false,
+		ePetTamingNotifyType::SUCCESS,
+		NiPoint3Constant::ZERO,
+		NiPoint3Constant::ZERO,
+		QuatUtils::IDENTITY,
+		UNASSIGNED_SYSTEM_ADDRESS
+	);
+
 	auto* characterComponent = tamer->GetComponent<CharacterComponent>();
 	if (characterComponent != nullptr) {
 		characterComponent->SetCurrentActivity(eGameActivity::NONE);
@@ -671,6 +695,18 @@ void PetComponent::ClientExitTamingMinigame(bool voluntaryExit) {
 
 	GameMessages::SendNotifyPetTamingMinigame(
 		m_Tamer,
+		m_Parent->GetObjectID(),
+		m_Tamer,
+		false,
+		ePetTamingNotifyType::QUIT,
+		NiPoint3Constant::ZERO,
+		NiPoint3Constant::ZERO,
+		QuatUtils::IDENTITY,
+		UNASSIGNED_SYSTEM_ADDRESS
+	);
+
+	GameMessages::SendNotifyPetTamingMinigame(
+		m_Parent->GetObjectID(),
 		m_Parent->GetObjectID(),
 		m_Tamer,
 		false,
@@ -722,6 +758,18 @@ void PetComponent::ClientFailTamingMinigame() {
 
 	GameMessages::SendNotifyPetTamingMinigame(
 		m_Tamer,
+		m_Parent->GetObjectID(),
+		m_Tamer,
+		false,
+		ePetTamingNotifyType::FAILED,
+		NiPoint3Constant::ZERO,
+		NiPoint3Constant::ZERO,
+		QuatUtils::IDENTITY,
+		UNASSIGNED_SYSTEM_ADDRESS
+	);
+
+	GameMessages::SendNotifyPetTamingMinigame(
+		m_Parent->GetObjectID(),
 		m_Parent->GetObjectID(),
 		m_Tamer,
 		false,
