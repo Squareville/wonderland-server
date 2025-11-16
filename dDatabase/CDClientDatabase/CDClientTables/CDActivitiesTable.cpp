@@ -1,5 +1,6 @@
 #include "CDActivitiesTable.h"
 
+
 void CDActivitiesTable::LoadValuesFromDatabase() {
 	// First, get the size of the table
 	uint32_t size = 0;
