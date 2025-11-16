@@ -24,14 +24,12 @@
 #include "eMissionTaskType.h"
 #include "eMissionLockState.h"
 #include "eReplicaComponentType.h"
-#include "ePlayerFlag.h"
 #include "Character.h"
 
 #include "CDMissionEmailTable.h"
 #include "ChatPackets.h"
 #include "PlayerManager.h"
 #include "StringifiedEnum.h"
-#include "CDPlayerFlagsTable.h"
 
 namespace {
 	std::set<uint32_t> g_TestedMissions = { 773, 774, 775, 776, 777 }; // TODO Figure out why these missions are broken sometimes
