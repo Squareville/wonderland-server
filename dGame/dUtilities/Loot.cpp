@@ -21,8 +21,6 @@
 #include "TeamManager.h"
 #include "CDObjectsTable.h"
 #include "ObjectIDManager.h"
-#include "CDActivitiesTable.h"
-#include "ScriptedActivityComponent.h"
 
 namespace {
 	std::unordered_set<uint32_t> CachedMatrices;
@@ -144,16 +142,12 @@ void DropFactionLoot(Entity& player, GameMessages::DropClientLoot& lootMsg) {
 
 // Drops 1 token for each player on a team
 // token drops are always given to every player on the team.
-void DropFactionLoot(const Team& team, GameMessages::DropClientLoot& lootMsg, const bool noTeamLootOnDeath = false) {
+void DropFactionLoot(const Team& team, GameMessages::DropClientLoot& lootMsg) {
 	for (const auto member : team.members) {
 		GameMessages::GetPosition memberPosMsg{};
 		memberPosMsg.target = member;
 		memberPosMsg.Send();
 		if (NiPoint3::Distance(memberPosMsg.pos, lootMsg.spawnPos) > g_MAX_DROP_RADIUS) continue;
-
-		GameMessages::IsDead isDeadMsg{};
-		// Skip dead players
-		if (noTeamLootOnDeath && isDeadMsg.Send(member) && isDeadMsg.bDead) continue;
 
 		GameMessages::GetFactionTokenType factionTokenType{};
 		factionTokenType.target = member;
@@ -192,7 +186,7 @@ void DropPowerupLoot(Entity& player, GameMessages::DropClientLoot& lootMsg) {
 // Drop the power up with no owner
 // Power ups can be picked up by anyone on a team, however unlike actual loot items,
 // if multiple clients say they picked one up, we let them pick it up.
-void DropPowerupLoot(const Team& team, GameMessages::DropClientLoot& lootMsg, const bool noTeamLootOnDeath = false) {
+void DropPowerupLoot(const Team& team, GameMessages::DropClientLoot& lootMsg) {
 	lootMsg.lootID = ObjectIDManager::GenerateObjectID();
 	lootMsg.ownerID = LWOOBJID_EMPTY; // By setting ownerID to empty, any client that gets this DropClientLoot message can pick up the item.
 	CalcFinalDropPos(lootMsg);
@@ -203,10 +197,6 @@ void DropPowerupLoot(const Team& team, GameMessages::DropClientLoot& lootMsg, co
 		memberPosMsg.target = member;
 		memberPosMsg.Send();
 		if (NiPoint3::Distance(memberPosMsg.pos, lootMsg.spawnPos) > g_MAX_DROP_RADIUS) continue;
-
-		GameMessages::IsDead isDeadMsg{};
-		// Skip dead players
-		if (noTeamLootOnDeath && isDeadMsg.Send(member) && isDeadMsg.bDead) continue;
 
 		lootMsg.target = member;
 		// By sending this message with the same ID to all players on the team, all players on the team are allowed to pick it up.
@@ -240,7 +230,7 @@ void DropMissionLoot(Entity& player, GameMessages::DropClientLoot& lootMsg) {
 
 // Check if the item needs to be dropped for anyone on the team
 // Only players who need the item will have it dropped
-void DropMissionLoot(const Team& team, GameMessages::DropClientLoot& lootMsg, const bool noTeamLootOnDeath = false) {
+void DropMissionLoot(const Team& team, GameMessages::DropClientLoot& lootMsg) {
 	GameMessages::MissionNeedsLot needMsg{};
 	needMsg.item = lootMsg.item;
 	for (const auto member : team.members) {
@@ -248,10 +238,6 @@ void DropMissionLoot(const Team& team, GameMessages::DropClientLoot& lootMsg, co
 		memberPosMsg.target = member;
 		memberPosMsg.Send();
 		if (NiPoint3::Distance(memberPosMsg.pos, lootMsg.spawnPos) > g_MAX_DROP_RADIUS) continue;
-
-		GameMessages::IsDead isDeadMsg{};
-		// Skip dead players
-		if (noTeamLootOnDeath && isDeadMsg.Send(member) && isDeadMsg.bDead) continue;
 
 		needMsg.target = member;
 		// Will return false if the item is not required
@@ -288,26 +274,19 @@ void DropRegularLoot(Entity& player, GameMessages::DropClientLoot& lootMsg) {
 // Drop a regular piece of loot.
 // Most items will go through this.
 // Finds the next loot owner on the team the is in range of the kill and gives them this reward.
-void DropRegularLoot(Team& team, GameMessages::DropClientLoot& lootMsg, const bool noTeamLootOnDeath = false) {
+void DropRegularLoot(Team& team, GameMessages::DropClientLoot& lootMsg) {
 	auto earningPlayer = LWOOBJID_EMPTY;
 	lootMsg.lootID = ObjectIDManager::GenerateObjectID();
 	CalcFinalDropPos(lootMsg);
 	GameMessages::GetPosition memberPosMsg{};
-	GameMessages::IsDead isDeadMsg{};
 	// Find the next loot owner.  Eventually this will run into the `player` passed into this function, since those will
 	// have the same ID, this loop will only ever run at most 4 times.
 	do {
 		earningPlayer = team.GetNextLootOwner();
-		LOG_DEBUG("Checking earning player %llu", earningPlayer);
 		memberPosMsg.target = earningPlayer;
 		memberPosMsg.Send();
-		if (noTeamLootOnDeath) {
-			isDeadMsg.target = earningPlayer;
-			// Skip dead players
-			isDeadMsg.Send();
-		}
-	} while (isDeadMsg.bDead || (NiPoint3::Distance(memberPosMsg.pos, lootMsg.spawnPos) > g_MAX_DROP_RADIUS));
-	LOG_DEBUG("Earning player for loot %llu", earningPlayer);
+	} while (NiPoint3::Distance(memberPosMsg.pos, lootMsg.spawnPos) > g_MAX_DROP_RADIUS);
+
 	if (team.lootOption == 0 /* Shared loot */) {
 		lootMsg.target = earningPlayer;
 		lootMsg.ownerID = earningPlayer;
@@ -325,7 +304,7 @@ void DropRegularLoot(Team& team, GameMessages::DropClientLoot& lootMsg, const bo
 	DistrbuteMsgToTeam(lootMsg, team);
 }
 
-void DropLoot(Entity* player, const LWOOBJID source, const std::map<LOT, LootDropInfo>& rolledItems, uint32_t minCoins, uint32_t maxCoins, const bool noTeamLootOnDeath) {
+void DropLoot(Entity* player, const LWOOBJID source, const std::map<LOT, LootDropInfo>& rolledItems, uint32_t minCoins, uint32_t maxCoins) {
 	player = player->GetOwner(); // if the owner is overwritten, we collect that here
 	const auto playerID = player->GetObjectID();
 	if (!player || !player->IsPlayer()) {
@@ -363,33 +342,15 @@ void DropLoot(Entity* player, const LWOOBJID source, const std::map<LOT, LootDro
 			const CDObjects& object = objectsTable->GetByID(lootLot);
 
 			if (lootLot == TOKEN_PROXY) {
-				team ? DropFactionLoot(*team, lootMsg, noTeamLootOnDeath) : DropFactionLoot(*player, lootMsg);
+				team ? DropFactionLoot(*team, lootMsg) : DropFactionLoot(*player, lootMsg);
 			} else if (info.table.MissionDrop) {
-				team ? DropMissionLoot(*team, lootMsg, noTeamLootOnDeath) : DropMissionLoot(*player, lootMsg);
+				team ? DropMissionLoot(*team, lootMsg) : DropMissionLoot(*player, lootMsg);
 			} else if (object.type == "Powerup") {
-				team ? DropPowerupLoot(*team, lootMsg, noTeamLootOnDeath) : DropPowerupLoot(*player, lootMsg);
+				team ? DropPowerupLoot(*team, lootMsg) : DropPowerupLoot(*player, lootMsg);
 			} else {
-				team ? DropRegularLoot(*team, lootMsg, noTeamLootOnDeath) : DropRegularLoot(*player, lootMsg);
+				team ? DropRegularLoot(*team, lootMsg) : DropRegularLoot(*player, lootMsg);
 			}
 		}
-	}
-
-	// Filter out dead player if we need to
-	std::vector<LWOOBJID> lootEarners;
-	if (team) {
-		if (noTeamLootOnDeath) {
-			for (const auto member : team->members) {
-				GameMessages::IsDead isDeadMsg{};
-				isDeadMsg.target = member;
-				if (isDeadMsg.Send() && !isDeadMsg.bDead) {
-					lootEarners.push_back(member);
-				}
-			}
-		} else {
-			lootEarners = team->members;
-		}
-	} else {
-		lootEarners.push_back(playerID);
 	}
 
 	// Coin roll is divided up between the members, rounded up, then dropped for each player
@@ -399,16 +360,15 @@ void DropLoot(Entity* player, const LWOOBJID source, const std::map<LOT, LootDro
 	// Drops coins for each alive member of a team (or just a player)
 	for (auto member : lootEarners) {
 		GameMessages::DropClientLoot lootMsg{};
-		lootMsg.target = member;
-		lootMsg.ownerID = member;
+		lootMsg.target = playerID;
+		lootMsg.ownerID = playerID;
 		lootMsg.currency = droppedCoins;
 		lootMsg.spawnPos = spawnPosition;
 		lootMsg.sourceID = source;
 		lootMsg.item = LOT_NULL;
 		CalcFinalDropPos(lootMsg);
 		lootMsg.Send();
-		const auto* const memberEntity = Game::entityManager->GetEntity(member);
-		if (memberEntity) lootMsg.Send(memberEntity->GetSystemAddress());
+		lootMsg.Send(player->GetSystemAddress());
 	}
 }
 
@@ -561,9 +521,6 @@ void Loot::GiveActivityLoot(Entity* player, const LWOOBJID source, uint32_t acti
 void Loot::DropLoot(Entity* player, const LWOOBJID source, uint32_t matrixIndex, uint32_t minCoins, uint32_t maxCoins) {
 	player = player->GetOwner(); // if the owner is overwritten, we collect that here
 
-	auto* scriptedActivityComponent = Game::entityManager->GetZoneControlEntity()->GetComponent<ScriptedActivityComponent>();
-	const bool noTeamLootOnDeath = scriptedActivityComponent ? scriptedActivityComponent->GetNoTeamLootOnDeath() : false;
-
 	auto* inventoryComponent = player->GetComponent<InventoryComponent>();
 
 	if (!inventoryComponent)
@@ -571,7 +528,7 @@ void Loot::DropLoot(Entity* player, const LWOOBJID source, uint32_t matrixIndex,
 
 	const auto result = ::RollLootMatrix(matrixIndex);
 
-	::DropLoot(player, source, result, minCoins, maxCoins, noTeamLootOnDeath);
+	::DropLoot(player, source, result, minCoins, maxCoins);
 }
 
 void Loot::DropActivityLoot(Entity* player, const LWOOBJID source, uint32_t activityID, int32_t rating) {

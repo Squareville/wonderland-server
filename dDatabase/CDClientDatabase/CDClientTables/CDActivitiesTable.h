@@ -2,7 +2,6 @@
 
 // Custom Classes
 #include "CDTable.h"
-#include <optional>
 
 struct CDActivities {
 	uint32_t ActivityID;
@@ -32,5 +31,4 @@ public:
 
 	// Queries the table with a custom "where" clause
 	std::vector<CDActivities> Query(std::function<bool(CDActivities)> predicate);
-	std::optional<const CDActivities> GetActivity(const uint32_t activityID);
 };

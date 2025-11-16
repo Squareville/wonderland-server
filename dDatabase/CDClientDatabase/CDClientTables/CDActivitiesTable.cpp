@@ -56,13 +56,3 @@ std::vector<CDActivities> CDActivitiesTable::Query(std::function<bool(CDActiviti
 
 	return data;
 }
-
-std::optional<const CDActivities> CDActivitiesTable::GetActivity(const uint32_t activityID) {
-	auto& entries = GetEntries();
-	for (const auto& entry : entries) {
-		if (entry.ActivityID == activityID) {
-			return entry;
-		}
-	}
-	return std::nullopt;
-}
