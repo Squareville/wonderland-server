@@ -1,4 +1,9 @@
 #include "GhostComponent.h"
+#include "PlayerManager.h"
+#include "Character.h"
+#include "ControllablePhysicsComponent.h"
+#include "UserManager.h"
+#include "User.h"
 
 #include "Amf3.h"
 #include "GameMessages.h"
@@ -9,6 +14,10 @@ GhostComponent::GhostComponent(Entity* parent, const int32_t componentID) : Comp
 	m_GhostOverride = false;
 
 	RegisterMsg(&GhostComponent::MsgGetObjectReportInfo);
+	
+	RegisterMsg<GameMessages::ToggleGMInvis>(this, &GhostComponent::OnToggleGMInvis);
+	RegisterMsg<GameMessages::GetGMInvis>(this, &GhostComponent::OnGetGMInvis);
+	RegisterMsg<GameMessages::GetObjectReportInfo>(this, &GhostComponent::MsgGetObjectReportInfo);
 }
 
 GhostComponent::~GhostComponent() {
@@ -20,6 +29,25 @@ GhostComponent::~GhostComponent() {
 
 		entity->SetObservers(entity->GetObservers() - 1);
 	}
+}
+
+void GhostComponent::LoadFromXml(const tinyxml2::XMLDocument& doc) {
+	auto* objElement = doc.FirstChildElement("obj");
+	if (!objElement) return;
+	auto* ghstElement = objElement->FirstChildElement("ghst");
+	if (!ghstElement) return;
+	m_IsGMInvisible = ghstElement->BoolAttribute("i");
+}
+
+void GhostComponent::UpdateXml(tinyxml2::XMLDocument& doc) {
+	auto* objElement = doc.FirstChildElement("obj");
+	if (!objElement) return;
+	auto* ghstElement = objElement->FirstChildElement("ghst");
+	if (ghstElement) objElement->DeleteChild(ghstElement);
+	// Only save if GM invisible
+	if (!m_IsGMInvisible) return;
+	ghstElement = objElement->InsertNewChildElement("ghst");
+	if (ghstElement) ghstElement->SetAttribute("i", m_IsGMInvisible);
 }
 
 void GhostComponent::SetGhostReferencePoint(const NiPoint3& value) {
@@ -63,6 +91,45 @@ void GhostComponent::GhostEntity(LWOOBJID id) {
 
 bool GhostComponent::MsgGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo) {
 	auto& cmptType = reportInfo.info->PushDebug("Ghost");
+}
+
+bool GhostComponent::OnToggleGMInvis(GameMessages::GameMsg& msg) {
+	auto& gmInvisMsg = static_cast<GameMessages::ToggleGMInvis&>(msg);
+	gmInvisMsg.bStateOut = !m_IsGMInvisible;
+	m_IsGMInvisible = !m_IsGMInvisible;
+	LOG_DEBUG("GM Invisibility toggled to: %s", m_IsGMInvisible ? "true" : "false");
+	gmInvisMsg.Send(UNASSIGNED_SYSTEM_ADDRESS);
+	auto* thisUser = UserManager::Instance()->GetUser(m_Parent->GetSystemAddress());
+	for (const auto& player : PlayerManager::GetAllPlayers()) {
+		if (!player || player->GetObjectID() == m_Parent->GetObjectID()) continue;
+		auto* toUser = UserManager::Instance()->GetUser(player->GetSystemAddress());
+		if (m_IsGMInvisible) {
+			if (toUser->GetMaxGMLevel() < thisUser->GetMaxGMLevel()) {
+				Game::entityManager->DestructEntity(m_Parent, player->GetSystemAddress());
+			}
+		} else {
+			if (toUser->GetMaxGMLevel() >= thisUser->GetMaxGMLevel()) {
+				Game::entityManager->ConstructEntity(m_Parent, player->GetSystemAddress());
+				auto* controllableComp = m_Parent->GetComponent<ControllablePhysicsComponent>();
+				controllableComp->SetDirtyPosition(true);
+			}
+		}
+	}
+	Game::entityManager->SerializeEntity(m_Parent);
+
+	return true;
+}
+
+bool GhostComponent::OnGetGMInvis(GameMessages::GameMsg& msg) {
+	LOG_DEBUG("GM Invisibility requested: %s", m_IsGMInvisible ? "true" : "false");
+	auto& gmInvisMsg = static_cast<GameMessages::GetGMInvis&>(msg);
+	gmInvisMsg.bGMInvis = m_IsGMInvisible;
+	return gmInvisMsg.bGMInvis;
+}
+
+bool GhostComponent::MsgGetObjectReportInfo(GameMessages::GameMsg& msg) {
+	auto& reportMsg = static_cast<GameMessages::GetObjectReportInfo&>(msg);
+	auto& cmptType = reportMsg.info->PushDebug("Ghost");
 	cmptType.PushDebug<AMFIntValue>("Component ID") = GetComponentID();
 	cmptType.PushDebug<AMFBoolValue>("Is GM Invis") = false;
 

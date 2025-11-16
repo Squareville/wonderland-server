@@ -402,13 +402,14 @@ namespace CppScripts {
 		 * @param fire The child info
 		 */
 		virtual void OnChildLoaded(Entity& self, GameMessages::ChildLoaded& childLoaded) {};
+
+		virtual void OnChildRemoved(Entity& self, GameMessages::ChildRemoved& childRemoved) {};
 	protected:
 		Entity* GetEntityByName(const Entity* const self, const std::u16string& name) const;
 
 		void StoreParent(const Entity* const self, const LWOOBJID other) const;
 
 		void StoreEntityByName(Entity* const self, const std::u16string& varName, const LWOOBJID other) const;
-
 	};
 
 	Script* const GetScript(Entity* parent, const std::string& scriptName);

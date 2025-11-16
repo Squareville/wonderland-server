@@ -243,8 +243,6 @@ namespace GameMessages {
 		bool cancelOnLogout = false, bool cancelOnRemoveBuff = true, bool cancelOnUi = false,
 		bool cancelOnUnequip = false, bool cancelOnZone = false, bool addedByTeammate = false, bool applyOnTeammates = false, const SystemAddress& sysAddr = UNASSIGNED_SYSTEM_ADDRESS);
 
-	void SendToggleGMInvis(LWOOBJID objectId, bool enabled, const SystemAddress& sysAddr);
-
 	void SendSetName(LWOOBJID objectID, std::u16string name, const SystemAddress& sysAddr);
 
 	// Property messages
@@ -952,6 +950,26 @@ namespace GameMessages {
 		NiPoint3 pos{};
 
 		NiQuaternion rot{ 0.0f, 0.0f, 0.0f, 0.0f };
+	};
+
+	struct ToggleGMInvis : public GameMsg {
+		ToggleGMInvis() : GameMsg(MessageType::Game::TOGGLE_GM_INVIS) {}
+
+		void Serialize(RakNet::BitStream& stream) const override;
+		bool bStateOut{ false };
+
+	};
+
+	struct GetGMInvis : public GameMsg {
+		GetGMInvis() : GameMsg(MessageType::Game::GET_GM_INVIS) {}
+
+		bool bGMInvis{ false };
+  };
+
+	struct ChildRemoved : public GameMsg {
+		ChildRemoved() : GameMsg(MessageType::Game::CHILD_REMOVED) {}
+
+		LWOOBJID childID{};
 	};
 };
 #endif // GAMEMESSAGES_H

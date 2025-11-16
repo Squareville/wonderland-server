@@ -189,6 +189,10 @@ Entity::~Entity() {
 	}
 
 	if (m_ParentEntity) {
+		GameMessages::ChildRemoved removedMsg{};
+		removedMsg.childID = m_ObjectID;
+		removedMsg.target = m_ParentEntity->GetObjectID();
+		removedMsg.Send();
 		m_ParentEntity->RemoveChild(this);
 	}
 }
@@ -198,6 +202,11 @@ void Entity::Initialize() {
 	RegisterMsg(&Entity::MsgDropClientLoot);
 	RegisterMsg(&Entity::MsgGetFactionTokenType);
 	RegisterMsg(&Entity::MsgPickupItem);
+	RegisterMsg<GameMessages::RequestServerObjectInfo>(this, &Entity::MsgRequestServerObjectInfo);
+	RegisterMsg<GameMessages::DropClientLoot>(this, &Entity::MsgDropClientLoot);
+	RegisterMsg<GameMessages::GetFactionTokenType>(this, &Entity::MsgGetFactionTokenType);
+	RegisterMsg<GameMessages::PickupItem>(this, &Entity::MsgPickupItem);
+	RegisterMsg<GameMessages::ChildRemoved>(this, &Entity::MsgChildRemoved);
 	/**
 	 * Setup trigger
 	 */
@@ -505,7 +514,7 @@ void Entity::Initialize() {
 		auto& systemAddress = m_Character->GetParentUser() ? m_Character->GetParentUser()->GetSystemAddress() : UNASSIGNED_SYSTEM_ADDRESS;
 		AddComponent<CharacterComponent>(characterID, m_Character, systemAddress)->LoadFromXml(m_Character->GetXMLDoc());
 
-		AddComponent<GhostComponent>(characterID);
+		AddComponent<GhostComponent>(characterID)->LoadFromXml(m_Character->GetXMLDoc());
 	}
 
 	const auto inventoryID = compRegistryTable->GetByIDAndType(m_TemplateID, eReplicaComponentType::INVENTORY);
@@ -2379,5 +2388,10 @@ bool Entity::MsgPickupItem(GameMessages::PickupItem& pickupItemMsg) {
 		droppedLoot.erase(pickupItemMsg.lootID);
 	}
 
+	return true;
+}
+
+bool Entity::MsgChildRemoved(GameMessages::GameMsg& msg) {
+	GetScript()->OnChildRemoved(*this, static_cast<GameMessages::ChildRemoved&>(msg));
 	return true;
 }
