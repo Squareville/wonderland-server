@@ -419,8 +419,6 @@ public:
 
 	~InventoryComponent() override;
 	
-	bool RemoveItemFromAllInventories(const LOT lot, const uint32_t count, const bool ignoreBound = false, const bool silent = false);
-
 private:
 	/**
 	 * The key is the inventory the group belongs to, the value maps' key is the id for the group.

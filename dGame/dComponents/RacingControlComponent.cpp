@@ -388,6 +388,10 @@ void RacingControlComponent::HandleMessageBoxResponse(Entity* player, int32_t bu
 
 		// Calculate the score, different loot depending on player count
 		auto playersRating = m_LoadedPlayers;
+		if (m_LoadedPlayers == 1 && m_SoloRacing) {
+			playersRating *= 2;
+		}
+
 		const auto score = playersRating * 10 + data->finished;
 		Loot::GiveActivityLoot(player, m_Parent->GetObjectID(), m_ActivityID, score);
 
@@ -870,7 +874,7 @@ void RacingControlComponent::Update(float deltaTime) {
 void RacingControlComponent::MsgConfigureRacingControl(const GameMessages::ConfigureRacingControl& msg) {
 	for (const auto& dataUnique : msg.racingSettings) {
 		if (!dataUnique) continue;
-		const auto* const data = dataUnique.get(); 
+		const auto* const data = dataUnique.get();
 		if (data->GetKey() == u"Race_PathName" && data->GetValueType() == LDF_TYPE_UTF_16) {
 			m_PathName = static_cast<const LDFData<std::u16string>*>(data)->GetValue();
 		} else if (data->GetKey() == u"activityID" && data->GetValueType() == LDF_TYPE_S32) {

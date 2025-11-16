@@ -1690,29 +1690,6 @@ bool InventoryComponent::SetSkill(BehaviorSlot slot, uint32_t skillId) {
 	return true;
 }
 
-bool InventoryComponent::RemoveItemFromAllInventories(const LOT lot, const uint32_t count, const bool ignoreBound, const bool silent) {
-	if (count == 0 || count > GetLotCount(lot)) {
-		LOG("Attempted to remove 0 of item (%i) from the inventory!", lot);
-		return false;
-	}
-
-	auto left = count;
-	for (auto[inventoryType, inventory] : m_Inventories) {
-		if (inventoryType == eInventoryType::VENDOR_BUYBACK) continue;
-		Item* item = nullptr;
-		do {
-			item = FindItemByLot(lot, inventoryType, false, ignoreBound);
-			if (!item) break;
-
-			const auto delta = std::min<uint32_t>(left, item->GetCount());
-			item->SetCount(item->GetCount() - delta, silent);
-			left -= delta;
-		} while (left > 0);
-	}
-
-	return true;
-}
-
 void InventoryComponent::UpdateGroup(const GroupUpdate& groupUpdate) {
 	if (groupUpdate.groupId.empty()) return;
 

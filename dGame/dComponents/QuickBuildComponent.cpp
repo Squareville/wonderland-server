@@ -136,7 +136,6 @@ void QuickBuildComponent::Update(float deltaTime) {
 
 		break;
 	}
-
 	case eQuickBuildState::COMPLETED: {
 		ModifyTimer(deltaTime);
 
