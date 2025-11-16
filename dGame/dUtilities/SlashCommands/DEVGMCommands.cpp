@@ -755,20 +755,30 @@ namespace DEVGMCommands {
 			tables.nextRow();
 		}
 
-		AMFArrayValue response;
-		response.Insert("visible", true);
-		response.Insert("objectID", "Search Results");
-		response.Insert("serverInfo", true);
-		auto* const info = response.InsertArray("data");
-		auto& lotSort = info->PushDebug("Sorted by LOT");
-		for (const auto& [lot, name] : lotToName) {
-			auto& entry = lotSort.PushDebug<AMFStringValue>(std::to_string(lot)) = name;
+		// if there arent a ton of results, print them to chat instead
+		if (lotToName.size() < 5) {
+			std::stringstream ss;
+			ss << "Lookup results for \"" << args << "\":";
+			for (const auto& [lot, name] : lotToName) {
+				ss << "\nLOT: " << lot << " - Name: " << name;
+			}
+			ChatPackets::SendSystemMessage(sysAddr, ss.str());
+		} else {
+			AMFArrayValue response;
+			response.Insert("visible", true);
+			response.Insert("objectID", "Search Results for: " + args);
+			response.Insert("serverInfo", true);
+			auto* const info = response.InsertArray("data");
+			auto& lotSort = info->PushDebug("Sorted by LOT");
+			for (const auto& [lot, name] : lotToName) {
+				auto& entry = lotSort.PushDebug<AMFStringValue>(std::to_string(lot)) = name;
+			}
+			auto& nameSort = info->PushDebug("Sorted by Name");
+			for (const auto& [name, lot] : nameToLot) {
+				auto& entry = nameSort.PushDebug<AMFStringValue>(name) = std::to_string(lot);
+			}
+			GameMessages::SendUIMessageServerToSingleClient("ToggleObjectDebugger", response, sysAddr);
 		}
-		auto& nameSort = info->PushDebug("Sorted by Name");
-		for (const auto& [name, lot] : nameToLot) {
-			auto& entry = nameSort.PushDebug<AMFStringValue>(name) = std::to_string(lot);
-		}
-		GameMessages::SendUIMessageServerToSingleClient("ToggleObjectDebugger", response, sysAddr);
 	}
 
 	void Spawn(Entity* entity, const SystemAddress& sysAddr, const std::string args) {
@@ -1275,7 +1285,7 @@ namespace DEVGMCommands {
 		auto* info = response.InsertArray("data");
 		for (const auto variable : Metrics::GetAllMetrics()) {
 			auto& metricData = info->PushDebug(StringifiedEnum::ToString(variable));
-			
+
 			auto* metric = Metrics::GetMetric(variable);
 
 			if (metric == nullptr) {
@@ -1339,7 +1349,7 @@ namespace DEVGMCommands {
 			ChatPackets::SendSystemMessage(sysAddr, ss.str());
 			return;
 		}
-		
+
 		uint64_t totalRuns = 0;
 
 		for (uint32_t i = 0; i < loops; i++) {
