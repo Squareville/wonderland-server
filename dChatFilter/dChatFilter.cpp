@@ -108,7 +108,6 @@ void dChatFilter::ExportWordlistToDCF(const std::string& filepath, bool allowLis
 std::set<std::pair<uint8_t, uint8_t>> dChatFilter::IsSentenceOkay(const std::string& message, eGameMasterLevel gmLevel, bool allowList) {
 	if (gmLevel > eGameMasterLevel::FORUM_MODERATOR) return { }; //If anything but a forum mod, return true.
 	if (message.empty()) return { };
-	if (!m_UseWhitelist) allowList = false;
 	if (!allowList && m_DeniedWords.empty()) return { { 0, message.length() } };
 
 	std::stringstream sMessage(message);
