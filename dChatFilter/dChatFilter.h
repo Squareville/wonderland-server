@@ -27,7 +27,6 @@ public:
 	std::set<std::pair<uint8_t, uint8_t>> IsSentenceOkay(const std::string& message, eGameMasterLevel gmLevel, bool allowList = true);
 
 private:
-	bool m_UseWhitelist;
 	bool m_DontGenerateDCF;
 	std::vector<size_t> m_DeniedWords;
 	std::vector<size_t> m_ApprovedWords;
