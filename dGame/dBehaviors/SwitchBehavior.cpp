@@ -9,7 +9,7 @@
 void SwitchBehavior::Handle(BehaviorContext* context, RakNet::BitStream& bitStream, const BehaviorBranchContext branch) {
 	bool state = true;
 
-	if (m_imagination > 0 || m_targetHasBuff > 0 || m_Distance > -1.0f || m_armor > 0 || m_health > 0) {
+	if (m_imagination > 0 || m_targetHasBuff > 0 || m_Distance > -1.0f) {
 		if (!bitStream.Read(state)) {
 			LOG("Unable to read state from bitStream, aborting Handle! %i", bitStream.GetNumberOfUnreadBits());
 			return;
@@ -37,7 +37,7 @@ void SwitchBehavior::Handle(BehaviorContext* context, RakNet::BitStream& bitStre
 
 void SwitchBehavior::Calculate(BehaviorContext* context, RakNet::BitStream& bitStream, BehaviorBranchContext branch) {
 	bool state = true;
-	if (m_imagination > 0 || m_targetHasBuff > 0 || m_Distance > -1.0f || m_health > 0 || m_armor > 0) {
+	if (m_imagination > 0 || m_targetHasBuff > 0 || m_Distance > -1.0f) {
 		auto* entity = Game::entityManager->GetEntity(branch.target);
 
 		state = entity != nullptr;
@@ -53,18 +53,6 @@ void SwitchBehavior::Calculate(BehaviorContext* context, RakNet::BitStream& bitS
 				auto* destroyableComponent = entity->GetComponent<DestroyableComponent>();
 
 				if (destroyableComponent && destroyableComponent->GetImagination() < m_imagination) {
-					state = false;
-				}
-			} else if (m_health > 0) {
-				auto* destroyableComponent = entity->GetComponent<DestroyableComponent>();
-
-				if (destroyableComponent && destroyableComponent->GetImagination() < m_health) {
-					state = false;
-				}
-			} else if (m_armor > 0) {
-				auto* destroyableComponent = entity->GetComponent<DestroyableComponent>();
-
-				if (destroyableComponent && destroyableComponent->GetImagination() < m_armor) {
 					state = false;
 				}
 			} else if (m_Distance > -1.0f) {
@@ -91,10 +79,6 @@ void SwitchBehavior::Load() {
 	this->m_actionFalse = GetAction("action_false");
 
 	this->m_imagination = GetInt("imagination");
-
-	this->m_armor = GetInt("armor");
-
-	this->m_health = GetInt("health");
 
 	this->m_isEnemyFaction = GetBoolean("isEnemyFaction");
 
