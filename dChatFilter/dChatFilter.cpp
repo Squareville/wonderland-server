@@ -18,11 +18,6 @@ using namespace dChatFilterDCF;
 
 dChatFilter::dChatFilter(const std::string& filepath, bool dontGenerateDCF) {
 	m_DontGenerateDCF = dontGenerateDCF;
-    if (Game::config->GetValue("use_chat_words_as_whitelist") == "") {
-        m_UseWhitelist = true;
-	} else {
-        m_UseWhitelist = bool(std::stoi(Game::config->GetValue("use_chat_words_as_whitelist")));
-	}
 
 	if (!BinaryIO::DoesFileExist(filepath + ".dcf") || m_DontGenerateDCF) {
 		ReadWordlistPlaintext(filepath + ".txt", true);
@@ -32,8 +27,8 @@ dChatFilter::dChatFilter(const std::string& filepath, bool dontGenerateDCF) {
 		ExportWordlistToDCF(filepath + ".dcf", true);
 	}
 
-	if (BinaryIO::DoesFileExist("blacklist_en_us.txt")) {
-		ReadWordlistPlaintext("blacklist_en_us.txt", false);
+	if (BinaryIO::DoesFileExist("blocklist.dcf")) {
+		ReadWordlistDCF("blocklist.dcf", false);
 	}
 
 	//Read player names that are ok as well:
