@@ -350,7 +350,6 @@
 #include "ActPetInstance.h"
 
 // Wonderland
-#include "RubyScepterDrop.h"
 #include "NpRotatingPlatform.h"
 
 #define CPP_SCRIPT(filename, classname) { filename, []() { return new classname(); } }
@@ -724,7 +723,6 @@ namespace {
 
 		// newcontent
 		{"scripts\\EquipmentScripts\\XMarksTheSpot1.lua", [](){return new XMarksTheSpotChest();}},
-		{"scripts\\DLU\\L_RUBY_SCEPTER_DROP.lua", [](){return new RubyScepterDrop();}}, 
 		{R"(scripts\ai\NP\L_NP_ROTATING_PLATFORM.lua)", []() {return new NpRotatingPlatform();}},
 	};
 
