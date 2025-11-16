@@ -202,11 +202,7 @@ void Entity::Initialize() {
 	RegisterMsg(&Entity::MsgDropClientLoot);
 	RegisterMsg(&Entity::MsgGetFactionTokenType);
 	RegisterMsg(&Entity::MsgPickupItem);
-	RegisterMsg<GameMessages::RequestServerObjectInfo>(this, &Entity::MsgRequestServerObjectInfo);
-	RegisterMsg<GameMessages::DropClientLoot>(this, &Entity::MsgDropClientLoot);
-	RegisterMsg<GameMessages::GetFactionTokenType>(this, &Entity::MsgGetFactionTokenType);
-	RegisterMsg<GameMessages::PickupItem>(this, &Entity::MsgPickupItem);
-	RegisterMsg<GameMessages::ChildRemoved>(this, &Entity::MsgChildRemoved);
+	RegisterMsg(&Entity::MsgChildRemoved);
 	/**
 	 * Setup trigger
 	 */
@@ -2391,7 +2387,7 @@ bool Entity::MsgPickupItem(GameMessages::PickupItem& pickupItemMsg) {
 	return true;
 }
 
-bool Entity::MsgChildRemoved(GameMessages::GameMsg& msg) {
-	GetScript()->OnChildRemoved(*this, static_cast<GameMessages::ChildRemoved&>(msg));
+bool Entity::MsgChildRemoved(GameMessages::ChildRemoved& msg) {
+	GetScript()->OnChildRemoved(*this, msg);
 	return true;
 }

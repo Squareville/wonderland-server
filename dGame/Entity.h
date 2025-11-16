@@ -25,6 +25,7 @@ namespace GameMessages {
 	struct GetFlag;
 	struct GetFactionTokenType;
 	struct PickupItem;
+	struct ChildRemoved;
 };
 
 namespace MessageType {
@@ -187,12 +188,7 @@ public:
 	bool MsgGetFlag(GameMessages::GetFlag& msg);
 	bool MsgGetFactionTokenType(GameMessages::GetFactionTokenType& msg);
 	bool MsgPickupItem(GameMessages::PickupItem& msg);
-	bool MsgRequestServerObjectInfo(GameMessages::GameMsg& msg);
-	bool MsgDropClientLoot(GameMessages::GameMsg& msg);
-	bool MsgGetFlag(GameMessages::GameMsg& msg);
-	bool MsgGetFactionTokenType(GameMessages::GameMsg& msg);
-	bool MsgPickupItem(GameMessages::GameMsg& msg);
-	bool MsgChildRemoved(GameMessages::GameMsg& msg);
+	bool MsgChildRemoved(GameMessages::ChildRemoved& msg);
 
 	// This is expceted to never return nullptr, an assert checks this.
 	CppScripts::Script* const GetScript() const;

@@ -15,9 +15,9 @@ GhostComponent::GhostComponent(Entity* parent, const int32_t componentID) : Comp
 
 	RegisterMsg(&GhostComponent::MsgGetObjectReportInfo);
 	
-	RegisterMsg<GameMessages::ToggleGMInvis>(this, &GhostComponent::OnToggleGMInvis);
-	RegisterMsg<GameMessages::GetGMInvis>(this, &GhostComponent::OnGetGMInvis);
-	RegisterMsg<GameMessages::GetObjectReportInfo>(this, &GhostComponent::MsgGetObjectReportInfo);
+	RegisterMsg(&GhostComponent::OnToggleGMInvis);
+	RegisterMsg(&GhostComponent::OnGetGMInvis);
+	RegisterMsg(&GhostComponent::MsgGetObjectReportInfo);
 }
 
 GhostComponent::~GhostComponent() {
@@ -89,12 +89,7 @@ void GhostComponent::GhostEntity(LWOOBJID id) {
 	m_ObservedEntities.erase(id);
 }
 
-bool GhostComponent::MsgGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo) {
-	auto& cmptType = reportInfo.info->PushDebug("Ghost");
-}
-
-bool GhostComponent::OnToggleGMInvis(GameMessages::GameMsg& msg) {
-	auto& gmInvisMsg = static_cast<GameMessages::ToggleGMInvis&>(msg);
+bool GhostComponent::OnToggleGMInvis(GameMessages::ToggleGMInvis& gmInvisMsg) {
 	gmInvisMsg.bStateOut = !m_IsGMInvisible;
 	m_IsGMInvisible = !m_IsGMInvisible;
 	LOG_DEBUG("GM Invisibility toggled to: %s", m_IsGMInvisible ? "true" : "false");
@@ -120,15 +115,13 @@ bool GhostComponent::OnToggleGMInvis(GameMessages::GameMsg& msg) {
 	return true;
 }
 
-bool GhostComponent::OnGetGMInvis(GameMessages::GameMsg& msg) {
+bool GhostComponent::OnGetGMInvis(GameMessages::GetGMInvis& gmInvisMsg) {
 	LOG_DEBUG("GM Invisibility requested: %s", m_IsGMInvisible ? "true" : "false");
-	auto& gmInvisMsg = static_cast<GameMessages::GetGMInvis&>(msg);
 	gmInvisMsg.bGMInvis = m_IsGMInvisible;
 	return gmInvisMsg.bGMInvis;
 }
 
-bool GhostComponent::MsgGetObjectReportInfo(GameMessages::GameMsg& msg) {
-	auto& reportMsg = static_cast<GameMessages::GetObjectReportInfo&>(msg);
+bool GhostComponent::MsgGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportMsg) {
 	auto& cmptType = reportMsg.info->PushDebug("Ghost");
 	cmptType.PushDebug<AMFIntValue>("Component ID") = GetComponentID();
 	cmptType.PushDebug<AMFBoolValue>("Is GM Invis") = false;
