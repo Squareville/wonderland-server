@@ -13,7 +13,6 @@ add_subdirectory(PROPERTY)
 add_subdirectory(RACING)
 add_subdirectory(SPEC)
 add_subdirectory(WILD)
-add_subdirectory(YRK)
 
 add_library(dScriptsAI INTERFACE)
 target_sources(dScriptsAI INTERFACE
@@ -30,7 +29,6 @@ target_sources(dScriptsAI INTERFACE
 	$<TARGET_OBJECTS:dScriptsAiRacing>
 	$<TARGET_OBJECTS:dScriptsAiSpec>
 	$<TARGET_OBJECTS:dScriptsAiWild>
-	$<TARGET_OBJECTS:dScriptsAiYrk>
 )
 
 target_include_directories(dScriptsAI INTERFACE
@@ -47,5 +45,4 @@ target_include_directories(dScriptsAI INTERFACE
 	$<TARGET_PROPERTY:dScriptsAiRacing,INTERFACE_INCLUDE_DIRECTORIES>
 	$<TARGET_PROPERTY:dScriptsAiSpec,INTERFACE_INCLUDE_DIRECTORIES>
 	$<TARGET_PROPERTY:dScriptsAiWild,INTERFACE_INCLUDE_DIRECTORIES>
-	$<TARGET_PROPERTY:dScriptsAiYrk,INTERFACE_INCLUDE_DIRECTORIES>
 )

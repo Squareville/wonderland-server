@@ -346,19 +346,8 @@
 #include "NsWinterRaceServer.h"
 
 // ZP
-#include "BalloonTrigger.h"
-#include "HazmatMissionGiver.h"
-#include "YrkActor.h"
-#include "YrkNpcOnTimer.h"
 #include "WildEuHazmat.h"
-#include "Spout.h"
-#include "BubbleStatue.h"
 #include "ActPetInstance.h"
-#include "SkunkEvent.h"
-#include "YrkNpcStink.h"
-#include "HazmatTruck.h"
-#include "EnemySkunk.h"
-#include "MechEuBroombot.h"
 
 // Wonderland
 #include "RubyScepterDrop.h"
@@ -733,21 +722,6 @@ namespace {
 		{"scripts\\equipmenttriggers\\L_TRIAL_FACTION_ARMOR_SERVER.lua", []() {return new TrialFactionArmorServer();}},
 		{"scripts\\equipmenttriggers\\ImaginationBackPack.lua", []() {return new ImaginationBackPack();}},
 
-		// ZP
-		{"scripts\\ai\\YRK\\L_BALLOONTRIGGER.lua", []() {return new BalloonTrigger();}},
-		{"scripts\\ai\\YRK\\L_HAZMAT_MISSION_GIVER.lua", []() {return new HazmatMissionGiver();}},
-		{"scripts\\ai\\YRK\\L_YRK_ACTOR.lua", []() {return new YrkActor();}},
-		{"scripts\\ai\\YRK\\L_SPOUT.lua", []() {return new Spout();}},
-		{"scripts\\ai\\YRK\\L_BUBBLE_STATUE.lua", []() {return new BubbleStatue();}},
-		{"scripts\\ai\\YRK\\L_YRK_NPC_ON_TIMER.lua", []() {return new YrkNpcOnTimer();}},
-		{"scripts\\ai\\YRK\\L_SKUNK_EVENT.lua", []() {return new SkunkEvent();}},
-		{"scripts\\ai\\YRK\\L_ENEMY_SKUNK.lua", []() {return new EnemySkunk();}},
-		{"scripts\\ai\\YRK\\L_YRK_NPC_STINK.lua", []() {return new YrkNpcStink();}},
-		{"scripts\\ai\\YRK\\L_HAZMAT_TRUCK.lua", []() {return new HazmatTruck();}},
-		{"scripts\\ai\\WILD\\L_WILD_EU_HAZMAT.lua", []() {return new WildEuHazmat();}},
-		{"scripts\\ai\\ACT\\L_ACT_PET_INSTANCE.lua", []() {return new ActPetInstance();}},
-		{R"(scripts\ai\YRK\L_MECH_EU_BROOMBOT.lua)", []() {return new MechEuBroombot();}},
-		
 		// newcontent
 		{"scripts\\EquipmentScripts\\XMarksTheSpot1.lua", [](){return new XMarksTheSpotChest();}},
 		{"scripts\\DLU\\L_RUBY_SCEPTER_DROP.lua", [](){return new RubyScepterDrop();}}, 
