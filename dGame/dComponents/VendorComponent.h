@@ -33,7 +33,6 @@ public:
 	float GetSellScalar() const { return m_SellScalar; }
 	void SetBuyScalar(const float value) { m_BuyScalar = value; }
 	void SetSellScalar(const float value) { m_SellScalar = value; }
-	bool IsFaceVendor() { return m_Parent->GetLOT() == 30003; }
 	const std::vector<SoldItem>& GetInventory() { return m_Inventory; }
 
 	void SetHasMultiCostItems(const bool hasMultiCostItems) {
