@@ -38,15 +38,11 @@ SimplePhysicsComponent::~SimplePhysicsComponent() {
 }
 
 void SimplePhysicsComponent::Update(const float deltaTime) {
-	if (m_Velocity != NiPoint3Constant::ZERO) {
-		if (m_PhysicsMotionState == 5) {
-			m_PhysicsMotionState = 1;
-			m_DirtyPhysicsMotionState = true;
-		}
-		m_Position += m_Velocity * deltaTime;
-		m_DirtyPosition = true;
-		Game::entityManager->SerializeEntity(m_Parent);
-	}
+	if (m_Velocity == NiPoint3Constant::ZERO) return;
+
+	m_Position += m_Velocity * deltaTime;
+	m_DirtyPosition = true;
+	Game::entityManager->SerializeEntity(m_Parent);
 }
 
 void SimplePhysicsComponent::Serialize(RakNet::BitStream& outBitStream, bool bIsInitialUpdate) {

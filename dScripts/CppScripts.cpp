@@ -361,25 +361,8 @@
 #include "MechEuBroombot.h"
 
 // Wonderland
-#include "SpawnSkeletonOnDeath.h"
-#include "DieAfterXSeconds.h"
-#include "SkillCastAndOptionalDeath.h"
-#include "SpawnSnowmanOnDeath.h"
 #include "RubyScepterDrop.h"
-#include "SpawnEntityOnDeath.h"
-#include "HalloweenManager.h"
-#include "AfvNumbchuckServer.h"
-#include "SpawnMaelstromNinjaOnDeath.h"
-#include "NpMilo.h"
-#include "NpAnt.h"
-#include "NpFelix.h"
 #include "NpRotatingPlatform.h"
-#include "NpMime.h"
-#include "NpPicnicBot.h"
-#include "PicnicBotPicnicBot.h"
-#include "NpStrombieFlower.h"
-#include "ZonePlayer.h"
-#include "AfvBell.h"
 
 #define CPP_SCRIPT(filename, classname) { filename, []() { return new classname(); } }
 
@@ -768,32 +751,6 @@ namespace {
 		// newcontent
 		{"scripts\\EquipmentScripts\\XMarksTheSpot1.lua", [](){return new XMarksTheSpotChest();}},
 		{"scripts\\DLU\\L_RUBY_SCEPTER_DROP.lua", [](){return new RubyScepterDrop();}}, 
-		{"scripts\\newcontent\\server\\spawnskeletonondeath.lua", []() {return new SpawnSkeletonOnDeath();}},
-		{"scripts\\newcontent\\server\\dieafter10seconds.lua", []() {return new DieAfterXSeconds(10);}},
-		{"scripts\\newcontent\\server\\dieafter20seconds.lua", []() {return new DieAfterXSeconds(20);}},
-		{"scripts\\newcontent\\server\\dieafter30seconds.lua", []() {return new DieAfterXSeconds(30);}},
-		{"scripts\\newcontent\\server\\dieafter40seconds.lua", []() {return new DieAfterXSeconds(40);}},
-		{"scripts\\newcontent\\server\\dieafter50seconds.lua", []() {return new DieAfterXSeconds(50);}},
-		{"scripts\\newcontent\\server\\dieafter60seconds.lua", []() {return new DieAfterXSeconds(60);}},
-		{R"(scripts\newcontent\server\damagereduction999.lua)", []() {return new SkillCastAndOptionalDeath(1996);}},
-		{R"(scripts\newcontent\server\halloweenskeleton.lua)", []() {return new SkillCastAndOptionalDeath(1996, true, 20.0f);}},
-		{R"(scripts\newcontent\server\spawnsnowmanondeath.lua)", []() {return new SpawnSnowmanOnDeath();}},
-		{R"(scripts\newcontent\server\spawnvampireondeath.lua)", []() {return new SpawnEntityOnDeath(30055);}},
-		{R"(scripts\newcontent\server\spawnmummyondeath.lua)", []() {return new SpawnEntityOnDeath(30056);}},
-		{R"(scripts\newcontent\server\spawnhalloweenhorsemanondeath.lua)", []() {return new SpawnEntityOnDeath(41013);}},
-		{R"(scripts\newcontent\server\halloweenminiboss.lua)", []() {return new SkillCastAndOptionalDeath(1996, true, 120.0f);}},
-		{R"(scripts\newcontent\server\halloweenmanager.lua)", []() {return new HalloweenManager();}},
-		{R"(scripts\newcontent\server\afv_numbchuck_server.lua)", []() {return new AfvNumbchuckServer();}},
-		CPP_SCRIPT(R"(scripts\newcontent\server\afv_bell.lua)", AfvBell),
-		{R"(scripts\newcontent\server\spawnmaelninjaondeath.lua)", []() {return new SpawnMaelstromNinjaOnDeath();}},
-		{R"(scripts\newcontent\server\np_milo.lua)", []() {return new NpMilo();}},
-		{R"(scripts\newcontent\server\np_ant.lua)", []() {return new NpAnt();}},
-		{R"(scripts\newcontent\server\np_felix.lua)", []() {return new NpFelix();}},
-		{R"(scripts\newcontent\server\np_mime.lua)", []() {return new NpMime();}},
-		{R"(scripts\newcontent\server\np_picnicbot.lua)", []() {return new NpPicnicBot();}},
-		CPP_SCRIPT(R"(scripts\newcontent\server\np_strombie_flower.lua)", NpStrombieFlower),
-		CPP_SCRIPT(R"(scripts\newcontent\server\zoneplayer.lua)", ZonePlayer),
-		{R"(scripts\newcontent\server\picnicbot\picnicbot\picnicbot\picnicbot_picnicbot.lua)", []() {return new PicnicBotPicnicBot();}}, // gotta stay organized :strong muscle emoji:
 		{R"(scripts\ai\NP\L_NP_ROTATING_PLATFORM.lua)", []() {return new NpRotatingPlatform();}},
 	};
 
@@ -806,7 +763,6 @@ namespace {
 		"scripts\\empty.lua",
 		"scripts\\zone\\AG\\L_ZONE_AG.lua",
 		"scripts\\zone\\NS\\L_ZONE_NS.lua",
-		"scripts\\zone\\GF\\L_ZONE_GF.lua",
 		"scripts\\ai\\AG\\CONCERT_STAGE.lua",
 		"scripts\\ai\\NS\\L_NS_CAR_MODULAR_BUILD.lua", // In our implementation, this is done in GameMessages.cpp
 		"scripts\\ai\\PETS\\PET_BLOCKER.lua",

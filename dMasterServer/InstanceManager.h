@@ -128,7 +128,6 @@ public:
 
 	const InstancePtr& FindInstance(LWOMAPID mapID, bool isFriendTransfer, LWOCLONEID cloneId = 0);
 	const InstancePtr& FindInstance(LWOMAPID mapID, LWOINSTANCEID instanceID);
-	std::vector<Instance*> FindInstancesByMapID(LWOMAPID mapID);
 	const InstancePtr& FindInstanceWithPrivate(LWOMAPID mapID, LWOINSTANCEID instanceID);
 
 	const InstancePtr& CreatePrivateInstance(LWOMAPID mapID, LWOCLONEID cloneID, const std::string& password);

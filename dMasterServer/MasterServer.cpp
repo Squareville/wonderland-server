@@ -42,7 +42,6 @@
 #include "CDZoneTableTable.h"
 #include "eGameMasterLevel.h"
 #include "StringifiedEnum.h"
-#include "ServiceType.h"
 
 #ifdef DARKFLAME_PLATFORM_UNIX
 
@@ -840,66 +839,6 @@ void HandlePacket(Packet* packet) {
 			Game::universeShutdownRequested = true;
 			break;
 		}
-
-		case MessageType::Master::SHUTDOWN_INSTANCE: {
-			RakNet::BitStream inStream(packet->data, packet->length, false);
-			uint64_t header = inStream.Read(header);
-
-			uint32_t zoneID;
-			uint16_t instanceID;
-
-			inStream.Read(zoneID);
-			inStream.Read(instanceID);
-
-			Game::logger->Log("MasterServer","Attempting to shutdown an zone %i instance %i via slash command\n", zoneID, instanceID);
-
-			const auto& instance = Game::im->FindInstance(zoneID, instanceID);
-
-			if (instance) {
-				Game::logger->Log("MasterServer","Shutting down found instance\n");
-				instance->Shutdown();
-			} else {
-				Game::logger->Log("MasterServer","Failed to find instance!\n");
-			}
-			break;
-		}
-
-		case MessageType::Master::GET_INSTANCES: {
-			RakNet::BitStream inStream(packet->data, packet->length, false);
-			uint64_t header = inStream.Read(header);
-
-			uint64_t objectID;
-			uint16_t zoneID = LWOMAPID_INVALID;
-			uint16_t respondingZoneID;
-			uint16_t respondingInstanceID;
-
-			inStream.Read(objectID);
-			if (inStream.ReadBit()) inStream.Read(zoneID);
-			inStream.Read(respondingZoneID);
-			inStream.Read(respondingInstanceID);
-
-			CBITSTREAM
-
-			BitStreamUtils::WriteHeader(bitStream, ServiceType::MASTER, MessageType::Master::RESPOND_INSTANCES);
-
-			bitStream.Write(objectID);
-
-			auto respondingSysAddr = Game::im->FindInstance(respondingZoneID, respondingInstanceID)->GetSysAddr();
-
-			const auto& instances = Game::im->GetInstances();
-			bitStream.Write<uint32_t>(instances.size());
-
-			for (uint32_t i = 0; i < instances.size(); i++) {
-				bitStream.Write(instances[i]->GetZoneID().GetMapID());
-				bitStream.Write(instances[i]->GetZoneID().GetCloneID());
-				bitStream.Write(instances[i]->GetZoneID().GetInstanceID());
-			}
-
-			Game::server->Send(bitStream, respondingSysAddr, false);
-
-			break;
-		}
-
 
 		default:
 			LOG("Unknown master packet ID from server: %i", packet->data[3]);

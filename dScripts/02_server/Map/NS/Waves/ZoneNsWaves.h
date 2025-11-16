@@ -50,7 +50,7 @@ enum SpawnLOTS : LOT {
 	maelstrom_chest = 4894,
 	outhouse = 12616,
 	dragon_statue = 12617,
-	treasure_chest = 37069,
+	treasure_chest = 12423,
 	hammerling_melee = 12653,
 	maelstrom_geyser = 10314,
 	ronin_statue = 12611,
