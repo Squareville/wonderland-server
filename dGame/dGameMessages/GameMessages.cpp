@@ -5931,7 +5931,6 @@ void GameMessages::HandleUpdatePlayerStatistic(RakNet::BitStream& inStream, Enti
 void GameMessages::HandleDeactivateBubbleBuff(RakNet::BitStream& inStream, Entity* entity) {
 	auto controllablePhysicsComponent = entity->GetComponent<ControllablePhysicsComponent>();
 	if (controllablePhysicsComponent) controllablePhysicsComponent->DeactivateBubbleBuff();
-	GameMessages::SendDeactivateBubbleBuffFromServer(entity->GetObjectID(), entity->GetSystemAddress());
 }
 
 void GameMessages::HandleActivateBubbleBuff(RakNet::BitStream& inStream, Entity* entity) {
