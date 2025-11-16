@@ -216,18 +216,6 @@ foreach(file ${VANITY_FILES})
 	configure_file("${CMAKE_SOURCE_DIR}/vanity/${file}" "${CMAKE_BINARY_DIR}/vanity/${file}" COPYONLY)
 endforeach()
 
-file(MAKE_DIRECTORY ${PROJECT_BINARY_DIR}/qbs/)
-file(GLOB QB_FILES ${CMAKE_SOURCE_DIR}/qbs/*.xml)
-foreach (file ${QB_FILES})
-    get_filename_component(file ${file} NAME)
-    if (NOT EXISTS ${PROJECT_BINARY_DIR}/qbs/${file})
-        configure_file(
-            ${CMAKE_SOURCE_DIR}/qbs/${file} ${PROJECT_BINARY_DIR}/qbs/${file}
-            COPYONLY
-        )
-    endif()
-endforeach()
-
 # Move our migrations for MasterServer to run
 file(REMOVE_RECURSE ${PROJECT_BINARY_DIR}/migrations)
 file(COPY ${CMAKE_SOURCE_DIR}/migrations DESTINATION ${CMAKE_BINARY_DIR})
