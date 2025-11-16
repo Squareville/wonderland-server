@@ -203,7 +203,6 @@ int main(int argc, char** argv) {
 	Database::Destroy("ChatServer");
 	delete Game::server;
 	delete Game::logger;
-	Game::logger = nullptr;
 	delete Game::config;
 
 	return EXIT_SUCCESS;
