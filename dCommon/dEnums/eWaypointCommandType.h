@@ -23,7 +23,6 @@ enum class eWaypointCommandType : uint32_t {
 	KILL_SELF,
 	SPAWN_OBJECT,
 	PLAY_SOUND,
-	PICNICBOT,
 };
 
 class WaypointCommandType {
@@ -49,7 +48,6 @@ public:
 			{"removeself", eWaypointCommandType::DELETE_SELF},
 			{"spawnOBJ", eWaypointCommandType::SPAWN_OBJECT},
 			{"playSound", eWaypointCommandType::PLAY_SOUND},
-			{"picnicbot", eWaypointCommandType::PICNICBOT},
 		};
 
 		auto intermed = WaypointCommandTypeMap.find(commandString);
