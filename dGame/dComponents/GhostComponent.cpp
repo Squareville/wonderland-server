@@ -13,11 +13,7 @@ GhostComponent::GhostComponent(Entity* parent, const int32_t componentID) : Comp
 	m_GhostOverridePoint = NiPoint3Constant::ZERO;
 	m_GhostOverride = false;
 
-	RegisterMsg(&GhostComponent::MsgGetObjectReportInfo);
-	
-	RegisterMsg(&GhostComponent::OnToggleGMInvis);
-	RegisterMsg(&GhostComponent::OnGetGMInvis);
-	RegisterMsg(&GhostComponent::MsgGetObjectReportInfo);
+	RegisterMsg(this, &GhostComponent::MsgGetObjectReportInfo);
 }
 
 GhostComponent::~GhostComponent() {
@@ -89,39 +85,8 @@ void GhostComponent::GhostEntity(LWOOBJID id) {
 	m_ObservedEntities.erase(id);
 }
 
-bool GhostComponent::OnToggleGMInvis(GameMessages::ToggleGMInvis& gmInvisMsg) {
-	gmInvisMsg.bStateOut = !m_IsGMInvisible;
-	m_IsGMInvisible = !m_IsGMInvisible;
-	LOG_DEBUG("GM Invisibility toggled to: %s", m_IsGMInvisible ? "true" : "false");
-	gmInvisMsg.Send(UNASSIGNED_SYSTEM_ADDRESS);
-	auto* thisUser = UserManager::Instance()->GetUser(m_Parent->GetSystemAddress());
-	for (const auto& player : PlayerManager::GetAllPlayers()) {
-		if (!player || player->GetObjectID() == m_Parent->GetObjectID()) continue;
-		auto* toUser = UserManager::Instance()->GetUser(player->GetSystemAddress());
-		if (m_IsGMInvisible) {
-			if (toUser->GetMaxGMLevel() < thisUser->GetMaxGMLevel()) {
-				Game::entityManager->DestructEntity(m_Parent, player->GetSystemAddress());
-			}
-		} else {
-			if (toUser->GetMaxGMLevel() >= thisUser->GetMaxGMLevel()) {
-				Game::entityManager->ConstructEntity(m_Parent, player->GetSystemAddress());
-				auto* controllableComp = m_Parent->GetComponent<ControllablePhysicsComponent>();
-				controllableComp->SetDirtyPosition(true);
-			}
-		}
-	}
-	Game::entityManager->SerializeEntity(m_Parent);
-
-	return true;
-}
-
-bool GhostComponent::OnGetGMInvis(GameMessages::GetGMInvis& gmInvisMsg) {
-	LOG_DEBUG("GM Invisibility requested: %s", m_IsGMInvisible ? "true" : "false");
-	gmInvisMsg.bGMInvis = m_IsGMInvisible;
-	return gmInvisMsg.bGMInvis;
-}
-
-bool GhostComponent::MsgGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportMsg) {
+bool GhostComponent::MsgGetObjectReportInfo(GameMessages::GameMsg& msg) {
+	auto& reportMsg = static_cast<GameMessages::GetObjectReportInfo&>(msg);
 	auto& cmptType = reportMsg.info->PushDebug("Ghost");
 	cmptType.PushDebug<AMFIntValue>("Component ID") = GetComponentID();
 	cmptType.PushDebug<AMFBoolValue>("Is GM Invis") = false;

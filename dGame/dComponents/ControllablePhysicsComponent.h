@@ -284,7 +284,7 @@ public:
 
 private:
 
-	bool OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo);
+	bool OnGetObjectReportInfo(GameMessages::GameMsg& msg);
 	/**
 	 * The entity that owns this component
 	 */

@@ -215,7 +215,7 @@ public:
 
 private:
 
-	bool OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo);
+	bool OnGetObjectReportInfo(GameMessages::GameMsg& msg);
 
 	/**
 	 * Sets the current position of the entity

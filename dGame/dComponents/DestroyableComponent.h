@@ -11,8 +11,6 @@
 
 namespace GameMessages {
 	struct GetObjectReportInfo;
-	struct SetFaction;
-	struct IsDead;
 };
 
 namespace CppScripts {
@@ -472,9 +470,9 @@ public:
 	// handle hardcode mode drops
 	void DoHardcoreModeDrops(const LWOOBJID source);
 
-	bool OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo);
-	bool OnSetFaction(GameMessages::SetFaction& setFaction);
-	bool OnIsDead(GameMessages::IsDead& isDead);
+	bool OnGetObjectReportInfo(GameMessages::GameMsg& msg);
+	bool OnSetFaction(GameMessages::GameMsg& msg);
+	bool OnIsDead(GameMessages::GameMsg& msg);
 
 	void SetIsDead(const bool value) { m_IsDead = value; }
 

@@ -31,7 +31,7 @@
 #include "Amf3.h"
 
 ActivityComponent::ActivityComponent(Entity* parent, int32_t componentID) : Component(parent, componentID) {
-	RegisterMsg(&ActivityComponent::OnGetObjectReportInfo);
+	RegisterMsg(this, &ActivityComponent::OnGetObjectReportInfo);
 	/*
 	* This is precisely what the client does functionally
 	* Use the component id as the default activity id and load its data from the database

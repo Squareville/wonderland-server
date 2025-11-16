@@ -45,9 +45,8 @@ public:
 
 	void GhostEntity(const LWOOBJID id);
 
-	bool MsgGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo);
-	bool OnToggleGMInvis(GameMessages::ToggleGMInvis& msg);
-	bool OnGetGMInvis(GameMessages::GetGMInvis& msg);
+	bool MsgGetObjectReportInfo(GameMessages::GameMsg& msg);
+
 private:
 
 	NiPoint3 m_GhostReferencePoint;

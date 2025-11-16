@@ -22,12 +22,13 @@ ModelComponent::ModelComponent(Entity* parent, const int32_t componentID) : Comp
 	m_NumListeningInteract = 0;
 
 	m_userModelID = m_Parent->GetVarAs<LWOOBJID>(u"userModelID");
-	RegisterMsg(&ModelComponent::OnRequestUse);
-	RegisterMsg(&ModelComponent::OnResetModelToDefaults);
-	RegisterMsg(&ModelComponent::OnGetObjectReportInfo);
+	RegisterMsg(this, &ModelComponent::OnRequestUse);
+	RegisterMsg(this, &ModelComponent::OnResetModelToDefaults);
+	RegisterMsg(this, &ModelComponent::OnGetObjectReportInfo);
 }
 
-bool ModelComponent::OnResetModelToDefaults(GameMessages::ResetModelToDefaults& reset) {
+bool ModelComponent::OnResetModelToDefaults(GameMessages::GameMsg& msg) {
+	auto& reset = static_cast<GameMessages::ResetModelToDefaults&>(msg);
 	if (reset.bResetBehaviors) for (auto& behavior : m_Behaviors) behavior.HandleMsg(reset);
 
 	if (reset.bUnSmash) {
@@ -58,9 +59,10 @@ bool ModelComponent::OnResetModelToDefaults(GameMessages::ResetModelToDefaults& 
 	return true;
 }
 
-bool ModelComponent::OnRequestUse(GameMessages::RequestUse& requestUse) {
+bool ModelComponent::OnRequestUse(GameMessages::GameMsg& msg) {
 	bool toReturn = false;
 	if (!m_IsPaused) {
+		auto& requestUse = static_cast<GameMessages::RequestUse&>(msg);
 		for (auto& behavior : m_Behaviors) behavior.HandleMsg(requestUse);
 		toReturn = true;
 	}
@@ -341,9 +343,10 @@ void ModelComponent::RemoveAttack() {
 	}
 }
 
-bool ModelComponent::OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo) {
-	if (!reportInfo.info) return false;
-	auto& cmptInfo = reportInfo.info->PushDebug("Model Behaviors (Mutable)");
+bool ModelComponent::OnGetObjectReportInfo(GameMessages::GameMsg& msg) {
+	auto& reportMsg = static_cast<GameMessages::GetObjectReportInfo&>(msg);
+	if (!reportMsg.info) return false;
+	auto& cmptInfo = reportMsg.info->PushDebug("Model Behaviors (Mutable)");
 	cmptInfo.PushDebug<AMFIntValue>("Component ID") = GetComponentID();
 
 	cmptInfo.PushDebug<AMFStringValue>("Name") = "Objects_" + std::to_string(m_Parent->GetLOT()) + "_name";

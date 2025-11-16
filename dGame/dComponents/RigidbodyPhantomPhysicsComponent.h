@@ -29,7 +29,7 @@ public:
 
 	void SpawnVertices() const;
 private:
-	bool OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo);
+	bool OnGetObjectReportInfo(GameMessages::GameMsg& msg);
 
 	float m_Scale{};
 

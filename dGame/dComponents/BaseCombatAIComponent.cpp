@@ -30,7 +30,7 @@
 #include "Amf3.h"
 
 BaseCombatAIComponent::BaseCombatAIComponent(Entity* parent, const int32_t componentID) : Component(parent, componentID) {
-	RegisterMsg(&BaseCombatAIComponent::MsgGetObjectReportInfo);
+	RegisterMsg(this, &BaseCombatAIComponent::MsgGetObjectReportInfo);
 	m_Target = LWOOBJID_EMPTY;
 	m_DirtyStateOrTarget = true;
 	m_State = AiState::spawn;
@@ -850,9 +850,10 @@ void BaseCombatAIComponent::IgnoreThreat(const LWOOBJID threat, const float valu
 	m_Target = LWOOBJID_EMPTY;
 }
 
-bool BaseCombatAIComponent::MsgGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo) {
+bool BaseCombatAIComponent::MsgGetObjectReportInfo(GameMessages::GameMsg& msg) {
 	using enum AiState;
-	auto& cmptType = reportInfo.info->PushDebug("Base Combat AI");
+	auto& reportMsg = static_cast<GameMessages::GetObjectReportInfo&>(msg);
+	auto& cmptType = reportMsg.info->PushDebug("Base Combat AI");
 	cmptType.PushDebug<AMFIntValue>("Component ID") = GetComponentID();
 	auto& targetInfo = cmptType.PushDebug("Current Target Info");
 	targetInfo.PushDebug<AMFStringValue>("Current Target ID") = std::to_string(m_Target);

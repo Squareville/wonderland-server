@@ -198,11 +198,10 @@ Entity::~Entity() {
 }
 
 void Entity::Initialize() {
-	RegisterMsg(&Entity::MsgRequestServerObjectInfo);
-	RegisterMsg(&Entity::MsgDropClientLoot);
-	RegisterMsg(&Entity::MsgGetFactionTokenType);
-	RegisterMsg(&Entity::MsgPickupItem);
-	RegisterMsg(&Entity::MsgChildRemoved);
+	RegisterMsg(this, &Entity::MsgRequestServerObjectInfo);
+	RegisterMsg(this, &Entity::MsgDropClientLoot);
+	RegisterMsg(this, &Entity::MsgGetFactionTokenType);
+	RegisterMsg(this, &Entity::MsgPickupItem);
 	/**
 	 * Setup trigger
 	 */

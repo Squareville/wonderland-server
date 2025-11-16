@@ -44,7 +44,7 @@
 #include <ranges>
 
 InventoryComponent::InventoryComponent(Entity* parent, const int32_t componentID) : Component(parent, componentID) {
-	RegisterMsg(&InventoryComponent::OnGetObjectReportInfo);
+	RegisterMsg(this, &InventoryComponent::OnGetObjectReportInfo);
 	this->m_Dirty = true;
 	this->m_Equipped = {};
 	this->m_Pushed = {};
@@ -1846,8 +1846,9 @@ std::string DebugInvToString(const eInventoryType inv, bool verbose) {
 	return "";
 }
 
-bool InventoryComponent::OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo) {
-	auto& cmpt = reportInfo.info->PushDebug("Inventory");
+bool InventoryComponent::OnGetObjectReportInfo(GameMessages::GameMsg& msg) {
+	auto& report = static_cast<GameMessages::GetObjectReportInfo&>(msg);
+	auto& cmpt = report.info->PushDebug("Inventory");
 	cmpt.PushDebug<AMFIntValue>("Component ID") = GetComponentID();
 	uint32_t numItems = 0;
 	for (auto* inventory : m_Inventories | std::views::values) numItems += inventory->GetItems().size();
@@ -1857,7 +1858,7 @@ bool InventoryComponent::OnGetObjectReportInfo(GameMessages::GetObjectReportInfo
 	for (const auto& [id, inventoryMut] : m_Inventories) {
 		if (!inventoryMut) continue;
 		const auto* const inventory = inventoryMut;
-		auto& curInv = itemsInBags.PushDebug(DebugInvToString(id, reportInfo.bVerbose) + " - " + std::to_string(id));
+		auto& curInv = itemsInBags.PushDebug(DebugInvToString(id, report.bVerbose) + " - " + std::to_string(id));
 		for (uint32_t i = 0; i < inventory->GetSize(); i++) {
 			const auto* const item = inventory->FindItemBySlot(i);
 			if (!item) continue;

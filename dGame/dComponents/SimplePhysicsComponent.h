@@ -86,7 +86,7 @@ public:
 	void SetClimbableType(const eClimbableType& value) { m_ClimbableType = value; }
 
 private:
-	bool OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo);
+	bool OnGetObjectReportInfo(GameMessages::GameMsg& msg);
 
 	/**
 	 * The current velocity of the entity

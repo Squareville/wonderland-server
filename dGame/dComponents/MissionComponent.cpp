@@ -27,11 +27,12 @@ std::unordered_map<AchievementCacheKey, std::vector<uint32_t>> MissionComponent:
 
 //! Initializer
 MissionComponent::MissionComponent(Entity* parent, const int32_t componentID) : Component(parent, componentID) {
+	using namespace GameMessages;
 	m_LastUsedMissionOrderUID = Game::zoneManager->GetUniqueMissionIdStartingValue();
 
-	RegisterMsg(&MissionComponent::OnGetObjectReportInfo);
-	RegisterMsg(&MissionComponent::OnGetMissionState);
-	RegisterMsg(&MissionComponent::OnMissionNeedsLot);
+	RegisterMsg<GetObjectReportInfo>(this, &MissionComponent::OnGetObjectReportInfo);
+	RegisterMsg<GameMessages::GetMissionState>(this, &MissionComponent::OnGetMissionState);
+	RegisterMsg<GameMessages::MissionNeedsLot>(this, &MissionComponent::OnMissionNeedsLot);
 }
 
 //! Destructor
@@ -705,8 +706,9 @@ void PushMissions(const std::map<uint32_t, Mission*>& missions, AMFArrayValue& V
 	}
 }
 
-bool MissionComponent::OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo) {
-	auto& missionInfo = reportInfo.info->PushDebug("Mission (Laggy)");
+bool MissionComponent::OnGetObjectReportInfo(GameMessages::GameMsg& msg) {
+	auto& reportMsg = static_cast<GameMessages::GetObjectReportInfo&>(msg);
+	auto& missionInfo = reportMsg.info->PushDebug("Mission (Laggy)");
 	missionInfo.PushDebug<AMFIntValue>("Component ID") = GetComponentID();
 	// Sort the missions so they are easier to parse and present to the end user
 	std::map<uint32_t, Mission*> achievements;
@@ -722,24 +724,26 @@ bool MissionComponent::OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& 
 	// None of these should be empty, but if they are dont print the field
 	if (!achievements.empty() || !missions.empty()) {
 		auto& incompleteMissions = missionInfo.PushDebug("Incomplete Missions");
-		PushMissions(achievements, incompleteMissions, reportInfo.bVerbose);
-		PushMissions(missions, incompleteMissions, reportInfo.bVerbose);
+		PushMissions(achievements, incompleteMissions, reportMsg.bVerbose);
+		PushMissions(missions, incompleteMissions, reportMsg.bVerbose);
 	}
 
 	if (!doneMissions.empty()) {
 		auto& completeMissions = missionInfo.PushDebug("Completed Missions");
-		PushMissions(doneMissions, completeMissions, reportInfo.bVerbose);
+		PushMissions(doneMissions, completeMissions, reportMsg.bVerbose);
 	}
 
 	return true;
 }
 
-bool MissionComponent::OnGetMissionState(GameMessages::GetMissionState& getMissionState) {
-	getMissionState.missionState = GetMissionState(getMissionState.missionID);
+bool MissionComponent::OnGetMissionState(GameMessages::GameMsg& msg) {
+	auto misState = static_cast<GameMessages::GetMissionState&>(msg);
+	misState.missionState = GetMissionState(misState.missionID);
 
 	return true;
 }
 
-bool MissionComponent::OnMissionNeedsLot(GameMessages::MissionNeedsLot& missionNeedsLot) {
-	return RequiresItem(missionNeedsLot.item);
+bool MissionComponent::OnMissionNeedsLot(GameMessages::GameMsg& msg) {
+	const auto& needMsg = static_cast<GameMessages::MissionNeedsLot&>(msg);
+	return RequiresItem(needMsg.item);
 }

@@ -12,7 +12,7 @@ public:
 	int16_t GetCollectibleId() const { return m_CollectibleId; }
 	void Serialize(RakNet::BitStream& outBitStream, bool isConstruction) override;
 
-	bool MsgGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo);
+	bool MsgGetObjectReportInfo(GameMessages::GameMsg& msg);
 private:
 	int16_t m_CollectibleId = 0;
 };

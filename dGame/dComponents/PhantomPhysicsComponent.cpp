@@ -29,8 +29,7 @@
 #include "dpShapeSphere.h"
 
 PhantomPhysicsComponent::PhantomPhysicsComponent(Entity* parent, const int32_t componentID) : PhysicsComponent(parent, componentID) {
-	RegisterMsg(&PhantomPhysicsComponent::OnGetObjectReportInfo);
-	RegisterMsg(&PhantomPhysicsComponent::OnGetRespawnVolumeInfo);
+	RegisterMsg(this, &PhantomPhysicsComponent::OnGetObjectReportInfo);
 
 	m_Position = m_Parent->GetDefaultPosition();
 	m_Rotation = m_Parent->GetDefaultRotation();
@@ -243,7 +242,8 @@ void PhantomPhysicsComponent::SetRotation(const NiQuaternion& rot) {
 	if (m_dpEntity) m_dpEntity->SetRotation(rot);
 }
 
-bool PhantomPhysicsComponent::OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo) {
+bool PhantomPhysicsComponent::OnGetObjectReportInfo(GameMessages::GameMsg& msg) {
+	auto& reportInfo = static_cast<GameMessages::GetObjectReportInfo&>(msg);
 	PhysicsComponent::OnGetObjectReportInfo(reportInfo);
 	if (!reportInfo.subCategory) {
 		return false;

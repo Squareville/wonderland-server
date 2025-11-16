@@ -62,7 +62,7 @@ MovementAIComponent::MovementAIComponent(Entity* parent, const int32_t component
 	m_SavedVelocity = NiPoint3Constant::ZERO;
 	m_IsBounced = false;
 
-	RegisterMsg(&MovementAIComponent::OnGetObjectReportInfo);
+	RegisterMsg(this, &MovementAIComponent::OnGetObjectReportInfo);
 
 	if (!m_Parent->GetComponent<BaseCombatAIComponent>()) SetPath(m_Parent->GetVarAsString(u"attached_path"));
 }
@@ -502,9 +502,10 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 	}
 }
 
-bool MovementAIComponent::OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo) {
+bool MovementAIComponent::OnGetObjectReportInfo(GameMessages::GameMsg& msg) {
+	auto& getObjectReportInfo = static_cast<GameMessages::GetObjectReportInfo&>(msg);
 
-	auto& movementInfo = reportInfo.info->PushDebug("MovementAI");
+	auto& movementInfo = getObjectReportInfo.info->PushDebug("MovementAI");
 	if (m_Path) {
 		movementInfo.PushDebug<AMFStringValue>("Path") = m_Path->pathName;
 	}
