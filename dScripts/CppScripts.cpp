@@ -783,6 +783,7 @@ namespace {
 		{R"(scripts\newcontent\server\spawnhalloweenhorsemanondeath.lua)", []() {return new SpawnEntityOnDeath(41013);}},
 		{R"(scripts\newcontent\server\halloweenminiboss.lua)", []() {return new SkillCastAndOptionalDeath(1996, true, 120.0f);}},
 		{R"(scripts\newcontent\server\halloweenmanager.lua)", []() {return new HalloweenManager();}},
+		{R"(scripts\newcontent\server\spawnbeeondeath.lua)", []() {return new SpawnEntityOnDeath(20310);}},
 		{R"(scripts\newcontent\server\afv_numbchuck_server.lua)", []() {return new AfvNumbchuckServer();}},
 		CPP_SCRIPT(R"(scripts\newcontent\server\afv_bell.lua)", AfvBell),
 		{R"(scripts\newcontent\server\spawnmaelninjaondeath.lua)", []() {return new SpawnMaelstromNinjaOnDeath();}},
