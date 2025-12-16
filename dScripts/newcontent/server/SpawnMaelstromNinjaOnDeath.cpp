@@ -7,12 +7,12 @@
 
 LOT RollLOT() {
 	LOT chosenLOT{ LOT_NULL };
-	auto chance = GeneralUtils::GenerateRandomNumber<uint32_t>(1, 800);
+	auto chance = GeneralUtils::GenerateRandomNumber<uint32_t>(1, 600);
 	if (chance <= 100) {
 		chosenLOT = 20154;
 	} else if (chance <= 150) {
 		chosenLOT = 20155;
-	} else if (chance >= 798) {
+	} else if (chance >= 598) {
 		chosenLOT = 20156;
 	}
 	
