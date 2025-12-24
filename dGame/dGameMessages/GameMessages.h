@@ -936,12 +936,6 @@ namespace GameMessages {
 		LWOOBJID lootOwnerID{};
 	};
 
-	struct IsDead : public GameMsg {
-		IsDead() : GameMsg(MessageType::Game::IS_DEAD) {}
-
-		bool bDead{};
-	};
-
 	struct GetRespawnVolumeInfo : public GameMsg {
 		GetRespawnVolumeInfo() : GameMsg(MessageType::Game::GET_RESPAWN_VOLUME_INFO) {}
 
