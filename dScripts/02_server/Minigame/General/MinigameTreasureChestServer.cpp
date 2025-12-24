@@ -5,6 +5,7 @@
 #include "dZoneManager.h"
 #include "dServer.h"
 #include "Loot.h"
+#include "dServer.h"
 
 void MinigameTreasureChestServer::OnUse(Entity* self, Entity* user) {
 	auto* sac = self->GetComponent<ScriptedActivityComponent>();
