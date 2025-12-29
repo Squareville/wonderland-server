@@ -10,6 +10,7 @@ void TriggerGas::OnStartup(Entity* self) {
 }
 
 void TriggerGas::OnCollisionPhantom(Entity* self, Entity* target) {
+	if (!target) return;
 	if (!target->IsPlayer()) return;
 	auto players = self->GetVar<std::vector<Entity*>>(u"players");
 	players.push_back(target);
@@ -17,6 +18,7 @@ void TriggerGas::OnCollisionPhantom(Entity* self, Entity* target) {
 }
 
 void TriggerGas::OnOffCollisionPhantom(Entity* self, Entity* target) {
+	if (!target) return;
 	auto players = self->GetVar<std::vector<Entity*>>(u"players");
 	if (!target->IsPlayer() || players.empty()) return;
 	auto position = std::find(players.begin(), players.end(), target);
@@ -28,7 +30,7 @@ void TriggerGas::OnTimerDone(Entity* self, std::string timerName) {
 	if (timerName != this->m_TimerName) return;
 	auto players = self->GetVar<std::vector<Entity*>>(u"players");
 	for (auto player : players) {
-		if (player->GetIsDead() || !player){
+		if (!player || player->GetIsDead()){
 			auto position = std::find(players.begin(), players.end(), player);
 			if (position != players.end()) players.erase(position);
 			continue;
