@@ -18,18 +18,40 @@
 		<config>
 			<key>CheckPrecondition=0:47</key>
 			<key>GMLevel=1:0</key>
+			<key>add_to_navmesh=7:1</key>
+			<key>bounding_radius_override=3:0</key>
+			<key>camGradSnap=7:0</key>
+			<key>camPrefersToFadeObject=7:1</key>
+			<key>carver_only=7:0</key>
+			<key>create_physics=7:1</key>
+			<key>custom_config_names=0:</key>
+			<key>friction=3:1.5</key>
+			<key>fxpriority=1:0</key>
+			<key>ignoreCameraCollision=7:0</key>
+			<key>interaction_distance=3:16</key>
+			<key>is_smashable=7:0</key>
+			<key>launchCamera=0:</key>
+			<key>loadOnClientOnly=7:0</key>
+			<key>navmesh_carver=7:0</key>
 			<key>playSummary=7:1</key>
-			<key>playerAnim=0:launch-property</key>
+			<key>playerAnim=0:rocket-launch-AG</key>
+			<key>propertyDefaultTargetZone=1:0</key>
+			<key>renderCullingGroup=5:0</key>
 			<key>rocketAltLandingPrecondition=0:</key>
 			<key>rocketAltLandingSpawnName=0:</key>
+			<key>rocketAnim=0:launch-property</key>
 			<key>rocketLaunchMusic=13:</key>
 			<key>rocketLaunchPreCondition=0:47</key>
-			<key>rocketLaunchUseDBDefaults=7:0</key>
+			<key>rocketLaunchUseDBDefaults=7:1</key>
 			<key>rocketUseAltLandingPrecondition=7:0</key>
 			<key>rocketUseLaunchPrecondition=7:1</key>
+			<key>sceneIDOverride=1:255</key>
+			<key>sceneIDOverrideEnabled=7:0</key>
+			<key>sceneLayerIDOverride=5:0</key>
 			<key>summaryCamera=0:CP_Summary</key>
 			<key>targetScene=0:</key>
 			<key>targetZone=1:1260</key>
+			<key>template=1:-1</key>
 		</config>
 		<locations>
 			<location zone="1200" x="246.72" y="289.35" z="248.96" rw="0.9994786381721497" rx="0.00" ry="0.03228670358657837" rz="0.00" />
