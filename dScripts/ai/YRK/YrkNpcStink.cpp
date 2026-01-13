@@ -23,6 +23,7 @@ void YrkNpcStink::OnProximityUpdate(Entity* self, Entity* entering, std::string 
 }
 
 void YrkNpcStink::OnSkillEventFired(Entity* self, Entity* caster, const std::string& message) {
+	// waterspray is NS water sprayer, skunkstink is broombot, soapspray is NT janitor outfit (just cause it feels like players "should" be able to use it here)
 	if (message != "waterspray" && message != "skunkstink" && message != "soapspray") return;
 
 	if (caster->GetLOT() == broomBotLot) {
