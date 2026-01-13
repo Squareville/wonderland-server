@@ -3,6 +3,7 @@
 #include "ControllablePhysicsComponent.h"
 #include "MovementAIComponent.h"
 #include "SkillComponent.h"
+#include "RenderComponent.h"
 
 void EnemySkunk::OnStartup(Entity* self) {
 	self->SetProximityRadius(3.0f, "StinkyPlayer");
@@ -28,7 +29,8 @@ void EnemySkunk::OnSkillEventFired(Entity* self, Entity* caster, const std::stri
 	auto* const controllablePhysicsComponent = self->GetComponent<ControllablePhysicsComponent>();
 	if (controllablePhysicsComponent) {
 		controllablePhysicsComponent->ActivateBubbleBuff(eBubbleType::SKUNK);
-		controllablePhysicsComponent->SetVelocity(NiPoint3(0.0f, 7.0f, 0.0f));
+		controllablePhysicsComponent->SetVelocity(NiPoint3(0.0f, 15.0f, 0.0f));
+		RenderComponent::PlayAnimation(self, "howl");
 	}
 
 	Game::entityManager->SerializeEntity(self);
