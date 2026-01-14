@@ -39,7 +39,7 @@ void EnemySkunk::OnSkillEventFired(Entity* self, Entity* caster, const std::stri
 		// however, as DLU doesn't do the whole "gravity" thing, simply setting the skunk's y velocity to 15 once works for now
 		// if anyone ever adds gravity simulation, you will need to change this implementation as described above
 		controllablePhysicsComponent->SetVelocity(NiPoint3(0.0f, 15.0f, 0.0f));
-		RenderComponent::PlayAnimation(self, "howl");
+		RenderComponent::PlayAnimation(self, u"howl", 4.0f);
 	}
 
 	Game::entityManager->SerializeEntity(self);
