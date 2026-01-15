@@ -30,6 +30,11 @@ void YrkNpcStink::OnSkillEventFired(Entity* self, Entity* caster, const std::str
 		self->AddTimer("RemoveSelf", 4.0f);
 		auto* const player = GetEntityByName(self, u"playerBuilder");
 		if (player) {
+			Loot::DropCoins(player, self->GetObjectID(), 1, 1);
+			auto* missionComponent = player->GetComponent<MissionComponent>();
+			if (missionComponent) {
+				missionComponent->Progress(eMissionTaskType::SMASH, self->GetLOT());
+			}
 			Game::entityManager->GetZoneControlEntity()->NotifyObject(player, "stink_cloud_cleaned_by_player", self->GetVar<int32_t>(u"StinkCloudNum"));
 		} else {
 			Game::entityManager->GetZoneControlEntity()->NotifyObject(caster, "stink_cloud_cleaned_by_broombot", self->GetVar<int32_t>(u"StinkCloudNum"));
