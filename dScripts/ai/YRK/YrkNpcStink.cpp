@@ -28,7 +28,7 @@ void YrkNpcStink::OnSkillEventFired(Entity* self, Entity* caster, const std::str
 
 	if (caster->GetLOT() == broomBotLot) {
 		self->AddTimer("RemoveSelf", 4.0f);
-		auto* const player = GetEntityByName(self, u"playerBuilder");
+		auto* const player = GetEntityByName(caster, u"playerBuilder");
 		if (player) {
 			Loot::DropCoins(player, self->GetObjectID(), 1, 1);
 			auto* missionComponent = player->GetComponent<MissionComponent>();
