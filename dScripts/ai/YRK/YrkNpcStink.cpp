@@ -25,12 +25,12 @@ void YrkNpcStink::OnProximityUpdate(Entity* self, Entity* entering, std::string 
 void YrkNpcStink::OnSkillEventFired(Entity* self, Entity* caster, const std::string& message) {
 	// waterspray is NS water sprayer, skunkstink is broombot, soapspray is NT janitor outfit (just cause it feels like players "should" be able to use it here)
 	if (message != "waterspray" && message != "skunkstink" && message != "soapspray") return;
-	
-	// set by a broombot when it starts cleaning a stink puddle, for the 4 second timer where the puddle has been cleaned but still exists. ensures it can't be double-cleaned
-	if (self->GetVar<bool>(u"cleaned")) return;
+
+	if (self->GetVar<bool>(u"broombot_is_cleaning_me")) return;
 
 	if (caster->GetLOT() == broomBotLot) {
 		self->AddTimer("RemoveSelf", 4.0f);
+		self->SetVar<bool>(u"broombot_is_cleaning_me", true);
 		auto* const player = GetEntityByName(caster, u"playerBuilder");
 		if (player) {
 			Loot::DropCoins(player, self->GetObjectID(), 1, 1);
