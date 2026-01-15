@@ -34,5 +34,5 @@ void MechEuBroombot::OnQuickBuildComplete(Entity* self, Entity* builder) {
 	if (!builder) return;
 
 	StoreEntityByName(self, u"playerBuilder", builder->GetObjectID());
-	Game::zoneManager->GetZoneControlObject()->NotifyObject(self, "broombot_fixed");
+	Game::zoneManager->GetZoneControlObject()->NotifyObject(builder, "broombot_fixed");
 }
