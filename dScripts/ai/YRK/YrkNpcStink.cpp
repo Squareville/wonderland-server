@@ -16,6 +16,10 @@ void YrkNpcStink::OnProximityUpdate(Entity* self, Entity* entering, std::string 
 		if (!controllablePhysicsComponent) return;
 		if (controllablePhysicsComponent->GetIsInBubble()) {
 			Loot::DropCoins(entering, self->GetObjectID(), 1, 1);
+			auto* missionComponent = entering->GetComponent<MissionComponent>();
+			if (missionComponent) {
+				missionComponent->Progress(eMissionTaskType::SMASH, self->GetLOT());
+			}
 			Game::entityManager->GetZoneControlEntity()->NotifyObject(entering, "stink_cloud_cleaned_by_player", self->GetVar<int32_t>(u"StinkCloudNum"));
 			self->Smash(LWOOBJID_EMPTY, eKillType::VIOLENT);
 		}
