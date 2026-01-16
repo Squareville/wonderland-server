@@ -1,5 +1,6 @@
 #include "BubbleStatue.h"
 #include "Game.h"
+#include "GameMessages.h"
 #include "EntityManager.h"
 #include "ControllablePhysicsComponent.h"
 #include "SkillComponent.h"
@@ -21,6 +22,7 @@ void BubbleStatue::OnProximityUpdate(Entity* self, Entity* entering, std::string
 	auto* const controllablePhysicsComponent = entering->GetComponent<ControllablePhysicsComponent>();
 	if (!controllablePhysicsComponent) return;
 	controllablePhysicsComponent->ActivateBubbleBuff(eBubbleType::DEFAULT);
+	GameMessages::SendNotifyClientObject(self->GetObjectID(), u"EnableBubblePhysics", 0, 0, LWOOBJID_EMPTY, "", entering->GetSystemAddress());
 }
 
 void BubbleStatue::OnNotifyObject(Entity* self, Entity* sender, const std::string& name, int32_t param1, int32_t param2) {
