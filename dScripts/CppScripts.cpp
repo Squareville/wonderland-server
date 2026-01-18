@@ -825,6 +825,7 @@ namespace {
 		"scripts\\zone\\LUPs\\RobotCity Intro\\WBL_RCIntro_InfectedCitizen.lua",
 		"scripts\\ai\\MINIGAME\\SIEGE\\OBJECTS\\ATTACKER_BOUNCER_SERVER.lua",
 		"scripts\\ai\\AG\\L_AG_ZONE_PLAYER.lua",
+		"scripts\\newcontent\\server\\setcollisiongroupto25onserver.lua", // this only exists as data-side future-proofing for zp spouts in case we ever do this on DLU https://nic-gamedev.blogspot.com/2013/02/the-bounce-pad-hack-in-lego-universe.html
 	};
 };
 
