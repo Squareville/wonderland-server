@@ -13,27 +13,28 @@ void TriggerGas::OnStartup(Entity* self) {
 }
 
 void TriggerGas::OnCollisionPhantom(Entity* self, Entity* target) {
-	if (!target) return;
-	if (!target->IsPlayer()) return;
+	if (!target || !target->IsPlayer()) return;
 	Players players = self->GetVar<Players>(u"players");
 	players.push_back(target->GetObjectID());
 	self->SetVar(u"players", players);
 }
 
 void TriggerGas::OnOffCollisionPhantom(Entity* self, Entity* target) {
-	auto players = self->GetVar<std::vector<Entity*>>(u"players");
-	if (!target->IsPlayer() || players.empty()) return;
-	auto position = std::find(players.begin(), players.end(), target);
+	if (!target || !target->IsPlayer()) return;
+	Players players = self->GetVar<Players>(u"players");
+	if (players.empty()) return;
+	auto position = std::ranges::find(players, target->GetObjectID());
 	if (position != players.end()) players.erase(position);
 	self->SetVar(u"players", players);
 }
 
 void TriggerGas::OnTimerDone(Entity* self, std::string timerName) {
 	if (timerName != this->m_TimerName) return;
-	auto players = self->GetVar<std::vector<Entity*>>(u"players");
-	for (auto player : players) {
-		if (player->GetIsDead() || !player){
-			auto position = std::find(players.begin(), players.end(), player);
+	Players players = self->GetVar<Players>(u"players");
+	for (const auto playerID : players) {
+		auto* const player = Game::entityManager->GetEntity(playerID);
+		if (!player || player->GetIsDead()){
+			auto position = std::ranges::find(players, playerID);
 			if (position != players.end()) players.erase(position);
 			continue;
 		}
