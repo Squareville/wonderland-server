@@ -4,6 +4,9 @@
 #include "Entity.h"
 #include "Logger.h"
 
+#include <ranges>
+
+using Players = std::vector<LWOOBJID>;
 
 void TriggerGas::OnStartup(Entity* self) {
 	self->AddTimer(this->m_TimerName, this->m_Time);
@@ -12,13 +15,12 @@ void TriggerGas::OnStartup(Entity* self) {
 void TriggerGas::OnCollisionPhantom(Entity* self, Entity* target) {
 	if (!target) return;
 	if (!target->IsPlayer()) return;
-	auto players = self->GetVar<std::vector<Entity*>>(u"players");
-	players.push_back(target);
+	Players players = self->GetVar<Players>(u"players");
+	players.push_back(target->GetObjectID());
 	self->SetVar(u"players", players);
 }
 
 void TriggerGas::OnOffCollisionPhantom(Entity* self, Entity* target) {
-	if (!target) return;
 	auto players = self->GetVar<std::vector<Entity*>>(u"players");
 	if (!target->IsPlayer() || players.empty()) return;
 	auto position = std::find(players.begin(), players.end(), target);
@@ -30,15 +32,15 @@ void TriggerGas::OnTimerDone(Entity* self, std::string timerName) {
 	if (timerName != this->m_TimerName) return;
 	auto players = self->GetVar<std::vector<Entity*>>(u"players");
 	for (auto player : players) {
-		if (!player || player->GetIsDead()){
+		if (player->GetIsDead() || !player){
 			auto position = std::find(players.begin(), players.end(), player);
 			if (position != players.end()) players.erase(position);
 			continue;
 		}
-		auto inventoryComponent = player->GetComponent<InventoryComponent>();
+		auto* const inventoryComponent = player->GetComponent<InventoryComponent>();
 		if (inventoryComponent) {
 			if (!inventoryComponent->IsEquipped(this->m_MaelstromHelmet)) {
-				auto* skillComponent = self->GetComponent<SkillComponent>();
+				auto* const skillComponent = self->GetComponent<SkillComponent>();
 				if (skillComponent) {
 					skillComponent->CastSkill(this->m_FogDamageSkill, player->GetObjectID());
 				}
