@@ -19,7 +19,7 @@ void SpecialSpeedBuffSpawner::OnProximityUpdate(Entity* self, Entity* entering, 
 	auto* missionComponent = entering->GetComponent<MissionComponent>();
 	if (!missionComponent) return;
 
-	auto* mission = missionComponent->GetMission(20208);
+	auto* mission = missionComponent->GetMission(20328); // Ninja Messenger mission
 	if (!mission || !mission->IsComplete()) return;
 
 	GameMessages::SendPlayFXEffect(self, -1, u"pickup", "", LWOOBJID_EMPTY, 1, 1, true);
