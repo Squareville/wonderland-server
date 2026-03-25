@@ -380,6 +380,7 @@
 #include "NpStrombieFlower.h"
 #include "ZonePlayer.h"
 #include "AfvBell.h"
+#include "AfvDarklingRegenerator.h"
 
 #define CPP_SCRIPT(filename, classname) { filename, []() { return new classname(); } }
 
@@ -796,6 +797,7 @@ namespace {
 		CPP_SCRIPT(R"(scripts\newcontent\server\zoneplayer.lua)", ZonePlayer),
 		{R"(scripts\newcontent\server\picnicbot\picnicbot\picnicbot\picnicbot_picnicbot.lua)", []() {return new PicnicBotPicnicBot();}}, // gotta stay organized :strong muscle emoji:
 		{R"(scripts\ai\NP\L_NP_ROTATING_PLATFORM.lua)", []() {return new NpRotatingPlatform();}},
+		CPP_SCRIPT(R"(scripts\newcontent\server\afv_darklingregenerator.lua)", AfvDarklingRegenerator),
 	};
 
 	std::set<std::string> g_ExcludedScripts = {
