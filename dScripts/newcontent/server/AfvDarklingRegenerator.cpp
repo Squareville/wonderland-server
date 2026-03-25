@@ -12,7 +12,7 @@ void AfvDarklingRegenerator::OnTimerDone(Entity* self, std::string timerName) {
 		auto* skillComponent = self->GetComponent<SkillComponent>();
 		if (skillComponent == nullptr) return;
 		// cast skill 2209 and restart the timer
-		skillComponent->CastSkill(2209, self);
+		skillComponent->CastSkill(2209, LWOOBJID_EMPTY, self->GetObjectID());
 		self->AddTimer("AfvDarklingRegeneratorTimer", GeneralUtils::GenerateRandomNumber<float>(3.0, 5.0));
 	}
 }
