@@ -6,7 +6,7 @@ set(DSCRIPTS_SOURCES_NEWCONTENT_SERVER
 	"DieAfterXSeconds.cpp"
 	"SpawnSkeletonOnDeath.cpp"
 	"SpawnSnowmanOnDeath.cpp"
-	"SkillCastAndOptionalDeath.cpp"
+	"SkillCast.cpp"
 	"SpawnEntityOnDeath.cpp"
 	"HalloweenManager.cpp"
 	"NpMilo.cpp"
@@ -17,4 +17,5 @@ set(DSCRIPTS_SOURCES_NEWCONTENT_SERVER
 	"PicnicBotPicnicBot.cpp"
 	"NpStrombieFlower.cpp"
 	"ZonePlayer.cpp"
+	"AfvNcPortalQb.cpp"
 	PARENT_SCOPE)

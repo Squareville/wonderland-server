@@ -10,4 +10,8 @@ void SpawnEntityOnDeath::OnDie(Entity* self, Entity* killer) {
 	info.spawnerID = killer->GetObjectID();
 	auto spawnedEntity = Game::entityManager->CreateEntity(info, nullptr, killer);
 	Game::entityManager->ConstructEntity(spawnedEntity);
+	
+	spawnedEntity->AddCallbackTimer(m_Timeout, [spawnedEntity]() {
+		spawnedEntity->Smash(spawnedEntity->GetObjectID(), eKillType::SILENT);
+		});
 }

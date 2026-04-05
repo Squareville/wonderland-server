@@ -13,6 +13,9 @@ void SpawnSkeletonOnDeath::OnDie(Entity* self, Entity* killer) {
 		info.spawnerID = killer->GetObjectID();
 		auto skellyboi = Game::entityManager->CreateEntity(info, nullptr, killer);
 		Game::entityManager->ConstructEntity(skellyboi);
+		skellyboi->AddCallbackTimer(20, [skellyboi]() {
+			skellyboi->Smash(skellyboi->GetObjectID(), eKillType::SILENT);
+		});
 	} else if (chance == 20) {
 		EntityInfo info{};
 		info.lot = 20085;
@@ -20,5 +23,8 @@ void SpawnSkeletonOnDeath::OnDie(Entity* self, Entity* killer) {
 		info.spawnerID = killer->GetObjectID();
 		auto skellyboi = Game::entityManager->CreateEntity(info, nullptr, killer);
 		Game::entityManager->ConstructEntity(skellyboi);
+		skellyboi->AddCallbackTimer(20, [skellyboi]() {
+			skellyboi->Smash(skellyboi->GetObjectID(), eKillType::SILENT);
+		});
 	}
 }

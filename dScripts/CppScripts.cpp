@@ -363,7 +363,7 @@
 // Wonderland
 #include "SpawnSkeletonOnDeath.h"
 #include "DieAfterXSeconds.h"
-#include "SkillCastAndOptionalDeath.h"
+#include "SkillCast.h"
 #include "SpawnSnowmanOnDeath.h"
 #include "RubyScepterDrop.h"
 #include "SpawnEntityOnDeath.h"
@@ -381,6 +381,7 @@
 #include "ZonePlayer.h"
 #include "AfvBell.h"
 #include "AfvDarklingRegenerator.h"
+#include "AfvNcPortalQb.h"
 
 #define CPP_SCRIPT(filename, classname) { filename, []() { return new classname(); } }
 
@@ -776,13 +777,11 @@ namespace {
 		{"scripts\\newcontent\\server\\dieafter40seconds.lua", []() {return new DieAfterXSeconds(40);}},
 		{"scripts\\newcontent\\server\\dieafter50seconds.lua", []() {return new DieAfterXSeconds(50);}},
 		{"scripts\\newcontent\\server\\dieafter60seconds.lua", []() {return new DieAfterXSeconds(60);}},
-		{R"(scripts\newcontent\server\damagereduction999.lua)", []() {return new SkillCastAndOptionalDeath(1996);}},
-		{R"(scripts\newcontent\server\halloweenskeleton.lua)", []() {return new SkillCastAndOptionalDeath(1996, true, 20.0f);}},
+		{R"(scripts\newcontent\server\damagereduction999.lua)", []() {return new SkillCast(1996);}},
 		{R"(scripts\newcontent\server\spawnsnowmanondeath.lua)", []() {return new SpawnSnowmanOnDeath();}},
-		{R"(scripts\newcontent\server\spawnvampireondeath.lua)", []() {return new SpawnEntityOnDeath(30055);}},
-		{R"(scripts\newcontent\server\spawnmummyondeath.lua)", []() {return new SpawnEntityOnDeath(30056);}},
-		{R"(scripts\newcontent\server\spawnhalloweenhorsemanondeath.lua)", []() {return new SpawnEntityOnDeath(41013);}},
-		{R"(scripts\newcontent\server\halloweenminiboss.lua)", []() {return new SkillCastAndOptionalDeath(1996, true, 120.0f);}},
+		{R"(scripts\newcontent\server\spawnvampireondeath.lua)", []() {return new SpawnEntityOnDeath(30055, 120.0f);}},
+		{R"(scripts\newcontent\server\spawnmummyondeath.lua)", []() {return new SpawnEntityOnDeath(30056, 120.0f);}},
+		{R"(scripts\newcontent\server\spawnhalloweenhorsemanondeath.lua)", []() {return new SpawnEntityOnDeath(41013, 120.0f);}},
 		{R"(scripts\newcontent\server\halloweenmanager.lua)", []() {return new HalloweenManager();}},
 		{R"(scripts\newcontent\server\spawnbeeondeath.lua)", []() {return new SpawnEntityOnDeath(20310);}},
 		{R"(scripts\newcontent\server\afv_numbchuck_server.lua)", []() {return new AfvNumbchuckServer();}},
@@ -798,6 +797,7 @@ namespace {
 		{R"(scripts\newcontent\server\picnicbot\picnicbot\picnicbot\picnicbot_picnicbot.lua)", []() {return new PicnicBotPicnicBot();}}, // gotta stay organized :strong muscle emoji:
 		{R"(scripts\ai\NP\L_NP_ROTATING_PLATFORM.lua)", []() {return new NpRotatingPlatform();}},
 		CPP_SCRIPT(R"(scripts\newcontent\server\afv_darklingregenerator.lua)", AfvDarklingRegenerator),
+		CPP_SCRIPT(R"(scripts\newcontent\server\afv_nc_portal_qb.lua)", AfvNcPortalQb),
 	};
 
 	std::set<std::string> g_ExcludedScripts = {
