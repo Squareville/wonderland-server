@@ -98,7 +98,7 @@ public:
 	 * @param id the id of the buff to find
 	 * @return whether or not the entity has a buff with the specified id active
 	 */
-	bool HasBuff(int32_t id);
+	bool HasBuff(int32_t id) const;
 
 	/**
 	 * Applies the effects of the buffs on the entity, e.g.: changing armor, health, imag, etc.

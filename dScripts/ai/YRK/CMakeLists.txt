@@ -1,4 +1,5 @@
 set(DSCRIPTS_SOURCES_AI_YRK
+	"Balloon.cpp"
 	"BalloonTrigger.cpp"
 	"BubbleStatue.cpp"
 	"EnemySkunk.cpp"

@@ -1387,6 +1387,8 @@ void Entity::OnCollisionProximity(LWOOBJID otherEntity, const std::string& proxN
 	GetScript()->OnProximityUpdate(this, other, proxName, status);
 	VanityUtilities::OnProximityUpdate(this, other, proxName, status);
 
+	TriggerEvent(eTriggerEventType::ENTER, other);
+
 	auto* const rocketComp = GetComponent<RocketLaunchpadControlComponent>();
 	if (!rocketComp) return;
 
@@ -2304,6 +2306,10 @@ bool Entity::MsgRequestServerObjectInfo(GameMessages::RequestServerObjectInfo& r
 	objectInfo.PushDebug<AMFIntValue>("Template ID(LOT)") = GetLOT();
 	objectInfo.PushDebug<AMFStringValue>("Object ID") = std::to_string(GetObjectID());
 	objectInfo.PushDebug<AMFStringValue>("Spawner's Object ID") = std::to_string(GetSpawnerID());
+	auto& groupInfo = objectInfo.PushDebug("Group Info");
+	for (const auto& group : m_Groups) {
+		groupInfo.PushDebug(group);
+	}
 
 	auto& componentDetails = objectInfo.PushDebug("Component Information");
 	for (const auto [id, component] : m_Components) {

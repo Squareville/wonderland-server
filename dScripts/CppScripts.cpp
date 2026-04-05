@@ -346,6 +346,7 @@
 #include "NsWinterRaceServer.h"
 
 // ZP
+#include "Balloon.h"
 #include "BalloonTrigger.h"
 #include "HazmatMissionGiver.h"
 #include "YrkActor.h"
@@ -753,6 +754,7 @@ namespace {
 		{"scripts\\equipmenttriggers\\ImaginationBackPack.lua", []() {return new ImaginationBackPack();}},
 
 		// ZP
+		{"scripts\\ai\\YRK\\L_BALLOON.LUA", []() {return new Balloon();}},
 		{"scripts\\ai\\YRK\\L_BALLOONTRIGGER.lua", []() {return new BalloonTrigger();}},
 		{"scripts\\ai\\YRK\\L_HAZMAT_MISSION_GIVER.lua", []() {return new HazmatMissionGiver();}},
 		{"scripts\\ai\\YRK\\L_YRK_ACTOR.lua", []() {return new YrkActor();}},

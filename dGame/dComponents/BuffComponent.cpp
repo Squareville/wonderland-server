@@ -226,7 +226,7 @@ void BuffComponent::RemoveBuff(int32_t id, bool fromUnEquip, bool removeImmunity
 	RemoveBuffEffect(id);
 }
 
-bool BuffComponent::HasBuff(int32_t id) {
+bool BuffComponent::HasBuff(int32_t id) const {
 	return m_Buffs.find(id) != m_Buffs.end();
 }
 
