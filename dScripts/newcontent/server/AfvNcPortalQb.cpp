@@ -7,7 +7,7 @@ void AfvNcPortalQb::OnQuickBuildComplete(Entity* self, Entity* target) {
 	EntityInfo info{};
 	info.lot = 20400;
 	info.pos = self->GetPosition();
-	entityInfo.pos.SetX(entityInfo.pos.GetX() + 4.0f);
+	info.pos.SetX(info.pos.GetX() + 4.0f);
 	info.rot = self->GetRotation();
 	info.spawnerID = self->GetObjectID();
 
