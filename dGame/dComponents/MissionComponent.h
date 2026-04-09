@@ -170,6 +170,8 @@ public:
 	bool HasMission(uint32_t missionId);
 
 	void ResetMission(const int32_t missionId);
+
+	void FixRacingMetaMissions();
 private:
 	bool OnGetObjectReportInfo(GameMessages::GameMsg& msg);
 	bool OnGetMissionState(GameMessages::GameMsg& msg);
