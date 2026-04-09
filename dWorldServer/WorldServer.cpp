@@ -1115,12 +1115,13 @@ void HandlePacket(Packet* packet) {
 					case eCharacterVersion::PET_IDS: {
 						LOG("Regenerating item ids");
 						inventoryComponent->RegenerateItemIDs();
-						levelComponent->SetCharacterVersion(eCharacterVersion::UP_TO_DATE);
+						levelComponent->SetCharacterVersion(eCharacterVersion::INVENTORY_PERSISTENT_IDS);
 						[[fallthrough]];
 					}
 					case eCharacterVersion::INVENTORY_PERSISTENT_IDS: {
 						LOG("Fixing racing meta missions");
 						missionComponent->FixRacingMetaMissions();
+						levelComponent->SetCharacterVersion(eCharacterVersion::UP_TO_DATE);
 						[[fallthrough]];
 					}
 					case eCharacterVersion::UP_TO_DATE:
