@@ -750,10 +750,10 @@ bool MissionComponent::OnMissionNeedsLot(GameMessages::GameMsg& msg) {
 }
 
 void MissionComponent::FixRacingMetaMissions() {
-	for (const auto mission : m_Missions | std::views::values) {
+	for (const auto* mission : m_Missions | std::views::values) {
 		if (!mission || mission->IsComplete()) continue;
 
-		for (const auto task : mission->GetTasks()) {
+		for (const auto* task : mission->GetTasks()) {
 			if (!task) continue;
 
 			// has to be a racing meta mission and have a taskparam1 of 4
