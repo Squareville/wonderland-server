@@ -14,13 +14,21 @@ void ResetStink(Entity& self) {
 
 void Balloon::UpdateAnimation(Entity& self) {
 	const auto stink = self.GetVar<int32_t>(u"currentStink");
+
+	auto* renderComponent = self->GetComponent<RenderComponent>();
+	if (renderComponent != nullptr) {
+		renderComponent->StopEffect("balloonstink");
+	}
 	
 	if (stink == 0) {
 		RenderComponent::PlayAnimation(&self, "balloon1");
 	} else if (stink == 1) {
 		RenderComponent::PlayAnimation(&self, "balloon2");
 	} else if (stink >= 2) {
-		RenderComponent::PlayAnimation(&self, "balloon3");	
+		RenderComponent::PlayAnimation(&self, "balloon3");
+		if (renderComponent != nullptr) {
+			renderComponent->PlayEffect(20212, u"stink", "balloonstink");
+		}
 	}
 }
 
