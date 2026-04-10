@@ -19,6 +19,7 @@ private:
 	float m_SoftUpdateTimer = 2.0f;
 	int32_t m_SufficientStink = 2;
 	int32_t m_SkunkStinkSkill = 32;
+	int32_t m_HeldItemSkunkStinkSkill = 151;
 	int32_t m_ImitationSkunkStinkSkill = 50;
 	float m_RecheckTime = 0.5f;
 	float m_PathingTime = 100.0f;
