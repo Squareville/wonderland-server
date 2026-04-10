@@ -51,7 +51,7 @@ void Balloon::UpdateStinkAtSwitch(Entity& self) {
 		// imitation
 		if (buffComponent->HasBuff(m_ImitationSkunkStinkSkill)) {
 			stink = m_SufficientStink;
-		} else if (buffComponent->HasBuff(m_SkunkStinkSkill)) {
+		} else if (buffComponent->HasBuff(m_SkunkStinkSkill) || buffComponent->HasBuff(m_HeldItemSkunkStinkSkill)) {
 			stink++;
 		}
 		if (stink >= m_SufficientStink) {
