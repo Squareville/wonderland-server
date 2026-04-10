@@ -771,3 +771,30 @@ void MissionComponent::FixRacingMetaMissions() {
 		mission->CheckCompletion();
 	}
 }
+
+void MissionComponent::FixRacingMetaMissions() {
+	for (auto* const mission : m_Missions | std::views::values) {
+		if (!mission || mission->IsComplete()) continue;
+
+		for (auto* const task : mission->GetTasks()) {
+			if (!task) continue;
+
+			// has to be a racing meta mission and have a taskparam1 of 4
+			if (task->GetType() != eMissionTaskType::RACING || !task->GetClientInfo().taskParam1.starts_with("4")) continue;
+
+			// Each target is racing mission that needs to be completed.
+			// If its completed, progress the meta task by 1.
+			uint32_t progress = 0;
+			for (const auto& target : task->GetAllTargets()) {
+				if (target == 0) continue;
+				auto* racingMission = GetMission(target);
+				if (racingMission && racingMission->IsComplete()) {
+					progress++;
+				}
+			}
+			task->SetProgress(progress);
+		}
+		// in case the mission is actually complete, give them the rewards
+		mission->CheckCompletion();
+	}
+}
