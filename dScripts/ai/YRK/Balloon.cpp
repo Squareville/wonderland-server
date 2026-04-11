@@ -17,10 +17,12 @@ void Balloon::UpdateAnimation(Entity& self) {
 	
 	if (stink == 0) {
 		RenderComponent::PlayAnimation(&self, "balloon1");
+		RenderComponent::StopEffect("balloonstink");
 	} else if (stink == 1) {
 		RenderComponent::PlayAnimation(&self, "balloon2");
 	} else if (stink >= 2) {
-		RenderComponent::PlayAnimation(&self, "balloon3");	
+		RenderComponent::PlayAnimation(&self, "balloon3");
+		RenderComponent::PlayEffect(20212, u"stink", "balloonstink");
 	}
 }
 
