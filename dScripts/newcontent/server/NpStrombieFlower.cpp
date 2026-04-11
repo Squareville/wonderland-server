@@ -33,7 +33,7 @@ void NpStrombieFlower::OnTimerDone(Entity* self, std::string timerName) {
 			spawnedEntity->Smash(spawnedEntity->GetObjectID());
 			});
 
-		self->Smash(self->GetObjectID());
+		self->Smash(self->GetObjectID(), eKillType::SILENT);
 	}
 }
 
