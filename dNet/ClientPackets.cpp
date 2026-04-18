@@ -11,14 +11,17 @@ ChatMessage ClientPackets::HandleChatMessage(Packet* packet) {
 	CINSTREAM_SKIP_HEADER;
 
 	ChatMessage message;
-	uint32_t messageLength;
+	int32_t messageLength;
 
 	inStream.Read(message.chatChannel);
 	inStream.Read(message.unknown);
 	inStream.Read(messageLength);
 
-	for (uint32_t i = 0; i < (messageLength - 1); ++i) {
-		uint16_t character;
+	const int32_t MAX_MESSAGE_LENGTH = 0x500000; // Prevent DoS via unbounded message length
+	if (messageLength > MAX_MESSAGE_LENGTH) return message;
+
+	for (int32_t i = 0; i < (messageLength - 1); ++i) {
+		char16_t character;
 		inStream.Read(character);
 		message.message.push_back(character);
 	}
