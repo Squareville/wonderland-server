@@ -12,6 +12,13 @@
 			<location zone="1201" x="122.000656" y="173.867813" z="60.823181" rw="0.981356" rx="0.00" ry="0.192200" rz="0.00" />
 		</locations>
 	</object>
+
+	<!--BoNS Seasonal Items Vendor-->
+	<object lot="20811">
+		<locations>
+			<location zone="1204" x="70.794" y="199.024" z="124.618" rw="-0.221762" rx="0.00" ry="0.975101" rz="0.00" />
+		</locations>
+	</object>
 	
 	<!--NS Frostburgh Launchpad-->
 	<object lot="12442">
