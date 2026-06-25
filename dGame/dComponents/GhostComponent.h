@@ -16,8 +16,6 @@ public:
 	static inline const eReplicaComponentType ComponentType = eReplicaComponentType::GHOST;
 	GhostComponent(Entity* parent, const int32_t componentID);
 	~GhostComponent() override;
-	void LoadFromXml(const tinyxml2::XMLDocument& doc) override;
-	void UpdateXml(tinyxml2::XMLDocument& doc) override;
 
 	void SetGhostOverride(bool value) { m_GhostOverride = value; };
 
@@ -45,9 +43,12 @@ public:
 
 	void GhostEntity(const LWOOBJID id);
 
-	bool MsgGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo);
 	bool OnToggleGMInvis(GameMessages::ToggleGMInvis& msg);
+
 	bool OnGetGMInvis(GameMessages::GetGMInvis& msg);
+
+	bool MsgGetObjectReportInfo(GameMessages::GetObjectReportInfo& msg);
+
 private:
 
 	NiPoint3 m_GhostReferencePoint;

@@ -20,9 +20,15 @@
 #include "CDComponentsRegistryTable.h"
 #include "QuickBuildComponent.h"
 #include "CDPhysicsComponentTable.h"
+#include "Amf3.h"
 
 #include "dNavMesh.h"
+#include "eWaypointCommandType.h"
 #include "StringifiedEnum.h"
+#include "SkillComponent.h"
+#include "GeneralUtils.h"
+#include "RenderComponent.h"
+#include "InventoryComponent.h"
 
 namespace {
 	/**
@@ -34,8 +40,6 @@ namespace {
 MovementAIComponent::MovementAIComponent(Entity* parent, const int32_t componentID, MovementAIInfo info) : Component(parent, componentID) {
 	m_Info = info;
 	m_AtFinalWaypoint = true;
-
-	m_BaseCombatAI = nullptr;
 
 	m_BaseCombatAI = m_Parent->GetComponent<BaseCombatAIComponent>();
 
@@ -64,7 +68,7 @@ MovementAIComponent::MovementAIComponent(Entity* parent, const int32_t component
 
 	RegisterMsg(&MovementAIComponent::OnGetObjectReportInfo);
 
-	if (!m_Parent->GetComponent<BaseCombatAIComponent>()) SetPath(m_Parent->GetVarAsString(u"attached_path"));
+	SetPath(m_Parent->GetVarAsString(u"attached_path"));
 }
 
 void MovementAIComponent::SetPath(const std::string pathName) {
@@ -140,7 +144,11 @@ void MovementAIComponent::Update(const float deltaTime) {
 
 	m_TimeTravelled += deltaTime;
 
-	SetPosition(ApproximateLocation());
+	const auto approxPos = ApproximateLocation();
+	SetPosition(approxPos);
+	// Set the AIs new home based on where our current waypoint is IF we're idle, that way we can return to this
+	// when resuming the pathing after losing aggro while moving the aggro hitbox with us
+	if (m_BaseCombatAI && m_BaseCombatAI->GetState() == AiState::idle) m_BaseCombatAI->SetStartingPosition(approxPos);
 
 	if (m_TimeTravelled < m_TimeToTravel) return;
 	m_TimeTravelled = 0.0f;
@@ -175,30 +183,42 @@ void MovementAIComponent::Update(const float deltaTime) {
 			SetRotation(QuatUtils::LookAt(source, m_NextWaypoint));
 		}
 	} else {
-		// Check if there are more waypoints in the queue, if so set our next destination to the next waypoint
-		const auto waypointNum = m_IsBounced ? m_CurrentPath.size() : m_CurrentPathWaypointCount - m_CurrentPath.size() - 1;
-		RunWaypointCommands(waypointNum);
-		if (m_CurrentPath.empty()) {
-			if (m_Path) {
-				if (m_Path->pathBehavior == PathBehavior::Loop) {
-					SetPath(m_Path->pathWaypoints);
-				} else if (m_Path->pathBehavior == PathBehavior::Bounce) {
-					m_IsBounced = !m_IsBounced;
-					std::vector<PathWaypoint> waypoints = m_Path->pathWaypoints;
-					if (m_IsBounced) std::ranges::reverse(waypoints);
-					SetPath(waypoints);
-				} else if (m_Path->pathBehavior == PathBehavior::Once) {
+		// Only try to renew or continue the path if we're in the idle or spawn state and we actually have a combatAI component
+		if (!m_BaseCombatAI || (m_BaseCombatAI && m_BaseCombatAI->GetState() == AiState::idle)) {
+			// Check if there are more waypoints in the queue, if so set our next destination to the next waypoint
+			const auto waypointNum = m_IsBounced ? m_CurrentPath.size() : m_CurrentPathWaypointCount - m_CurrentPath.size() - 1;
+			RunWaypointCommands(waypointNum);
+			if (m_CurrentPath.empty()) {
+				if (m_Path) {
+					if (m_Path->pathBehavior == PathBehavior::Loop) {
+						SetPath(m_Path->pathWaypoints);
+					} else if (m_Path->pathBehavior == PathBehavior::Bounce) {
+						m_IsBounced = !m_IsBounced;
+						std::vector<PathWaypoint> waypoints = m_Path->pathWaypoints;
+						if (m_IsBounced) std::ranges::reverse(waypoints);
+						SetPath(waypoints);
+					} else if (m_Path->pathBehavior == PathBehavior::Once) {
+						Stop();
+						return;
+					}
+				} else {
 					Stop();
+					if (m_FollowedTarget != LWOOBJID_EMPTY) {
+						GameMessages::GetPosition getPos;
+						if (!getPos.Send(m_FollowedTarget)) {
+							LOG("Target %llu does not exist anymore to follow", m_FollowedTarget);
+							m_FollowedTarget = LWOOBJID_EMPTY;
+						} else {
+							SetDestination(getPos.pos);
+						}
+					}
 					return;
 				}
 			} else {
-				Stop();
-				return;
-			}
-		} else {
-			SetDestination(m_CurrentPath.top().position);
+				SetDestination(m_CurrentPath.top().position);
 
-			m_CurrentPath.pop();
+				m_CurrentPath.pop();
+			}
 		}
 	}
 
@@ -225,8 +245,7 @@ NiPoint3 MovementAIComponent::GetCurrentWaypoint() const {
 
 NiPoint3 MovementAIComponent::ApproximateLocation() const {
 	auto source = m_SourcePosition;
-
-	if (AtFinalWaypoint()) return source;
+	if (AtFinalWaypoint()) return m_Parent->GetPosition();
 
 	auto destination = m_NextWaypoint;
 
@@ -436,7 +455,7 @@ NiPoint3 MovementAIComponent::GetDestination() const {
 void MovementAIComponent::SetMaxSpeed(const float value) {
 	if (value == m_MaxSpeed) return;
 	m_MaxSpeed = value;
-	m_Acceleration = value / 5;
+	m_Acceleration = value / 5.0f;
 }
 
 void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
@@ -467,7 +486,7 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 			if (inventoryComponent) {
 				// items should always exist
 				auto* const item = inventoryComponent->GetInventory(eInventoryType::ITEMS)->FindItemBySlot(0);
-				inventoryComponent->EquipItem(item);
+				if (item) inventoryComponent->EquipItem(item);
 			}
 			break;
 		}
@@ -476,18 +495,18 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 			if (inventoryComponent) {
 				// items should always exist
 				auto* const item = inventoryComponent->GetInventory(eInventoryType::ITEMS)->FindItemBySlot(0);
-				inventoryComponent->UnEquipItem(item);
+				if (item) inventoryComponent->UnEquipItem(item);
 			}
 			break;
 		}
 		case eWaypointCommandType::DELAY: {
-			Pause(GeneralUtils::TryParse<float>(data).value_or(0.0f));
+			// 	Pause(GeneralUtils::TryParse<float>(data).value_or(0.0f));
 			break;
 		}
 		case eWaypointCommandType::EMOTE: {
-			m_Delay = RenderComponent::GetAnimationTime(m_Parent, data);
-			const auto emoteID = GeneralUtils::TryParse<uint32_t>(data);
-			if (emoteID) GameMessages::SendPlayEmote(m_Parent->GetObjectID(), emoteID.value(), LWOOBJID_EMPTY, UNASSIGNED_SYSTEM_ADDRESS);
+			// m_Delay = RenderComponent::GetAnimationTime(m_Parent, data);
+			// const auto emoteID = GeneralUtils::TryParse<uint32_t>(data);
+			// if (emoteID) GameMessages::SendPlayEmote(m_Parent->GetObjectID(), emoteID.value(), LWOOBJID_EMPTY, UNASSIGNED_SYSTEM_ADDRESS);
 			break;
 		}
 		case eWaypointCommandType::TELEPORT: break;
@@ -529,21 +548,16 @@ bool MovementAIComponent::OnGetObjectReportInfo(GameMessages::GetObjectReportInf
 	movementInfo.PushDebug<AMFBoolValue>("Lock Rotation") = m_LockRotation;
 	movementInfo.PushDebug<AMFBoolValue>("Paused") = m_Paused;
 	movementInfo.PushDebug<AMFDoubleValue>("Pulling To Point") = m_PullingToPoint;
+	movementInfo.PushDebug<AMFBoolValue>("At Final Waypoint") = m_AtFinalWaypoint;
 
-	auto& pullPointInfo = movementInfo.PushDebug("Pull Point");
-	pullPointInfo.PushDebug<AMFDoubleValue>("X") = m_PullPoint.x;
-	pullPointInfo.PushDebug<AMFDoubleValue>("Y") = m_PullPoint.y;
-	pullPointInfo.PushDebug<AMFDoubleValue>("Z") = m_PullPoint.z;
-	
-	movementInfo.PushDebug<AMFDoubleValue>("Delay") = m_Delay;
+	auto& pullPointInfo = movementInfo.PushDebug("Pull Point").PushDebug(m_PullPoint);
+
+	// movementInfo.PushDebug<AMFDoubleValue>("Delay") = m_Delay;
 
 	auto& waypoints = movementInfo.PushDebug("Interpolated Waypoints");
 	int i = 0;
 	for (const auto& point : m_InterpolatedWaypoints) {
-		auto& waypoint = waypoints.PushDebug("Waypoint " + std::to_string(++i));
-		waypoint.PushDebug<AMFDoubleValue>("X") = point.x;
-		waypoint.PushDebug<AMFDoubleValue>("Y") = point.y;
-		waypoint.PushDebug<AMFDoubleValue>("Z") = point.z;
+		waypoints.PushDebug("Waypoint " + std::to_string(++i)).PushDebug(point);
 	}
 
 	i = 0;
@@ -551,13 +565,31 @@ bool MovementAIComponent::OnGetObjectReportInfo(GameMessages::GetObjectReportInf
 	auto pathCopy = m_CurrentPath; // Copy to avoid modifying the original stack
 	while (!pathCopy.empty()) {
 		const auto& waypoint = pathCopy.top();
-		auto& pathWaypoint = currentPath.PushDebug("Waypoint " + std::to_string(++i));
-		pathWaypoint.PushDebug<AMFDoubleValue>("X") = waypoint.position.x;
-		pathWaypoint.PushDebug<AMFDoubleValue>("Y") = waypoint.position.y;
-		pathWaypoint.PushDebug<AMFDoubleValue>("Z") = waypoint.position.z;
+		currentPath.PushDebug("Waypoint " + std::to_string(++i)).PushDebug(waypoint.position);
 
 		pathCopy.pop();
 	}
 
+	movementInfo.PushDebug<AMFStringValue>("Followed Target") = std::to_string(m_FollowedTarget);
+
 	return true;
 }
+
+void MovementAIComponent::FollowTarget(const LWOOBJID target) {
+	if (target == LWOOBJID_EMPTY) {
+		m_FollowedTarget = target;
+		return;
+	}
+	GameMessages::GetPosition getPos;
+	if (!getPos.Send(target)) {
+		LOG("Tried to follow target %llu but they don't exist", target);
+		m_FollowedTarget = LWOOBJID_EMPTY;
+		return;
+	}
+
+	m_FollowedTarget = target;
+	SetMaxSpeed(1.0f);
+	m_CurrentSpeed = 1.0f;
+	SetDestination(getPos.pos);
+}
+

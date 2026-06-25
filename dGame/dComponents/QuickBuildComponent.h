@@ -273,6 +273,8 @@ public:
 		m_StateDirty = true;
 	}
 private:
+
+	bool OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo);
 	/**
 	 * Whether or not the quickbuild state has been changed since we last serialized it.
 	 */

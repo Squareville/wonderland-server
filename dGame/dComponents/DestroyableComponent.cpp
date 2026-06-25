@@ -793,7 +793,7 @@ void DestroyableComponent::Smash(const LWOOBJID source, const eKillType killType
 
 		std::vector<Entity*> scriptedActs = Game::entityManager->GetEntitiesByComponent(eReplicaComponentType::SCRIPTED_ACTIVITY);
 		for (Entity* scriptEntity : scriptedActs) {
-			if (scriptEntity->GetObjectID() != zoneControl->GetObjectID()) { // Don't want to trigger twice on instance worlds
+			if (!zoneControl || scriptEntity->GetObjectID() != zoneControl->GetObjectID()) { // Don't want to trigger twice on instance worlds
 				scriptEntity->GetScript()->OnPlayerDied(scriptEntity, m_Parent);
 			}
 		}
@@ -881,9 +881,9 @@ void DestroyableComponent::FixStats() {
 	int32_t currentImagination = destroyableComponent->GetImagination();
 
 	// Unequip all items
-	auto equipped = inventoryComponent->GetEquippedItems();
+	const auto equipped = inventoryComponent->GetEquippedItems();
 
-	for (auto& equippedItem : equipped) {
+	for (const auto& equippedItem : equipped) {
 		// Get the item with the item ID
 		auto* item = inventoryComponent->FindItemById(equippedItem.second.id);
 
@@ -924,7 +924,7 @@ void DestroyableComponent::FixStats() {
 	buffComponent->ReApplyBuffs();
 
 	// Requip all items
-	for (auto& equippedItem : equipped) {
+	for (const auto& equippedItem : equipped) {
 		// Get the item with the item ID
 		auto* item = inventoryComponent->FindItemById(equippedItem.second.id);
 
@@ -964,6 +964,8 @@ void DestroyableComponent::DoHardcoreModeDrops(const LWOOBJID source) {
 	if (m_Parent->IsPlayer()) {
 		//remove hardcore_lose_uscore_on_death_percent from the player's uscore:
 		auto* character = m_Parent->GetComponent<CharacterComponent>();
+		if (!character) return;
+
 		auto uscore = character->GetUScore();
 
 		auto uscoreToLose = static_cast<uint64_t>(uscore * (Game::entityManager->GetHardcoreLoseUscoreOnDeathPercent() / 100.0f));
@@ -1144,7 +1146,7 @@ bool DestroyableComponent::OnGetObjectReportInfo(GameMessages::GetObjectReportIn
 	destroyableInfo.PushDebug<AMFDoubleValue>("Explode Factor") = m_ExplodeFactor;
 	destroyableInfo.PushDebug<AMFBoolValue>("Has Threats") = m_HasThreats;
 
-	destroyableInfo.PushDebug<AMFStringValue>("Killer ID") = std::to_string(m_KillerID);
+	destroyableInfo.PushDebug<AMFStringValue>("Killer ID", "LWOOBJID") = std::to_string(m_KillerID);
 
 	// "Scripts"; idk what to do about scripts yet
 	auto& immuneCounts = destroyableInfo.PushDebug("Immune Counts");
