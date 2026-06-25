@@ -1,5 +1,5 @@
-set(DSCRIPTS_SOURCES_02_SERVER_DLU 
+set(DSCRIPTS_SOURCES_02_SERVER_DLU
 	"DLUVanityTeleportingObject.cpp"
 	"RubyScepterDrop.cpp"
-	"DLUVanityTeleportingObject.cpp"
+	"RegisterWithZoneControl.cpp"
 	PARENT_SCOPE)

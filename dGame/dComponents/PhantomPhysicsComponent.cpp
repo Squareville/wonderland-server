@@ -59,31 +59,16 @@ PhantomPhysicsComponent::PhantomPhysicsComponent(Entity* parent, const int32_t c
 	}
 
 	if (m_IsRespawnVolume) {
-		{
-			auto respawnString = std::stringstream(m_Parent->GetVarAsString(u"rspPos"));
+		const auto respawnPos = GeneralUtils::SplitString(m_Parent->GetVarAsString(u"rspPos"), '\x1f');
+		m_RespawnPos = GeneralUtils::TryParse(respawnPos, NiPoint3Constant::ZERO);
 
-			std::string segment;
-			std::vector<std::string> seglist;
-
-			while (std::getline(respawnString, segment, '\x1f')) {
-				seglist.push_back(segment);
-			}
-
-			m_RespawnPos = NiPoint3(std::stof(seglist[0]), std::stof(seglist[1]), std::stof(seglist[2]));
-		}
-
-		{
-			auto respawnString = std::stringstream(m_Parent->GetVarAsString(u"rspRot"));
-
-			std::string segment;
-			std::vector<std::string> seglist;
-
-			while (std::getline(respawnString, segment, '\x1f')) {
-				seglist.push_back(segment);
-			}
-
-			m_RespawnRot = NiQuaternion(std::stof(seglist[0]), std::stof(seglist[1]), std::stof(seglist[2]), std::stof(seglist[3]));
-		}
+		const auto respawnRot = GeneralUtils::SplitString(m_Parent->GetVarAsString(u"rspRot"), '\x1f');
+		m_RespawnRot = respawnRot.size() >= 4 ? NiQuaternion(
+			GeneralUtils::TryParse(respawnRot[0], 1.0f),
+			GeneralUtils::TryParse(respawnRot[1], 0.0f),
+			GeneralUtils::TryParse(respawnRot[2], 0.0f),
+			GeneralUtils::TryParse(respawnRot[3], 0.0f))
+			: QuatUtils::IDENTITY;
 	}
 
 	// HF - RespawnPoints. Legacy respawn entity.
@@ -254,10 +239,7 @@ bool PhantomPhysicsComponent::OnGetObjectReportInfo(GameMessages::GetObjectRepor
 	info.PushDebug<AMFIntValue>("Effect Type") = static_cast<int>(m_EffectType);
 	info.PushDebug<AMFDoubleValue>("Directional Multiplier") = m_DirectionalMultiplier;
 	info.PushDebug<AMFBoolValue>("Is Directional") = m_IsDirectional;
-	auto& direction = info.PushDebug("Direction");
-	direction.PushDebug<AMFDoubleValue>("x") = m_Direction.x;
-	direction.PushDebug<AMFDoubleValue>("y") = m_Direction.y;
-	direction.PushDebug<AMFDoubleValue>("z") = m_Direction.z;
+	auto& direction = info.PushDebug("Direction").PushDebug(m_Direction);
 
 	if (m_MinMax) {
 		auto& minMaxInfo = info.PushDebug("Min Max Info");
@@ -268,15 +250,8 @@ bool PhantomPhysicsComponent::OnGetObjectReportInfo(GameMessages::GetObjectRepor
 	if (m_IsRespawnVolume) {
 		auto& respawnInfo = info.PushDebug("Respawn Info");
 		respawnInfo.PushDebug<AMFBoolValue>("Is Respawn Volume") = m_IsRespawnVolume;
-		auto& respawnPos = respawnInfo.PushDebug("Respawn Position");
-		respawnPos.PushDebug<AMFDoubleValue>("x") = m_RespawnPos.x;
-		respawnPos.PushDebug<AMFDoubleValue>("y") = m_RespawnPos.y;
-		respawnPos.PushDebug<AMFDoubleValue>("z") = m_RespawnPos.z;
-		auto& respawnRot = respawnInfo.PushDebug("Respawn Rotation");
-		respawnRot.PushDebug<AMFDoubleValue>("w") = m_RespawnRot.w;
-		respawnRot.PushDebug<AMFDoubleValue>("x") = m_RespawnRot.x;
-		respawnRot.PushDebug<AMFDoubleValue>("y") = m_RespawnRot.y;
-		respawnRot.PushDebug<AMFDoubleValue>("z") = m_RespawnRot.z;
+		respawnInfo.PushDebug("Respawn Position").PushDebug(m_RespawnPos);
+		respawnInfo.PushDebug("Respawn Rotation").PushDebug(m_RespawnRot);
 	}
 
 	return true;

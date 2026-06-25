@@ -189,7 +189,7 @@ void SkunkEvent::SpawnSingleStinkCloud(Entity* const self, const int32_t number)
 	// LOG("Position is %f %f %f", x, y, z);
 	EntityInfo info{};
 	info.lot = INVASION_STINK_CLOUD_LOT;
-	info.settings = { new LDFData<int32_t>(u"StinkCloudNum", number) };
+	info.settings.Insert<int32_t>(u"StinkCloudNum", number);
 	info.pos = path->pathWaypoints[waypoint - 1].position;
 	info.spawnerID = self->GetObjectID();
 
@@ -345,10 +345,8 @@ void SkunkEvent::SpawnSingleHazmatNpc(Entity* const self, const std::string& pat
 		info.rot.z = 0.0 - vanRotation.z;
 		info.rot.w = 0.0 - vanRotation.w;
 	}
-	info.settings = {
-		new LDFData<std::string>(u"attached_path", pathStr),
-		new LDFData<int32_t>(u"attached_path_start", 0),
-	};
+	info.settings.Insert<std::string>(u"attached_path", pathStr);
+	info.settings.Insert<int32_t>(u"attached_path_start", 0);
 	info.lot = SPAWNED_HAZMAT_NPC;
 	info.spawnerID = self->GetObjectID();
 	Game::entityManager->ConstructEntity(Game::entityManager->CreateEntity(info, nullptr, self));
@@ -378,12 +376,10 @@ void SkunkEvent::SpawnSingleSkunk(Entity* const self, const int32_t num, const b
 	EntityInfo info{};
 	info.pos = path->pathWaypoints[pathStart - 1].position;
 	info.spawnerID = self->GetObjectID();
-	info.settings = {
-		new LDFData<std::string>(u"attached_path", pathStr),
-		new LDFData<std::string>(u"respawn_path", respawnPath.empty() ? pathStr : respawnPath),
-		new LDFData<int32_t>(u"attached_path_start", pathStart),
-		new LDFData<bool>(u"isImmune", !respawn),
-	};
+	info.settings.Insert<std::string>(u"attached_path", pathStr);
+	info.settings.Insert<std::string>(u"respawn_path", respawnPath.empty() ? pathStr : respawnPath);
+	info.settings.Insert<int32_t>(u"attached_path_start", pathStart);
+	info.settings.Insert<bool>(u"isImmune", !respawn);
 	info.lot = *(INVASION_SKUNK_LOT.begin() + GeneralUtils::GenerateRandomNumber<int32_t>(0, INVASION_SKUNK_LOT.size() - 1));
 
 	Game::entityManager->ConstructEntity(Game::entityManager->CreateEntity(info, nullptr, self));

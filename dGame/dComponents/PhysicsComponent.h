@@ -34,14 +34,15 @@ public:
 	int32_t GetCollisionGroup() const noexcept { return m_CollisionGroup; }
 	void SetCollisionGroup(int32_t group) noexcept { m_CollisionGroup = group; }
 protected:
-	bool OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& reportInfo);
-	bool OnGetPosition(GameMessages::GetPosition& msg);
+	bool OnGetObjectReportInfo(GameMessages::GetObjectReportInfo& msg);
 
 	dpEntity* CreatePhysicsEntity(eReplicaComponentType type);
 
 	dpEntity* CreatePhysicsLnv(const float scale, const eReplicaComponentType type) const;
 
 	void SpawnVertices(dpEntity* entity) const;
+
+	bool OnGetPosition(GameMessages::GetPosition& msg);
 
 	NiPoint3 m_Position;
 
