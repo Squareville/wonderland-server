@@ -13,7 +13,7 @@
 		</locations>
 	</object>
 
-	<!--BoNS Seasonal Items Vendor-->
+	<!--BoNS Seasonal Items/Time Twister Vendor-->
 	<object lot="20811">
 		<locations>
 			<location zone="1204" x="70.794" y="199.024" z="124.618" rw="-0.221762" rx="0.00" ry="0.975101" rz="0.00" />
