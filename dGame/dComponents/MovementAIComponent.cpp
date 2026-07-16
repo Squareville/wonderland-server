@@ -500,13 +500,13 @@ void MovementAIComponent::RunWaypointCommands(uint32_t waypointNum) {
 			break;
 		}
 		case eWaypointCommandType::DELAY: {
-			// 	Pause(GeneralUtils::TryParse<float>(data).value_or(0.0f));
+				Pause(GeneralUtils::TryParse<float>(data).value_or(0.0f));
 			break;
 		}
 		case eWaypointCommandType::EMOTE: {
-			// m_Delay = RenderComponent::GetAnimationTime(m_Parent, data);
-			// const auto emoteID = GeneralUtils::TryParse<uint32_t>(data);
-			// if (emoteID) GameMessages::SendPlayEmote(m_Parent->GetObjectID(), emoteID.value(), LWOOBJID_EMPTY, UNASSIGNED_SYSTEM_ADDRESS);
+			m_Delay = RenderComponent::GetAnimationTime(m_Parent, data);
+			const auto emoteID = GeneralUtils::TryParse<uint32_t>(data);
+			if (emoteID) GameMessages::SendPlayEmote(m_Parent->GetObjectID(), emoteID.value(), LWOOBJID_EMPTY, UNASSIGNED_SYSTEM_ADDRESS);
 			break;
 		}
 		case eWaypointCommandType::TELEPORT: break;
