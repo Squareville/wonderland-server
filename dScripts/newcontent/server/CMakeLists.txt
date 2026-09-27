@@ -18,4 +18,6 @@ set(DSCRIPTS_SOURCES_NEWCONTENT_SERVER
 	"NpStrombieFlower.cpp"
 	"ZonePlayer.cpp"
 	"AfvNcPortalQb.cpp"
+	"NpMeteorCutsceneTrigger.cpp"
+	"NpMonumentQuickbuild.cpp"
 	PARENT_SCOPE)

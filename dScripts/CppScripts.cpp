@@ -389,6 +389,8 @@
 #include "AfvBell.h"
 #include "AfvDarklingRegenerator.h"
 #include "AfvNcPortalQb.h"
+#include "NpMeteorCutsceneTrigger.h"
+#include "NpMonumentQuickbuild.h"
 
 #include "RegisterWithZoneControl.h"
 
@@ -822,6 +824,8 @@ namespace {
 		{R"(scripts\ai\NP\L_NP_ROTATING_PLATFORM.lua)", []() {return new NpRotatingPlatform();}},
 		CPP_SCRIPT(R"(scripts\newcontent\server\afv_darklingregenerator.lua)", AfvDarklingRegenerator),
 		CPP_SCRIPT(R"(scripts\newcontent\server\afv_nc_portal_qb.lua)", AfvNcPortalQb),
+		CPP_SCRIPT(R"(scripts\newcontent\server\np_meteor_cutscene_trigger.lua)", NpMeteorCutsceneTrigger),
+		CPP_SCRIPT(R"(scripts\newcontent\server\np_monument_quickbuild.lua)", NpMonumentQuickbuild),
 	};
 
 	std::set<std::string> g_ExcludedScripts = {
