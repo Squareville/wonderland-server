@@ -42,6 +42,7 @@
 #include "eStateChangeType.h"
 #include "ServiceType.h"
 #include "ePlayerFlag.h"
+#include "ModelComponent.h"
 
 #include <sstream>
 #include <future>
@@ -2033,9 +2034,13 @@ void GameMessages::SendPlaceModelResponse(LWOOBJID objectId, const SystemAddress
 		bitStream.Write(response);
 	}
 
+	// The client's PlaceModelResponse::Deserialize (0x00dc0170) reads the rotation as a w, x, y, z quaternion
 	bitStream.Write(rotation != QuatUtils::IDENTITY);
 	if (rotation != QuatUtils::IDENTITY) {
-		bitStream.Write(response);
+		bitStream.Write(rotation.w);
+		bitStream.Write(rotation.x);
+		bitStream.Write(rotation.y);
+		bitStream.Write(rotation.z);
 	}
 
 	if (sysAddr == UNASSIGNED_SYSTEM_ADDRESS) SEND_PACKET_BROADCAST;
@@ -2150,6 +2155,10 @@ void GameMessages::HandleUpdatePropertyOrModelForFilterCheck(RakNet::BitStream& 
 		inStream.Read(character);
 		name.push_back(character);
 	}
+
+	// A model's name and description (the property editor's model info window,
+	// LWOPropertyEditorComponent::OnUpdateModelDescription 0x00cc42e0) aren't stored yet; they must not rename the property
+	if (!isProperty) return;
 
 	PropertyManagementComponent::Instance()->UpdatePropertyDetails(GeneralUtils::UTF16ToWTF8(name), GeneralUtils::UTF16ToWTF8(description));
 }
@@ -2628,6 +2637,8 @@ void GameMessages::HandleBBBSaveRequest(RakNet::BitStream& inStream, Entity* ent
 		Entity* newEntity = Game::entityManager->CreateEntity(info, nullptr);
 		if (newEntity) {
 			Game::entityManager->ConstructEntity(newEntity);
+			auto* const modelComponent = newEntity->GetComponent<ModelComponent>();
+			if (modelComponent) modelComponent->Pause();
 
 			//Make sure the propMgmt doesn't delete our model after the server dies
 			//Trying to do this after the entity is constructed. Shouldn't really change anything but

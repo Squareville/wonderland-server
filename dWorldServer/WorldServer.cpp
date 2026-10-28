@@ -82,6 +82,7 @@
 #include "SlashCommandHandler.h"
 #include "InventoryComponent.h"
 #include "Item.h"
+#include "eFunnessTypes.h"
 
 namespace Game {
 	Logger* logger = nullptr;
@@ -97,6 +98,10 @@ namespace Game {
 	dZoneManager* zoneManager = nullptr;
 	std::string projectVersion = PROJECT_VERSION;
 } // namespace Game
+
+namespace {
+	std::string g_ServiceName;
+}
 
 namespace {
 	struct TempSessionInfo {
@@ -124,7 +129,10 @@ void HandleMasterPacket(Packet* packet);
 void HandlePacket(Packet* packet);
 
 int main(int argc, char** argv) {
-	Diagnostics::SetProcessName("World");
+	const auto curTimeStr = std::to_string(time(nullptr));
+	g_ServiceName = "WorldServer";
+	// Set this once here before we parse a bunch of options in case we crash early
+	Diagnostics::SetProcessName(g_ServiceName);
 	Diagnostics::SetProcessFileName(argv[0]);
 	Diagnostics::Initialize();
 
@@ -157,7 +165,13 @@ int main(int argc, char** argv) {
 	Game::config = new dConfig("worldconfig.ini");
 
 	//Create all the objects we need to run our service:
-	Server::SetupLogger("WorldServer_" + std::to_string(zoneID) + "_" + std::to_string(g_InstanceID));
+	const auto zoneStr = std::to_string(zoneID);
+	const auto cloneStr = std::to_string(cloneID);
+	const auto instanceStr = std::to_string(g_InstanceID);
+	g_ServiceName += "_" + zoneStr + "_" + cloneStr + "_" + instanceStr + "_" + curTimeStr;
+	// Here we re-set the process name since it'll have more info now
+	Diagnostics::SetProcessName(g_ServiceName);
+	Server::SetupLogger(g_ServiceName, "WorldServer/" + zoneStr + "/" + cloneStr + "/");
 	if (!Game::logger) return EXIT_FAILURE;
 	Game::config->LogSettings();
 
@@ -1416,7 +1430,7 @@ void HandlePacket(Packet* packet) {
 			std::string sMessage = GeneralUtils::UTF16ToWTF8(chatMessage.message);
 			LOG("%s: %s", playerName.c_str(), sMessage.c_str());
 			ChatPackets::SendChatMessage(packet->systemAddress, chatMessage.chatChannel, playerName, user->GetLoggedInChar(), isMythran, chatMessage.message);
-			if (PropertyManagementComponent::Instance()) PropertyManagementComponent::Instance()->OnChatMessageReceived(sMessage);
+			if (PropertyManagementComponent::Instance()) PropertyManagementComponent::Instance()->OnChatMessageReceived(sMessage, lastChar->GetObjectID());
 		}
 
 		break;
@@ -1427,16 +1441,61 @@ void HandlePacket(Packet* packet) {
 		//Could be insane lag, but I'mma just YEET them as it's usually speedhacking.
 		//This is updated to now count the amount of times we've been caught "speedhacking" to kick with a delay
 		//This is hopefully going to fix the random disconnects people face sometimes.
-		if (Game::config->GetValue("disable_anti_speedhack") == "1") {
+
+		CINSTREAM_SKIP_HEADER;
+		CaughtFunness funness;
+		inStream.Read(funness.cheatInfo);
+		inStream.Read(funness.cheatType);
+		const auto [cheatType, cheatInfo] = funness;
+		LOG_DEBUG("Received cheat type %s with info %f", StringifiedEnum::ToString(cheatType).data(), cheatInfo);
+		const auto disabledCheats = Game::config->GetValue("disable_anti_speedhack") == "1";
+
+		User* user = UserManager::Instance()->GetUser(packet->systemAddress);
+		if (!user) {
+			Game::server->Disconnect(packet->systemAddress, eServerDisconnectIdentifiers::KICK);
 			return;
 		}
 
-		User* user = UserManager::Instance()->GetUser(packet->systemAddress);
-		if (user) {
-			user->UserOutOfSync();
-		} else {
-			Game::server->Disconnect(packet->systemAddress, eServerDisconnectIdentifiers::KICK);
+		const auto* const character = user->GetLastUsedChar();
+		if (character) {
+			const auto dcUser = [](const User& user, const SystemAddress& sysAddr) {
+				if (user.GetMaxGMLevel() < eGameMasterLevel::DEVELOPER) {
+					Game::server->Disconnect(sysAddr, eServerDisconnectIdentifiers::KICK);
+				}
+				};
+			if (cheatType == eFunnessTypes::DebuggerActive) {
+				LOG("Player %s was detected to be using a debugger (funness thread was %f seconds longer than expected deviation).", character->GetName().c_str(), cheatInfo);
+				// Immediately kick unless they are a gm
+				if (!disabledCheats) dcUser(*user, packet->systemAddress);
+			} else if (cheatType == eFunnessTypes::FdbFailedChecksum) {
+				LOG("Player %s has failed the fdb checksum after passing it to sign into this server, highly likely cheating.", character->GetName().c_str());
+				// Immedately kick unless they are a gm
+				if (!disabledCheats) dcUser(*user, packet->systemAddress);
+			} else if (cheatType == eFunnessTypes::RacingBoostTimeTooLong) {
+				if (cheatInfo == 0.0f) LOG("Player %s has enabled a speedboost for far too long (> 3.501 seconds).", character->GetName().c_str());
+				else if (cheatInfo == 1.0f) LOG("Unknown racing boost/speed variable was tampered with.");
+				else if (cheatInfo == 2.0f) LOG("Player vehicle top speed was tampered with.");
+				if (!disabledCheats) dcUser(*user, packet->systemAddress);
+			} else if (cheatType == eFunnessTypes::SomeRacingManipCheat) {
+				if (cheatInfo >= 0.0f && cheatInfo <= 6.0f) LOG("Cheat RNG value A does not match what it should be %f.", cheatInfo);
+				else if (cheatInfo >= 7.0f && cheatInfo <= 10.0f) LOG("Cheat RNG value B does not match what it should be %f.", cheatInfo);
+			} else if (cheatType == eFunnessTypes::Unknown_9) {
+				LOG("Racing cheat 9 detected with value %f.", cheatInfo);
+			} else if (cheatType == eFunnessTypes::Unknown_10) {
+				LOG("Racing cheat 10 detected with value %f.", cheatInfo);
+			} else if (cheatType == eFunnessTypes::CharacterPosLength) {
+				LOG("Detected pos length of %f which is greater than the expected value 1.0f, not normal!", cheatInfo);
+			} else if (cheatType == eFunnessTypes::CharacterVelLength) {
+				LOG("Detected vel length of %f which is greater than the expected value 1.0f, not normal!", cheatInfo);
+			} else if (cheatType == eFunnessTypes::CharacterGravityScale) {
+				LOG("Detected gravity scale difference of %f which is greater than the expected value of 0.0f, not normal!", cheatInfo);
+			} else if (cheatType == eFunnessTypes::CharacterRunMultiplier) {
+				LOG("Detected run multiplier difference of %f which is greater than the expected value 0.0f, not normal!", cheatInfo);
+			}
+
+			if (!disabledCheats && user->GetMaxGMLevel() < eGameMasterLevel::DEVELOPER) user->UserOutOfSync(funness);
 		}
+
 		break;
 	}
 
@@ -1540,7 +1599,7 @@ void FinalizeShutdown() {
 
 	//Delete our objects here:
 	dpWorld::Shutdown();
-	Database::Destroy("WorldServer");
+	Database::Destroy(g_ServiceName);
 	if (Game::chatFilter) delete Game::chatFilter;
 	Game::chatFilter = nullptr;
 	if (Game::zoneManager) delete Game::zoneManager;
