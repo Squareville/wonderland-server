@@ -391,6 +391,7 @@
 #include "AfvNcPortalQb.h"
 #include "NpMeteorCutsceneTrigger.h"
 #include "NpMonumentQuickbuild.h"
+#include "LupenFireknight.h"
 
 #include "RegisterWithZoneControl.h"
 
@@ -826,6 +827,7 @@ namespace {
 		CPP_SCRIPT(R"(scripts\newcontent\server\afv_nc_portal_qb.lua)", AfvNcPortalQb),
 		CPP_SCRIPT(R"(scripts\newcontent\server\np_meteor_cutscene_trigger.lua)", NpMeteorCutsceneTrigger),
 		CPP_SCRIPT(R"(scripts\newcontent\server\np_monument_quickbuild.lua)", NpMonumentQuickbuild),
+		CPP_SCRIPT(R"(scripts\newcontent\server\lupen_fireknight.lua)", LupenFireknight),
 	};
 
 	std::set<std::string> g_ExcludedScripts = {

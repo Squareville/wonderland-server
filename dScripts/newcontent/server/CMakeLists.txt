@@ -20,4 +20,5 @@ set(DSCRIPTS_SOURCES_NEWCONTENT_SERVER
 	"AfvNcPortalQb.cpp"
 	"NpMeteorCutsceneTrigger.cpp"
 	"NpMonumentQuickbuild.cpp"
+	"LupenFireknight.cpp"
 	PARENT_SCOPE)
