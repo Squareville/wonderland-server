@@ -28,14 +28,14 @@ void LupenFireknight::OnHit(Entity* self, Entity* attacker) {
 		return;
 	}
 
-	if (destroyableComponent->GetHealth() < 12 && !self->GetVar<bool>(u"injured")) {
+	if (destroyableComponent->GetHealth() < 15 && !self->GetVar<bool>(u"injured")) {
 		self->SetVar(u"injured", true);
 
 		skillComponent->CastSkill(2276, self->GetObjectID());
 
 		const auto attackerID = attacker->GetObjectID();
 
-		self->AddCallbackTimer(4.5f, [this, self, attackerID]() {
+		self->AddCallbackTimer(8.5f, [this, self, attackerID]() {
 			self->Smash(attackerID);
 			});
 	}
